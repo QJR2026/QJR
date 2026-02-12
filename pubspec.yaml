@@ -1,0 +1,64 @@
+name: motivational
+description: "A new Flutter project."
+
+publish_to: 'none' 
+
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.3 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  flutter_card_swiper: ^7.0.2
+  pin_code_fields: ^8.0.1
+  dio: ^5.8.0+1
+  shared_preferences: ^2.3.3
+  provider: ^6.1.2
+  device_info_plus: ^10.1.2
+  flutter_timezone: ^4.1.0
+  firebase_messaging: ^14.7.19
+  firebase_core: ^2.25.4
+  share_plus: ^10.0.0
+  time_range_picker: ^2.3.0
+  in_app_purchase: ^3.2.1
+  in_app_purchase_storekit: 0.3.22+1
+  app_settings: ^6.1.1
+ 
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^3.0.0
+
+flutter:
+  
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/fonts/
+  
+  fonts:
+    - family: Urbanist
+      fonts:
+        - asset: assets/fonts/Urbanist-Regular.ttf
+        - asset: assets/fonts/Urbanist-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Urbanist-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Urbanist-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Urbanist-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Urbanist-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/Urbanist-Italic.ttf
+          style: italic
+        - asset: assets/fonts/Urbanist-BoldItalic.ttf
+          weight: 700
+          style: italic

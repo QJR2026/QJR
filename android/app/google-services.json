@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1018647566315",
+    "project_id": "motivational-app-786e5",
+    "storage_bucket": "motivational-app-786e5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1018647566315:android:dbbbb8827ea66f8cdaebae",
+        "android_client_info": {
+          "package_name": "com.motivational.quick_jesus_reminder"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6iYLTuyfaJrSSw_RVNVte8c1_kX1pb4c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
