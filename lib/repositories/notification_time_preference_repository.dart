@@ -25,7 +25,7 @@ class NotificationTimePreferenceRepository {
         if (ApiService.userData != null) {
           ApiService.userData =
               ApiService.userData?.copyWith(hasPreference: true);
-          _sharedPreferences.setString("data", jsonEncode(ApiService.userData));
+          _sharedPreferences.setString("data", jsonEncode(ApiService.userData!.toJson()));
         }
         return response.data["data"];
       } else {

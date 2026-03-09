@@ -290,6 +290,7 @@
 // }
 
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -298,6 +299,7 @@ import 'package:motivational/app/my_app_view.dart';
 import 'package:motivational/repositories/payment_repository.dart';
 
 import '../services/api_service.dart';
+import '../services/shared_prefrence_service.dart';
 import '../utils/device_info.dart';
 import '../utils/routes.dart';
 import '../views/payment/edit_payment_plan_screen.dart';
@@ -305,6 +307,8 @@ import '../views/payment/subscription_screen.dart';
 
 class SubscriptionProvider extends ChangeNotifier {
   final InAppPurchase _inAppPurchase = InAppPurchase.instance;
+  final SharedPreferencesService _sharedPreferences =
+      SharedPreferencesService();
   late final StreamSubscription<List<PurchaseDetails>> _subscription;
 
   bool isAvailable = false;
@@ -819,6 +823,12 @@ class SubscriptionProvider extends ChangeNotifier {
   navigateAccordingData() {
     if (ApiService.userData?.quotetheme != null &&
         ApiService.userData?.hasPreference == true) {
+      _sharedPreferences.setString("token", ApiService.authToken ?? '');
+      if (ApiService.userData != null) {
+        _sharedPreferences.setString(
+            "data", jsonEncode(ApiService.userData!.toJson()));
+      }
+
       MyApp.gState.pushNamedAndRemoveUntil(Routes.home, (val) => false);
     } else if (ApiService.userData?.quotetheme == null) {
       MyApp.gState.pushNamedAndRemoveUntil(

@@ -84,61 +84,6 @@ PODS:
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - Stripe (23.30.0):
-    - StripeApplePay (= 23.30.0)
-    - StripeCore (= 23.30.0)
-    - StripePayments (= 23.30.0)
-    - StripePaymentsUI (= 23.30.0)
-    - StripeUICore (= 23.30.0)
-  - stripe_ios (0.0.1):
-    - Flutter
-    - Stripe (~> 23.30.0)
-    - stripe_ios/stripe_ios (= 0.0.1)
-    - stripe_ios/stripe_objc (= 0.0.1)
-    - StripeApplePay (~> 23.30.0)
-    - StripeFinancialConnections (~> 23.30.0)
-    - StripePayments (~> 23.30.0)
-    - StripePaymentSheet (~> 23.30.0)
-    - StripePaymentsUI (~> 23.30.0)
-  - stripe_ios/stripe_ios (0.0.1):
-    - Flutter
-    - Stripe (~> 23.30.0)
-    - stripe_ios/stripe_objc
-    - StripeApplePay (~> 23.30.0)
-    - StripeFinancialConnections (~> 23.30.0)
-    - StripePayments (~> 23.30.0)
-    - StripePaymentSheet (~> 23.30.0)
-    - StripePaymentsUI (~> 23.30.0)
-  - stripe_ios/stripe_objc (0.0.1):
-    - Flutter
-    - Stripe (~> 23.30.0)
-    - StripeApplePay (~> 23.30.0)
-    - StripeFinancialConnections (~> 23.30.0)
-    - StripePayments (~> 23.30.0)
-    - StripePaymentSheet (~> 23.30.0)
-    - StripePaymentsUI (~> 23.30.0)
-  - StripeApplePay (23.30.0):
-    - StripeCore (= 23.30.0)
-  - StripeCore (23.30.0)
-  - StripeFinancialConnections (23.30.0):
-    - StripeCore (= 23.30.0)
-    - StripeUICore (= 23.30.0)
-  - StripePayments (23.30.0):
-    - StripeCore (= 23.30.0)
-    - StripePayments/Stripe3DS2 (= 23.30.0)
-  - StripePayments/Stripe3DS2 (23.30.0):
-    - StripeCore (= 23.30.0)
-  - StripePaymentSheet (23.30.0):
-    - StripeApplePay (= 23.30.0)
-    - StripeCore (= 23.30.0)
-    - StripePayments (= 23.30.0)
-    - StripePaymentsUI (= 23.30.0)
-  - StripePaymentsUI (23.30.0):
-    - StripeCore (= 23.30.0)
-    - StripePayments (= 23.30.0)
-    - StripeUICore (= 23.30.0)
-  - StripeUICore (23.30.0):
-    - StripeCore (= 23.30.0)
 
 DEPENDENCIES:
   - app_settings (from `.symlinks/plugins/app_settings/ios`)
@@ -151,7 +96,6 @@ DEPENDENCIES:
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
-  - stripe_ios (from `.symlinks/plugins/stripe_ios/ios`)
 
 SPEC REPOS:
   trunk:
@@ -164,14 +108,6 @@ SPEC REPOS:
     - GoogleUtilities
     - nanopb
     - PromisesObjC
-    - Stripe
-    - StripeApplePay
-    - StripeCore
-    - StripeFinancialConnections
-    - StripePayments
-    - StripePaymentSheet
-    - StripePaymentsUI
-    - StripeUICore
 
 EXTERNAL SOURCES:
   app_settings:
@@ -194,8 +130,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/share_plus/ios"
   shared_preferences_foundation:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
-  stripe_ios:
-    :path: ".symlinks/plugins/stripe_ios/ios"
 
 SPEC CHECKSUMS:
   app_settings: 58017cd26b604ae98c3e65acbdd8ba173703cc82
@@ -213,19 +147,10 @@ SPEC CHECKSUMS:
   GoogleUtilities: ea963c370a38a8069cc5f7ba4ca849a60b6d7d15
   in_app_purchase_storekit: a1ce04056e23eecc666b086040239da7619cd783
   nanopb: 438bc412db1928dac798aa6fd75726007be04262
-  path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
+  path_provider_foundation: 0b743cbb62d8e47eab856f09262bb8c1ddcfe6ba
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   share_plus: 8875f4f2500512ea181eef553c3e27dba5135aad
-  shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
-  Stripe: 9757efc154de1d9615cbea4836d590bc4034d3a4
-  stripe_ios: 0f7c3610b692868bae78cd5c3c4c219f60bce891
-  StripeApplePay: ca33933601302742623762157d587b79b942d073
-  StripeCore: 2af250a2366ff2bbf64d4243c5f9bbf2a98b2aaf
-  StripeFinancialConnections: 3ab1ef6182ec44e71c29e9a2100b663f9713ac20
-  StripePayments: 658a16bd34d20c8185aa281866227b9e1743300e
-  StripePaymentSheet: eac031f76d7fbb4f52df9b9c39be5be671ca4c07
-  StripePaymentsUI: 7d7cffb2ecfc0d6b5ac3a4488c02893a5ff6cc77
-  StripeUICore: bb102d453b1e1a10a37f810bc0a9aa0675fb17fd
+  shared_preferences_foundation: 5086985c1d43c5ba4d5e69a4e8083a389e2909e6
 
 PODFILE CHECKSUM: 9c46fd01abff66081b39f5fa5767b3f1d0b11d76
 
