@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -9,12 +10,15 @@ import 'package:motivational/app/my_app_view.dart';
 import 'package:provider/provider.dart';
 
 import '../repositories/auth_respository.dart';
+import '../services/shared_prefrence_service.dart';
 import '../utils/custom_snackbar.dart';
 import '../utils/device_info.dart';
+import '../utils/navigation_helper.dart';
 import 'subscription_provider.dart';
 
 class AuthProvider with ChangeNotifier {
   final _authRepo = AuthRepository();
+  final _sharedPreferences = SharedPreferencesService();
 
   bool loading = false;
   bool feedBackLoading = false;
@@ -51,30 +55,21 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> signUp({required String email, required String password}) async {
+    final subscriptionProvider = MyApp.gCtx.read<SubscriptionProvider>();
     final String deviceId = await DeviceInfo.getDeviceId() ?? '';
-    String token = await getFcmToken();
+    final String fcmToken = await getFcmToken();
     startLoading();
 
     try {
-      Map<String, dynamic> bodyData = {
+      await _authRepo.signUp({
         "email": email,
         "password": password,
         "user_type": 0,
-        "fcmToken": token,
-        "deviceId": deviceId
-      };
-      await _authRepo.signUp(bodyData);
+        "fcmToken": fcmToken,
+        "deviceId": deviceId,
+      });
 
-      await MyApp.gCtx
-          .read<SubscriptionProvider>()
-          .checkSubscriptionOnServerAndNavigate();
-
-      // MyApp.gState.pushNamedAndRemoveUntil(Routes.home, (a) => false);
-
-      // check from backend if paid then navigate me to pushNamedAndRemoveUntil+selectQuoteGroupsTheme
-      //otherwise payment screen
-
-      // MyApp.gState.pushNamedAndRemoveUntil(Routes.subscription, (val) => false);
+      await subscriptionProvider.checkSubscriptionOnServerAndNavigate();
     } catch (error) {
       CustomSnackBar.showError(message: error.toString());
     } finally {
@@ -95,20 +90,42 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> signin({required String email, required String password}) async {
+    final subscriptionProvider = MyApp.gCtx.read<SubscriptionProvider>();
     final String deviceId = await DeviceInfo.getDeviceId() ?? '';
-    String token = await getFcmToken();
+    final String fcmToken = await getFcmToken();
 
     startLoading();
 
     try {
-      Map<String, dynamic> bodyData = {
+      await _authRepo.signin({
         "email": email,
         "password": password,
         "user_type": 1,
-        "fcmToken": token,
-        "deviceId": deviceId
-      };
-      await _authRepo.signin(bodyData);
+        "fcmToken": fcmToken,
+        "deviceId": deviceId,
+      });
+
+      final userData = ApiService.userData!;
+
+      if (userData.userType == "1") {
+        await _sharedPreferences.setString("token", ApiService.authToken ?? '');
+        await _sharedPreferences.setString(
+            "data", jsonEncode(userData.toJson()));
+        MyApp.gState
+            .pushNamedAndRemoveUntil(Routes.adminBaseScreen, (_) => false);
+      } else {
+        bool canProceed = userData.isAdminAllowed;
+        if (!canProceed) {
+          canProceed =
+              await subscriptionProvider.checkDeviceSubscriptionOnServer();
+        }
+        if (canProceed) {
+          NavigationHelper.navigateAfterAuth();
+        } else {
+          MyApp.gState
+              .pushNamedAndRemoveUntil(Routes.subscription, (_) => false);
+        }
+      }
     } catch (error) {
       CustomSnackBar.showError(message: error.toString());
     } finally {
