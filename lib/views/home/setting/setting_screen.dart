@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:motivational/providers/auth_provider.dart';
+import 'package:motivational/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 import '../../widgets/custom_confirmation_dialog.dart';
 import '../../widgets/icon_wrapper_body.dart';
@@ -59,12 +60,23 @@ class _SettingScreenState extends State<SettingScreen> {
                         .pushNamed(Routes.updateNotificationTimePref),
                   ),
                   12.vSpace(),
-                  SettingItemRow(
-                    title: 'Payment Plan',
-                    onTap: () =>
-                        MyApp.gState.pushNamed(Routes.editPaymentMehtod),
+                  Consumer<UserProvider>(
+                    builder: (context, userProvider, _) {
+                      final isAdminAllowed =
+                          userProvider.userData?.isAdminAllowed ?? false;
+                      if (isAdminAllowed) return const SizedBox.shrink();
+                      return Column(
+                        children: [
+                          SettingItemRow(
+                            title: 'Payment Plan',
+                            onTap: () => MyApp.gState
+                                .pushNamed(Routes.editPaymentMehtod),
+                          ),
+                          12.vSpace(),
+                        ],
+                      );
+                    },
                   ),
-                  12.vSpace(),
                   // SettingItemRow(
                   //   title: 'Report',
                   //   onTap: () => MyApp.gState.pushNamed(Routes.reportScreen),

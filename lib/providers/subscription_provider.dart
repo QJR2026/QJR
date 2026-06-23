@@ -583,6 +583,8 @@ import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
 import 'package:motivational/app/my_app_view.dart';
 import 'package:motivational/repositories/payment_repository.dart';
 
+import '../constants/api_end_points.dart';
+import '../model/user_data.dart';
 import '../services/api_service.dart';
 import '../services/shared_prefrence_service.dart';
 import '../utils/device_info.dart';
@@ -1096,9 +1098,11 @@ class SubscriptionProvider extends ChangeNotifier {
 
   /// Check subscription and navigate
   Future<void> checkSubscriptionOnServerAndNavigate() async {
-    final isSubscribedd = true;
-    // await checkDeviceSubscriptionOnServer();
-    // changes
+    if (ApiService.userData?.isAdminAllowed == true) {
+      navigateAccordingData();
+      return;
+    }
+    final isSubscribedd = await checkDeviceSubscriptionOnServer();
     if (isSubscribedd) {
       navigateAccordingData();
     } else {

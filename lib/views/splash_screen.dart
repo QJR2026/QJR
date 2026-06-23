@@ -7,6 +7,7 @@ import 'package:motivational/utils/routes.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/subscription_provider.dart';
+import '../providers/user_provider.dart';
 import '../services/api_service.dart';
 import '../services/shared_prefrence_service.dart';
 
@@ -58,15 +59,20 @@ class _SplashScreenState extends State<SplashScreen> {
       );
     }
 
-    Future.delayed(const Duration(milliseconds: 2000), () {
+    final userProvider = isLoggedIn ? MyApp.gCtx.read<UserProvider>() : null;
+    final subscriptionProvider =
+        isLoggedIn ? MyApp.gCtx.read<SubscriptionProvider>() : null;
+
+    Future.delayed(const Duration(milliseconds: 2000), () async {
+      if (!mounted) return;
       String routeName;
 
       if (!isOnBoarded) {
         routeName = Routes.onBoarding;
       } else if (isLoggedIn) {
-        MyApp.gCtx
-            .read<SubscriptionProvider>()
-            .checkSubscriptionOnServerAndNavigate();
+        await userProvider!.getUserDetail();
+        if (!mounted) return;
+        subscriptionProvider!.checkSubscriptionOnServerAndNavigate();
         return;
         // routeName = ApiService.userData!.userType == "1"
         //     ? Routes.adminBaseScreen
