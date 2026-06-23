@@ -35,7 +35,6 @@ class UserProvider with ChangeNotifier {
       userData = await _authRepo.getUser();
       ApiService.userData = userData;
       _sharedPreferences.setString("data", jsonEncode(userData!.toJson()));
-      log("data fetched");
     } on NetworkException {
       rethrow; // splash catches this to show no-internet overlay
     } catch (error) {

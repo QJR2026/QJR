@@ -13,6 +13,7 @@ class UserData {
   final bool autoRenew;
   final bool isGlobal;
   final bool isPremium;
+  final bool isIAPSubsucriptionActive;
 
   UserData({
     required this.id,
@@ -26,6 +27,7 @@ class UserData {
     required this.isCard,
     required this.isGlobal,
     required this.isPremium,
+    required this.isIAPSubsucriptionActive,
   });
 
   // Factory constructor to create a UserData instance from a JSON map with null handling
@@ -45,6 +47,7 @@ class UserData {
       isGlobal: json['isGlobal'] == 1,
       isCard: json['isCard'] == 1,
       isPremium: json['isPremium'] == 1,
+      isIAPSubsucriptionActive: json['subscription']?['isActive'] ?? false,
     );
   }
 
@@ -79,6 +82,9 @@ class UserData {
       'exp_month': cardDetail?.expMonth,
       'exp_year': cardDetail?.expiryYear,
       'last4': cardDetail?.last4,
+      'subscription': {
+        'isActive': isIAPSubsucriptionActive,
+      },
     };
   }
 
@@ -95,6 +101,7 @@ class UserData {
     bool? isGlobal,
     bool? isCard,
     bool? isPremium,
+    bool? isIAPSubsucriptionActive,
   }) {
     return UserData(
       id: id ?? this.id,
@@ -108,6 +115,8 @@ class UserData {
       autoRenew: autoRenew ?? this.autoRenew,
       isGlobal: isGlobal ?? this.isGlobal,
       isPremium: isPremium ?? this.isPremium,
+      isIAPSubsucriptionActive:
+          isIAPSubsucriptionActive ?? this.isIAPSubsucriptionActive,
     );
   }
 }
