@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:motivational/model/user_data.dart';
 
@@ -25,6 +27,7 @@ class UserProvider with ChangeNotifier {
     startLoading();
     try {
       userData = await _authRepo.getUser();
+      log("data fetched");
     } catch (error) {
       CustomSnackBar.showError(message: error.toString());
     } finally {

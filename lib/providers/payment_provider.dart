@@ -95,7 +95,7 @@ class PaymentProvider with ChangeNotifier {
       final response = await _paymentRepo.savePaymentMethodDetail(body);
       if (response != null) {
         ApiService.userData = ApiService.userData
-            ?.copyWith(packageId: selectedId?.toString(), isCard: 1);
+            ?.copyWith(packageId: selectedId?.toString(), isCard: true);
         if (ApiService.userData?.quotetheme != null &&
             ApiService.userData?.hasPreference == true) {
           MyApp.gState.pushNamedAndRemoveUntil(Routes.home, (val) => false);

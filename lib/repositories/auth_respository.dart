@@ -50,10 +50,12 @@ class AuthRepository {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final String token = response.data["data"]["access_token"];
         ApiService.authToken = token;
+
         final Map<String, dynamic> userDataMap =
             response.data["data"]['data'] as Map<String, dynamic>;
 
         ApiService.userData = UserData.fromJson(userDataMap);
+
         String routeName = Routes.home;
 
         if (ApiService.userData!.userType == "1") {
@@ -62,27 +64,26 @@ class AuthRepository {
 
           routeName = Routes.adminBaseScreen;
         } else {
-          // if ((ApiService.userData?.isCardAdded ?? false) == false) {
-          //   routeName = Routes.paymentMethod;
-          // } else
+          // Admin-allowed users skip subscription validation.
+          bool canProceed = ApiService.userData?.isAdminAllowed ?? false;
 
-          final isSubscribed = await MyApp.gCtx
-              .read<SubscriptionProvider>()
-              .checkDeviceSubscriptionOnServer();
-          // changes v1
-          if (!isSubscribed) {
+          if (!canProceed) {
+            canProceed = await MyApp.gCtx
+                .read<SubscriptionProvider>()
+                .checkDeviceSubscriptionOnServer();
+          }
+
+          if (!canProceed) {
             routeName = Routes.subscription;
+          } else if ((ApiService.userData?.isThemeSelected ?? false) == false) {
+            routeName = Routes.selectQuoteGroupsTheme;
+          } else if ((ApiService.userData?.hasPreference ?? false) == false) {
+            routeName = Routes.selectNotificationTimePref;
           } else {
-            if ((ApiService.userData?.isThemeSelected ?? false) == false) {
-              routeName = Routes.selectQuoteGroupsTheme;
-            } else if ((ApiService.userData?.hasPreference ?? false) == false) {
-              routeName = Routes.selectNotificationTimePref;
-            } else {
-              await _sharedPreferences.setString(
-                  "data", jsonEncode(userDataMap));
-              await _sharedPreferences.setString("token", token);
-              routeName = Routes.home;
-            }
+            await _sharedPreferences.setString("token", token);
+            await _sharedPreferences.setString("data", jsonEncode(userDataMap));
+
+            routeName = Routes.home;
           }
         }
 
@@ -104,6 +105,70 @@ class AuthRepository {
       throw ErrorHandler.handleError(error);
     }
   }
+  // Future<dynamic> signin(Map<String, dynamic> bodyData) async {
+  //   try {
+  //     final response =
+  //         await _apiService.post(ApiEndpoints.login, data: bodyData);
+
+  //     if (response.statusCode == 200 || response.statusCode == 201) {
+  //       final String token = response.data["data"]["access_token"];
+  //       ApiService.authToken = token;
+  //       final Map<String, dynamic> userDataMap =
+  //           response.data["data"]['data'] as Map<String, dynamic>;
+
+  //           if(userDataMap['isPremium'] == 0)
+
+  //       ApiService.userData = UserData.fromJson(userDataMap);
+  //       String routeName = Routes.home;
+
+  //       if (ApiService.userData!.userType == "1") {
+  //         await _sharedPreferences.setString("token", token);
+  //         await _sharedPreferences.setString("data", jsonEncode(userDataMap));
+
+  //         routeName = Routes.adminBaseScreen;
+  //       } else {
+  //         // if ((ApiService.userData?.isCardAdded ?? false) == false) {
+  //         //   routeName = Routes.paymentMethod;
+  //         // } else
+
+  //         final isSubscribed = await MyApp.gCtx
+  //             .read<SubscriptionProvider>()
+  //             .checkDeviceSubscriptionOnServer();
+  //         // changes v1
+  //         if (!isSubscribed) {
+  //           routeName = Routes.subscription;
+  //         } else {
+  //           if ((ApiService.userData?.isThemeSelected ?? false) == false) {
+  //             routeName = Routes.selectQuoteGroupsTheme;
+  //           } else if ((ApiService.userData?.hasPreference ?? false) == false) {
+  //             routeName = Routes.selectNotificationTimePref;
+  //           } else {
+  //             await _sharedPreferences.setString(
+  //                 "data", jsonEncode(userDataMap));
+  //             await _sharedPreferences.setString("token", token);
+  //             routeName = Routes.home;
+  //           }
+  //         }
+  //       }
+
+  //       MyApp.gState.pushNamedAndRemoveUntil(
+  //         routeName,
+  //         (route) => false,
+  //         arguments: ApiService.userData?.quotetheme,
+  //       );
+
+  //       return response.data["data"];
+  //     } else {
+  //       throw CustomException(
+  //         message: response.data["message"] ?? 'Unexpected error occurred',
+  //         code: response.statusCode,
+  //       );
+  //     }
+  //   } catch (error, stackTrace) {
+  //     debugPrint("Signin Error: $error\nStackTrace: $stackTrace");
+  //     throw ErrorHandler.handleError(error);
+  //   }
+  // }
 
   Future<dynamic> verifyEmail(Map<String, dynamic> bodyData) async {
     try {

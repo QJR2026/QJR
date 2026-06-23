@@ -1,6 +1,6 @@
 class ApiEndpoints {
-  static const String baseUrl = "https://qjh.mazedigital.us/";
-  // static const String baseUrl = "https://glqm9bmq-1020.euw.devtunnels.ms/";
+  // static const String baseUrl = "https://qjh.mazedigital.us/";
+  static const String baseUrl = "https://b6z006k3-1020.inc1.devtunnels.ms/";
   static const String signUp = "${baseUrl}auth/signup";
   static const String verifyEmail = "${baseUrl}auth/verify-email";
   static const String verifyOtp = "${baseUrl}auth/verify-otp";
@@ -15,7 +15,8 @@ class ApiEndpoints {
   static const String getAllPackages = "${baseUrl}payment/packages";
   static const String createPaymentMethod = "${baseUrl}payment/create-payment";
   static const String validateReciept = "${baseUrl}api/apple/verify";
-  static const String checkSubscription = "${baseUrl}api/apple/check-subscription";
+  static const String checkSubscription =
+      "${baseUrl}api/apple/check-subscription";
   static const String editPaymentPlan = "${baseUrl}auth/update-package";
   static const String updatePaymentPlan = "${baseUrl}api/apple/validate";
   static const String autoRenewUpdate = "${baseUrl}auth/update-autoRenew";
@@ -27,8 +28,7 @@ class ApiEndpoints {
   static const String preference = "${baseUrl}preference";
   static const String saveThemeAndTimePrefrence =
       "${baseUrl}themes/select-theme-and-preference";
-  static String getPreference(String themeId) =>
-      "${baseUrl}preference";
+  static String getPreference(String themeId) => "${baseUrl}preference";
   static const String getFavoriteSubThemes =
       "${baseUrl}favourite/get-favourite";
   static const String markAsFavoritesOrUnFavoriteSubThemes =

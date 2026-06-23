@@ -5,25 +5,27 @@ class UserData {
   final String id;
   final String email;
   final String userType;
-  final int isCard;
+  final bool isCard;
   final String packageId;
   QuoteTheme? quotetheme;
   final bool hasPreference;
   final CardDetail? cardDetail;
   final bool autoRenew;
   final bool isGlobal;
+  final bool isPremium;
 
   UserData({
     required this.id,
     required this.email,
     required this.userType,
-    required this.isCard,
     required this.packageId,
     this.quotetheme,
     required this.hasPreference,
     required this.cardDetail,
     required this.autoRenew,
+    required this.isCard,
     required this.isGlobal,
+    required this.isPremium,
   });
 
   // Factory constructor to create a UserData instance from a JSON map with null handling
@@ -32,7 +34,6 @@ class UserData {
       id: json['id'].toString(),
       email: json['email'] as String? ?? '',
       userType: json['user_type'].toString(),
-      isCard: json['isCard'] ?? 0,
       packageId: (json['package_id'] ?? '').toString(),
       quotetheme:
           json['theme'] == null ? null : QuoteTheme.fromJson(json['theme']!),
@@ -42,11 +43,15 @@ class UserData {
           : CardDetail.fromJson(json),
       autoRenew: json['auto_renew'] == 1,
       isGlobal: json['isGlobal'] == 1,
+      isCard: json['isCard'] == 1,
+      isPremium: json['isPremium'] == 1,
     );
   }
 
-  bool get isCardAdded => isCard != 0;
+  bool get isCardAdded => isCard;
   bool get isThemeSelected => quotetheme != null;
+
+  bool get isAdminAllowed => isCard && isGlobal && isPremium;
 
   // Method to convert a UserData instance to a JSON map
   Map<String, dynamic> toJson() {
@@ -69,6 +74,7 @@ class UserData {
       'hasPreference': hasPreference,
       'auto_renew': autoRenew ? 1 : 0,
       'isGlobal': isGlobal ? 1 : 0,
+      'isPremium': isPremium ? 1 : 0,
       'brand': cardDetail?.brand,
       'exp_month': cardDetail?.expMonth,
       'exp_year': cardDetail?.expiryYear,
@@ -81,13 +87,14 @@ class UserData {
     String? id,
     String? email,
     String? userType,
-    int? isCard,
     String? packageId,
     QuoteTheme? theme,
     bool? hasPreference,
     CardDetail? cardDetail,
     bool? autoRenew,
     bool? isGlobal,
+    bool? isCard,
+    bool? isPremium,
   }) {
     return UserData(
       id: id ?? this.id,
@@ -100,6 +107,7 @@ class UserData {
       cardDetail: cardDetail ?? this.cardDetail,
       autoRenew: autoRenew ?? this.autoRenew,
       isGlobal: isGlobal ?? this.isGlobal,
+      isPremium: isPremium ?? this.isPremium,
     );
   }
 }

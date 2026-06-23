@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:motivational/providers/user_provider.dart';
 import 'package:motivational/utils/icons.dart';
 import 'package:motivational/views/home/favorite/favorite_sub_theme_notification_listing_screen.dart';
 import 'package:provider/provider.dart';
@@ -42,6 +43,13 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<UserProvider>().getUserDetail();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +104,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
-      
       ),
     );
   }
