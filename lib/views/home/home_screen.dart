@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:motivational/providers/user_provider.dart';
 import 'package:motivational/utils/icons.dart';
 import 'package:motivational/views/home/favorite/favorite_sub_theme_notification_listing_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/theme_provider.dart';
+import '../../providers/user_provider.dart';
 import '../theme/sub_theme_listing_notification_screen.dart';
 import 'setting/setting_screen.dart';
 

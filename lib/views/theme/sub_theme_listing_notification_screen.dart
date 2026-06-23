@@ -9,6 +9,7 @@ import 'package:motivational/utils/routes.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/theme_provider.dart';
+import '../../providers/user_provider.dart';
 import '../widgets/custom_loader_center.dart';
 import '../widgets/icon_wrapper_body.dart';
 import '../widgets/no_data_widget.dart';
@@ -30,6 +31,11 @@ class _SubThemeNotificationListingScreenState
     });
     super.initState();
   }
+
+  Future<void> _onRefresh() => Future.wait([
+        context.read<UserProvider>().getUserDetail(),
+        context.read<ThemeProvider>().getAllSubThemeNotifications(),
+      ]);
 
   final List<Color> colors = [
     const Color(0XFFB5E48C).withOpacity(.5),
@@ -120,17 +126,20 @@ class _SubThemeNotificationListingScreenState
                 )
               else
                 Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    itemCount: provider.notificationSubThemeList.length,
-                    itemBuilder: (context, index) {
-                      return SubThemeNotificationListingItem(
-                        color: colors[index % colors.length],
-                        index: index,
-                        notificationSubTheme:
-                            provider.notificationSubThemeList[index],
-                      );
-                    },
+                  child: RefreshIndicator(
+                    onRefresh: _onRefresh,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      itemCount: provider.notificationSubThemeList.length,
+                      itemBuilder: (context, index) {
+                        return SubThemeNotificationListingItem(
+                          color: colors[index % colors.length],
+                          index: index,
+                          notificationSubTheme:
+                              provider.notificationSubThemeList[index],
+                        );
+                      },
+                    ),
                   ),
                 ),
             ],

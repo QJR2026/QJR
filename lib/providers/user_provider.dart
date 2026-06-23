@@ -8,6 +8,7 @@ import '../repositories/auth_respository.dart';
 import '../services/api_service.dart';
 import '../services/shared_prefrence_service.dart';
 import '../utils/custom_snackbar.dart';
+import '../utils/error_handler.dart';
 
 class UserProvider with ChangeNotifier {
   final _authRepo = AuthRepository();
@@ -35,6 +36,8 @@ class UserProvider with ChangeNotifier {
       ApiService.userData = userData;
       _sharedPreferences.setString("data", jsonEncode(userData!.toJson()));
       log("data fetched");
+    } on NetworkException {
+      rethrow; // splash catches this to show no-internet overlay
     } catch (error) {
       CustomSnackBar.showError(message: error.toString());
     } finally {

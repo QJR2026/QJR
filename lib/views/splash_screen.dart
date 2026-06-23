@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:motivational/app/my_app_view.dart';
 import 'package:motivational/model/user_data.dart';
@@ -19,68 +21,168 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  final SharedPreferencesService _sharedPreferences =
-      SharedPreferencesService();
+  final _sharedPreferences = SharedPreferencesService();
+
+  final _noInternet = ValueNotifier<bool>(false);
+  final _retrying = ValueNotifier<bool>(false);
+  StreamSubscription? _connectivitySubscription;
+
+  UserProvider? _userProvider;
+  SubscriptionProvider? _subscriptionProvider;
 
   @override
   void initState() {
     super.initState();
-    _navigateToHome();
     _initializeSubscriptionProvider();
+    _navigateToHome();
   }
 
-  _initializeSubscriptionProvider() {
+  @override
+  void dispose() {
+    _connectivitySubscription?.cancel();
+    _noInternet.dispose();
+    _retrying.dispose();
+    super.dispose();
+  }
+
+  void _initializeSubscriptionProvider() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<SubscriptionProvider>().initialize();
     });
   }
 
+  void _restoreSession() {
+    final token = _sharedPreferences.getString('token');
+    final data = _sharedPreferences.getString('data');
+    if (token != null) ApiService.authToken = token;
+    if (data != null) {
+      ApiService.userData = UserData.fromJson(jsonDecode(data));
+    }
+  }
+
   void _navigateToHome() {
-    bool isOnBoarded = _sharedPreferences.getString('onboarding') != null;
-    bool isLoggedIn = _sharedPreferences.getString('token') != null;
-    bool hasUserData = _sharedPreferences.getString('data') != null;
+    _restoreSession();
+
+    final isOnBoarded = _sharedPreferences.getString('onboarding') != null;
+    final isLoggedIn = _sharedPreferences.getString('token') != null;
 
     if (isLoggedIn) {
-      ApiService.authToken = _sharedPreferences.getString('token');
+      _userProvider = MyApp.gCtx.read<UserProvider>();
+      _subscriptionProvider = MyApp.gCtx.read<SubscriptionProvider>();
     }
-
-    if (hasUserData) {
-      ApiService.userData = UserData.fromJson(
-        jsonDecode(_sharedPreferences.getString('data') ?? ''),
-      );
-    }
-
-    final userProvider = isLoggedIn ? MyApp.gCtx.read<UserProvider>() : null;
-    final subscriptionProvider =
-        isLoggedIn ? MyApp.gCtx.read<SubscriptionProvider>() : null;
 
     Future.delayed(const Duration(milliseconds: 2000), () async {
       if (!mounted) return;
-      String routeName;
-
       if (!isOnBoarded) {
-        routeName = Routes.onBoarding;
+        MyApp.gState.pushNamedAndRemoveUntil(Routes.onBoarding, (_) => false);
       } else if (isLoggedIn) {
-        await userProvider!.getUserDetail();
-        if (!mounted) return;
-        subscriptionProvider!.checkSubscriptionOnServerAndNavigate();
-        return;
+        await _performLoggedInNavigation();
       } else {
-        routeName = Routes.login;
+        MyApp.gState.pushNamedAndRemoveUntil(Routes.login, (_) => false);
       }
-
-      MyApp.gState.pushNamedAndRemoveUntil(routeName, (route) => false);
     });
+  }
+
+  Future<void> _performLoggedInNavigation() async {
+    try {
+      await _userProvider!.getUserDetail();
+      if (!mounted) return;
+      await _subscriptionProvider!.checkSubscriptionOnServerAndNavigate();
+    } catch (_) {
+      if (!mounted) return;
+      _noInternet.value = true;
+      _listenForConnectivity();
+    }
+  }
+
+  void _listenForConnectivity() {
+    _connectivitySubscription?.cancel();
+    _connectivitySubscription =
+        Connectivity().onConnectivityChanged.listen((results) {
+      final isConnected = results.any((r) => r != ConnectivityResult.none);
+      if (isConnected && _noInternet.value && mounted) {
+        _retry();
+      }
+    });
+  }
+
+  Future<void> _retry() async {
+    if (_retrying.value) return;
+    _connectivitySubscription?.cancel();
+    _noInternet.value = false;
+    _retrying.value = true;
+    await _performLoggedInNavigation();
+    if (mounted) _retrying.value = false;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Image.asset(
-        'assets/images/splash_screen.png',
-        width: double.infinity,
-        height: MediaQuery.sizeOf(context).height,
-        fit: BoxFit.cover,
+      body: ValueListenableBuilder<bool>(
+        valueListenable: _noInternet,
+        builder: (context, noInternet, _) => ValueListenableBuilder<bool>(
+          valueListenable: _retrying,
+          builder: (context, retrying, _) => Stack(
+            fit: StackFit.expand,
+            children: [
+              Image.asset(
+                'assets/images/splash_screen.png',
+                fit: BoxFit.cover,
+              ),
+              if (noInternet) _NoInternetOverlay(onRetry: _retry),
+              if (retrying)
+                const ColoredBox(
+                  color: Colors.black38,
+                  child: Center(
+                    child: CircularProgressIndicator(color: Colors.white),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NoInternetOverlay extends StatelessWidget {
+  final VoidCallback onRetry;
+  const _NoInternetOverlay({required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: Colors.black54,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.wifi_off_rounded, color: Colors.white, size: 52),
+              const SizedBox(height: 16),
+              const Text(
+                'No Internet Connection',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                "We'll retry automatically when connection is restored.",
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white70, fontSize: 13),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: onRetry,
+                child: const Text('Retry Now'),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

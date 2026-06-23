@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:motivational/services/login_interceptor.dart';
 
-
 import '../constants/api_end_points.dart';
 import '../model/user_data.dart';
 
@@ -27,8 +26,7 @@ class ApiService {
           ),
         ) {
     _dio.interceptors.addAll([
-     
-      DioInterceptor( ),
+      DioInterceptor(),
       LogInterceptor(),
     ]);
   }
@@ -97,6 +95,9 @@ class ApiService {
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
         log("Connection Timeout Exception");
+        break;
+      case DioExceptionType.connectionError:
+        log("Connection Error");
         break;
 
       case DioExceptionType.sendTimeout:

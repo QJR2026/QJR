@@ -8,6 +8,7 @@ import 'package:motivational/repositories/payment_repository.dart';
 
 import '../services/api_service.dart';
 import '../utils/device_info.dart';
+import '../utils/error_handler.dart';
 import '../utils/navigation_helper.dart';
 import '../utils/routes.dart';
 import '../views/payment/edit_payment_plan_screen.dart';
@@ -93,7 +94,8 @@ class SubscriptionProvider extends ChangeNotifier {
       if (!isAvailable) return;
 
       final response = await _inAppPurchase.queryProductDetails(_kIds);
-
+      isLoading = false;
+      notifyListeners();
       if (response.error != null) {
         _addLog('❌ Product query error: ${response.error}');
         return;
@@ -105,7 +107,7 @@ class SubscriptionProvider extends ChangeNotifier {
       }
 
       products = response.productDetails;
-      isLoading = false;
+      // isLoading = false;
       notifyListeners();
       _addLog('✅ Products fetched: ${products.map((p) => p.id).join(", ")}');
     } catch (e) {
@@ -455,6 +457,8 @@ class SubscriptionProvider extends ChangeNotifier {
       }
 
       return isSubscribed;
+    } on NetworkException {
+      rethrow; // splash catches this to show no-internet overlay
     } catch (e) {
       _addLog('❌ Check failed: $e');
       return false;

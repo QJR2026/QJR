@@ -7,12 +7,16 @@ class ErrorHandler {
       // Handle Dio exceptions
       switch (error.type) {
         case DioExceptionType.connectionTimeout:
-          return CustomException(
+          return NetworkException(
               message: 'Connection timeout. Please try again.');
         case DioExceptionType.sendTimeout:
-          return CustomException(message: 'Request timeout. Please try again.');
+          return NetworkException(
+              message: 'Request timeout. Please try again.');
+        case DioExceptionType.connectionError:
+          return NetworkException(
+              message: 'Connection error. Please try again.');
         case DioExceptionType.receiveTimeout:
-          return CustomException(
+          return NetworkException(
               message: 'Response timeout. Please try again.');
         case DioExceptionType.badResponse:
           final statusCode = error.response?.statusCode;
@@ -41,7 +45,9 @@ class CustomException implements Exception {
   CustomException({required this.message, this.code});
 
   @override
-  String toString() {
-    return message;
-  }
+  String toString() => message;
+}
+
+class NetworkException extends CustomException {
+  NetworkException({required super.message});
 }
