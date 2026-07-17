@@ -1,6 +1,6 @@
 class ApiEndpoints {
-  static const String baseUrl = "https://qjh.mazedigital.us/";
-  // static const String baseUrl = "https://b6z006k3-1020.inc1.devtunnels.ms/";
+  // static const String baseUrl = "https://qjh.mazedigital.us/";
+  static const String baseUrl = "https://b6z006k3-1020.inc1.devtunnels.ms/";
   static const String signUp = "${baseUrl}auth/signup";
   static const String verifyEmail = "${baseUrl}auth/verify-email";
   static const String verifyOtp = "${baseUrl}auth/verify-otp";
@@ -33,6 +33,8 @@ class ApiEndpoints {
       "${baseUrl}favourite/get-favourite";
   static const String markAsFavoritesOrUnFavoriteSubThemes =
       "${baseUrl}favourite/markAsFavourite";
+  static const String requestTheme = "${baseUrl}theme/request-theme";
+  static const String presignUpload = "${baseUrl}upload/presign";
   // static const String getAllBubble = "${baseUrl}bubble/get-all-bubble";
   // static const String getbubbleOptions =
   //     "${baseUrl}option/get-all-bubble-option-by-bubble-id/";

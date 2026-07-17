@@ -26,6 +26,7 @@ import 'package:motivational/views/quotegroups/select_quote_groups_theme_screen.
 import 'package:motivational/views/settings/change_password_screen.dart';
 import 'package:motivational/views/settings/feed_back_screen.dart';
 import 'package:motivational/views/settings/report_screen.dart';
+import 'package:motivational/views/theme/request_theme_screen.dart';
 import 'package:motivational/views/theme/sub_theme_detail_screen.dart';
 import 'package:motivational/views/theme/sub_theme_listing_notification_screen.dart';
 import '../providers/subscription_provider.dart';
@@ -114,6 +115,7 @@ class MyApp extends StatelessWidget {
           Routes.subThemefavorite: (ctx) =>
               const FavoriteSubThemeNotificationListingScreen(),
           Routes.settings: (ctx) => const SettingScreen(),
+          Routes.requestTheme: (ctx) => const RequestThemeScreen(),
           Routes.editPaymentMehtod: (ctx) => const EditPaymentPlanScreen(),
           Routes.changePassword: (ctx) => const ChangePasswordScreen(),
           Routes.adminBaseScreen: (ctx) => const AdminBaseScreen(),

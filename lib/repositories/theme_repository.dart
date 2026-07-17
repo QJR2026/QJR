@@ -1,11 +1,16 @@
+import 'dart:io';
+
 import '../constants/api_end_points.dart';
 import '../model/notification_sub_theme.dart';
 import '../model/quote_theme.dart';
 import '../model/sub_theme.dart';
 import '../services/api_service.dart';
 import '../utils/error_handler.dart';
+import 'upload_repository.dart';
 
 class ThemeRepository {
+  final UploadRepository _uploadRepo = UploadRepository();
+
   Future<List<QuoteTheme>> getAllQuoteThemes() async {
     final ApiService apiService = ApiService();
     try {
@@ -117,6 +122,43 @@ class ThemeRepository {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return response.data["data"];
+      } else {
+        throw CustomException(
+          message: response.data["message"] ?? 'Unexpected error occurred',
+          code: response.statusCode,
+        );
+      }
+    } catch (error) {
+      throw ErrorHandler.handleError(error);
+    }
+  }
+
+  Future<dynamic> requestTheme({
+    required String title,
+    required String description,
+    File? image,
+  }) async {
+    final ApiService apiService = ApiService();
+    try {
+      String? imageUrl;
+      if (image != null) {
+        imageUrl = await _uploadRepo.uploadImage(
+          file: image,
+          folder: 'theme-requests',
+        );
+      }
+
+      final response = await apiService.post(
+        ApiEndpoints.requestTheme,
+        data: {
+          'name': title,
+          'description': description,
+          if (imageUrl != null) 'image_url': imageUrl,
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return response.data;
       } else {
         throw CustomException(
           message: response.data["message"] ?? 'Unexpected error occurred',

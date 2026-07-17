@@ -21,6 +21,7 @@ class Routes {
   static const subThemeDetail = '/sub-theme-detail';
   static const subThemefavorite = '/sub-theme-favorite';
   static const settings = '/settings';
+  static const requestTheme = '/request-theme';
   static const changePassword = '/change-password';
   static const adminBaseScreen = '/admin-base-screen';
   static const adminHomeScreen = '/admin-home-screen';

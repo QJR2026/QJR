@@ -25,9 +25,9 @@ class QuoteTheme {
       name: json['name'] as String?,
       description: (json['description'] as String?)?.trim(),
       isPopular: json['is_popular'] as bool? ?? false,
-      bgUrl: (json['bg_url'] as String?)?.trim(),
-      usedByCount: json['used_by_count'] as int?,
-      qjrCount: json['qjr_count'] as int?,
+      bgUrl: (json['image_url'] as String?)?.trim(),
+      usedByCount: json['users_using'] as int?,
+      qjrCount: json['total_quotes'] as int?,
       updatedAt: DateTime.tryParse(json['updated_at'] as String? ?? ''),
     );
   }
@@ -39,9 +39,9 @@ class QuoteTheme {
       'name': name,
       'description': description,
       'is_popular': isPopular,
-      'bg_url': bgUrl,
-      'used_by_count': usedByCount,
-      'qjr_count': qjrCount,
+      'image_url': bgUrl,
+      'users_using': usedByCount,
+      'total_quotes': qjrCount,
       'updated_at': updatedAt?.toIso8601String(),
     };
   }

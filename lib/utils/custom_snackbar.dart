@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:motivational/app/my_app_view.dart';
+import 'package:motivational/utils/my_colors.dart';
 import 'package:motivational/utils/routes.dart';
 
 class CustomSnackBar {
@@ -80,6 +81,27 @@ class CustomSnackBar {
         ),
         backgroundColor: Colors.green,
         duration: const Duration(milliseconds: 1300),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.only(top: 10, left: 10, right: 10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
+  }
+
+  static void showPrimary({
+    required String message,
+  }) {
+    ScaffoldMessenger.of(MyApp.gCtx).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(
+            color: MyColors.blackTypeColor,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        backgroundColor: MyColors.primaryColor,
+        duration: const Duration(milliseconds: 1500),
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.only(top: 10, left: 10, right: 10),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),

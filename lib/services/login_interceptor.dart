@@ -23,13 +23,21 @@ class DioInterceptor extends Interceptor {
     log("🌍 REQUEST [${options.method}] → ${options.uri}");
     log("🔸 Headers: ${jsonEncode(options.headers)}");
     log("🟢 Query Parameters: ${jsonEncode(options.queryParameters)}");
-    if (options.data != null) {
-      if (kDebugMode) {
-        log("📌 Body: ${jsonEncode(options.data)}");
-      }
+    if (options.data != null && kDebugMode) {
+      log("📌 Body: ${_safeEncode(options.data)}");
     }
 
     handler.next(options);
+  }
+
+  // FormData (multipart uploads) can't be passed to jsonEncode; fall back
+  // to toString() for anything that isn't plain JSON-encodable data.
+  String _safeEncode(dynamic data) {
+    try {
+      return jsonEncode(data);
+    } catch (_) {
+      return data.toString();
+    }
   }
 
   @override

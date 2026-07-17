@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import 'package:motivational/app/my_app_view.dart';
@@ -387,5 +389,39 @@ class ThemeProvider with ChangeNotifier {
     } finally {
       stopSaveQuoteThemeLoading();
     }
+  }
+
+  bool requestThemeLoading = false;
+
+  startRequestThemeLoading() {
+    requestThemeLoading = true;
+    notifyListeners();
+  }
+
+  stopRequestThemeLoading() {
+    requestThemeLoading = false;
+    notifyListeners();
+  }
+
+  Future<bool> requestTheme({
+    required String title,
+    required String description,
+    File? image,
+  }) async {
+    startRequestThemeLoading();
+    bool success = false;
+    try {
+      await _themeRepo.requestTheme(
+        title: title,
+        description: description,
+        image: image,
+      );
+      success = true;
+    } catch (error) {
+      CustomSnackBar.showError(message: error.toString());
+    } finally {
+      stopRequestThemeLoading();
+    }
+    return success;
   }
 }

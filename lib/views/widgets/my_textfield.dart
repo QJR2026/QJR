@@ -175,8 +175,8 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
             errorStyle: const TextStyle(
                 fontSize: 13, fontWeight: FontWeight.w300, color: Colors.red),
             filled: true,
-            
-            fillColor: Colors.white,
+
+            fillColor: widget.backgroundColor ?? widget.filledColor ?? Colors.white,
             hintText: widget.hintText,
             hintStyle: TextStyle(
                 color: widget.hintColor ?? const Color(0XFF141B34),

@@ -56,19 +56,18 @@ class _UpdateNotificationTimePreferenceScreenState
               const CustomBackButton(),
               30.vSpace(),
               const Text(
-                'Preference.',
+                'QJR Theme',
                 style: TextStyle(
-                  fontSize: 38,
+                  fontSize: 40,
                   fontWeight: FontWeight.w600,
                   color: MyColors.blackTypeColor,
                 ),
               ),
               12.vSpace(),
               const Text(
-                // 'Select a theme to personalize your notifications. Your chosen theme will influence the content and style of the messages you receive.',
                 'Select a theme to personalize your notifications. Want a different theme? Email Info@quickjesusreminder for a theme request.',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 16,
                   fontWeight: FontWeight.w500,
                   color: MyColors.colorE1E1,
                 ),
@@ -110,7 +109,11 @@ class _UpdateNotificationTimePreferenceScreenState
                                   width: 50.percentWidth(),
                                   child: DropdownButtonFormField<int>(
                                     value: provider.selectedThemeId,
-                                    hint: const  Text("Select Theme", style: TextStyle(fontSize: 15, color: Colors.black54),),
+                                    hint: const Text(
+                                      "Select Theme",
+                                      style: TextStyle(
+                                          fontSize: 15, color: Colors.black54),
+                                    ),
                                     decoration: InputDecoration(
                                       enabledBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(12),

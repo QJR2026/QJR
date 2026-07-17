@@ -60,6 +60,11 @@ class _SettingScreenState extends State<SettingScreen> {
                         .pushNamed(Routes.updateNotificationTimePref),
                   ),
                   12.vSpace(),
+                  SettingItemRow(
+                    title: 'Request a Theme',
+                    onTap: () => MyApp.gState.pushNamed(Routes.requestTheme),
+                  ),
+                  12.vSpace(),
                   Consumer<UserProvider>(
                     builder: (context, userProvider, _) {
                       final isAdminAllowed =
