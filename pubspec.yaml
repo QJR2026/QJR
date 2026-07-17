@@ -28,7 +28,9 @@ dependencies:
   in_app_purchase_storekit: 0.3.22+1
   app_settings: ^6.1.1
   connectivity_plus: ^6.0.0
- 
+  cached_network_image: ^3.3.1
+  shimmer: ^3.0.0
+
 
 dev_dependencies:
   flutter_test:

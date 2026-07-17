@@ -14,6 +14,7 @@ class Routes {
   static const editPaymentMehtod = '/edit-payment-Method';
   // static const subscriptionIAP = '/subscriptionIAP';
   static const selectQuoteGroupsTheme = '/select-quote-groups-theme';
+  static const quoteThemeDetail = '/quote-theme-detail';
   static const selectNotificationTimePref = '/select-notification-time-pref';
   static const updateNotificationTimePref = '/update-notification-time-pref';
   static const subThemeListing = '/sub-theme-listing';

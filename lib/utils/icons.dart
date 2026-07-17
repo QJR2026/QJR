@@ -1,6 +1,7 @@
 class IconAssets {
   static const arrowForward = 'assets/icons/arrow_forward.png';
   static const arrowBackward = 'assets/icons/arrow_backward.png';
+  static const arrowForwardBold = 'assets/icons/arrow_forward_bold.png';
   static const email = 'assets/icons/email_icon.png';
   static const password = 'assets/icons/lock.png';
   static const favoriteBorder = 'assets/icons/favorite-border.png';

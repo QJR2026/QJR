@@ -21,6 +21,7 @@ import 'package:motivational/views/onboarding/onboarding_screen.dart';
 import 'package:motivational/views/payment/subscription_screen.dart';
 import 'package:motivational/views/preference/select_notification_time_preference_screen.dart';
 import 'package:motivational/views/preference/update_notification_time_preference_screen.dart';
+import 'package:motivational/views/quotegroups/quote_theme_detail_screen.dart';
 import 'package:motivational/views/quotegroups/select_quote_groups_theme_screen.dart';
 import 'package:motivational/views/settings/change_password_screen.dart';
 import 'package:motivational/views/settings/feed_back_screen.dart';
@@ -83,8 +84,10 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           fontFamily: 'Urbanist',
         ),
-        home: const SplashScreen(),
-        // home: const SubscriptionScreen(),
+        // home: const SelectQuoteGroupsThemeScreen(), // TEMP: visual verification, revert before commit
+        home:
+            const SplashScreen(), // TEMP: visual verification, revert before commit
+
         routes: {
           Routes.onBoarding: (ctx) => const OnboardingScreen(),
           Routes.login: (ctx) => const LoginScreen(),
@@ -100,6 +103,7 @@ class MyApp extends StatelessWidget {
           Routes.subscription: (ctx) => const SubscriptionScreen(),
           Routes.selectQuoteGroupsTheme: (ctx) =>
               const SelectQuoteGroupsThemeScreen(),
+          Routes.quoteThemeDetail: (ctx) => const QuoteThemeDetailScreen(),
           Routes.selectNotificationTimePref: (ctx) =>
               const SelectNotificationTimePreferenceScreen(),
           Routes.updateNotificationTimePref: (ctx) =>
