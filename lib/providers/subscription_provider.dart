@@ -24,6 +24,8 @@ class SubscriptionProvider extends ChangeNotifier {
   bool isSubscribed = false;
   bool _isInitialized = false;
 
+  String? productsError;
+
   List<ProductDetails> products = [];
   List<PurchaseDetails> purchases = [];
 
@@ -86,12 +88,18 @@ class SubscriptionProvider extends ChangeNotifier {
     try {
       if (products.isNotEmpty) return;
       isLoading = true;
+      productsError = null;
       notifyListeners();
 
       isAvailable = await _inAppPurchase.isAvailable();
       _addLog('Store available: $isAvailable');
 
-      if (!isAvailable) return;
+      if (!isAvailable) {
+        isLoading = false;
+        productsError = "In-app purchases aren't available on this device.";
+        notifyListeners();
+        return;
+      }
 
       final ProductDetailsResponse response;
       try {
@@ -100,20 +108,27 @@ class SubscriptionProvider extends ChangeNotifier {
             .timeout(const Duration(minutes: 15));
       } on TimeoutException {
         isLoading = false;
+        productsError =
+            "This is taking longer than expected. Please check your connection and try again.";
         notifyListeners();
         _addLog(
-            '⌛ Product query timed out after 15s — check simulator/sandbox account/App Store Connect agreements');
+            '⌛ Product query timed out — check simulator/sandbox account/App Store Connect agreements');
         return;
       }
 
       isLoading = false;
-      notifyListeners();
       if (response.error != null) {
+        productsError = response.error?.message.isNotEmpty == true
+            ? response.error!.message
+            : "We couldn't load the subscription plans from the App Store. Please try again.";
+        notifyListeners();
         _addLog('❌ Product query error: ${response.error}');
         return;
       }
 
       if (response.productDetails.isEmpty) {
+        productsError = 'No subscription plans are available right now.';
+        notifyListeners();
         _addLog('⚠️ No products found for IDs: $_kIds');
         return;
       }
@@ -124,10 +139,14 @@ class SubscriptionProvider extends ChangeNotifier {
       _addLog('✅ Products fetched: ${products.map((p) => p.id).join(", ")}');
     } catch (e) {
       isLoading = false;
+      productsError =
+          'Something went wrong while loading plans. Please try again.';
       notifyListeners();
       _addLog('❌ _initStoreInfo error: $e');
     }
   }
+
+  Future<void> retryLoadProducts() => initStoreInfo();
 
   ProductDetails? get activePlan {
     if (activeProductId == null || products.isEmpty) return null;

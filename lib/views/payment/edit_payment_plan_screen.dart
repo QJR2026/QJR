@@ -1194,6 +1194,7 @@ import '/utils/my_colors.dart';
 import '/extensions/size_box_extension.dart';
 import '../auth/widget/auth_button.dart';
 import '../widgets/payment_plan_widget.dart';
+import '../widgets/products_error_retry.dart';
 
 class EditPaymentPlanScreen extends StatefulWidget {
   static bool isOnSubscriptionChangePage = false;
@@ -1282,7 +1283,14 @@ class _EditPaymentPlanScreenState extends State<EditPaymentPlanScreen> {
 
                   // if (provider.getPackagesLoading)
                   //   const CustomLoaderCenter()
-                  if (provider.products.isEmpty && !provider.isLoading)
+                  if (provider.products.isEmpty &&
+                      !provider.isLoading &&
+                      provider.productsError != null)
+                    ProductsErrorRetry(
+                      message: provider.productsError!,
+                      onRetry: () => provider.retryLoadProducts(),
+                    )
+                  else if (provider.products.isEmpty && !provider.isLoading)
                     const Text(
                       'No payment plan found',
                       style: TextStyle(

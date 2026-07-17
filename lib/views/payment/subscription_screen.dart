@@ -239,7 +239,9 @@ import '/utils/my_colors.dart';
 import '/extensions/size_box_extension.dart';
 import '../auth/widget/auth_button.dart';
 import '../auth/widget/terms_of_service_and_privacy_policy.dart';
+import '../widgets/custom_loader_center.dart';
 import '../widgets/payment_plan_widget.dart';
+import '../widgets/products_error_retry.dart';
 
 class SubscriptionScreen extends StatefulWidget {
   static bool isOnSubscriptionPage = false;
@@ -321,20 +323,17 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                         color: MyColors.colorE1E1,
                       ),
                     ),
-                    16.vSpace(),
-                    const Text(
-                      'Choose your plan.',
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w600,
-                        color: MyColors.blackTypeColor,
-                      ),
-                    ),
-                    12.vSpace(),
-                    // if (provider.isLoading)
-                    //   const CustomLoaderCenter()
-                    // else
-                    if (provider.products.isEmpty && !provider.isLoading)
+                    40.vSpace(),
+                    if (provider.isLoading) ...[
+                      const CustomLoaderCenter(),
+                      40.vSpace(),
+                    ] else if (provider.products.isEmpty &&
+                        provider.productsError != null)
+                      ProductsErrorRetry(
+                        message: provider.productsError!,
+                        onRetry: () => provider.retryLoadProducts(),
+                      )
+                    else if (provider.products.isEmpty)
                       const Text(
                         'No payment plan found',
                         style: TextStyle(
@@ -343,7 +342,16 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                           color: MyColors.blackTypeColor,
                         ),
                       )
-                    else
+                    else ...[
+                      const Text(
+                        'Choose your plan.',
+                        style: TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.w600,
+                          color: MyColors.blackTypeColor,
+                        ),
+                      ),
+                      12.vSpace(),
                       ...provider.products.map((val) {
                         return ValueListenableBuilder(
                           valueListenable: selectedId,
@@ -357,6 +365,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                           },
                         );
                       }),
+                    ],
 
                     // Row(
                     //   mainAxisAlignment: MainAxisAlignment.end,
