@@ -1282,7 +1282,7 @@ class _EditPaymentPlanScreenState extends State<EditPaymentPlanScreen> {
 
                   // if (provider.getPackagesLoading)
                   //   const CustomLoaderCenter()
-                  if (provider.products.isEmpty)
+                  if (provider.products.isEmpty && !provider.isLoading)
                     const Text(
                       'No payment plan found',
                       style: TextStyle(
@@ -1339,8 +1339,9 @@ class _EditPaymentPlanScreenState extends State<EditPaymentPlanScreen> {
                                       disable: (selectedId.value != null &&
                                               provider.activePlan ==
                                                   selectedId.value) ||
-                                          provider.isLoading,
-                                      // loading: provider.isLoading,
+                                          provider.isLoading ||
+                                          provider.isProcessing,
+                                      loading: provider.isProcessing,
                                       text: isCurrent
                                           ? 'Your Plan'
                                           : 'Change Plan',

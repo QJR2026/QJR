@@ -47,7 +47,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<UserProvider>().getUserDetail();
+      if (context.read<ThemeProvider>().isLoggedIn()) {
+        context.read<UserProvider>().getUserDetail();
+      }
     });
   }
 

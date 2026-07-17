@@ -334,7 +334,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                     // if (provider.isLoading)
                     //   const CustomLoaderCenter()
                     // else
-                     if (provider.products.isEmpty)
+                    if (provider.products.isEmpty && !provider.isLoading)
                       const Text(
                         'No payment plan found',
                         style: TextStyle(
@@ -387,8 +387,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                       builder: (context, value, child) {
                         return Align(
                           child: AuthButton(
-                            disable: value == null,
-                            loading: provider.isLoading,
+                            disable: value == null || provider.isProcessing,
+                            loading: provider.isProcessing,
                             text: 'Pay now',
                             onPressed: () => provider.buy(value!),
                             // padding: const EdgeInsets.symmetric(

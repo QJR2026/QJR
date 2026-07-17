@@ -77,6 +77,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   bottomSpace: 20,
                   prefixIconAsset: IconAssets.email,
                   validator: FormValidators.emailValidator,
+                  keyboardType: TextInputType.emailAddress,
                 ),
                 MyTextFormField(
                   hintText: 'Password',
@@ -85,6 +86,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   isPasswordField: true,
                   prefixIconAsset: IconAssets.password,
                   validator: FormValidators.passwordValidator,
+                  keyboardType: TextInputType.visiblePassword,
                 ),
                 MyTextFormField(
                   hintText: 'Confirm Password',
@@ -93,6 +95,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   prefixIconAsset: IconAssets.password,
                   validator: (val) => FormValidators.confirmPasswordValidator(
                       val, passwordController.text),
+                  keyboardType: TextInputType.visiblePassword,
                   // bottomSpace: 5,
                 ),
                 50.vSpace(),

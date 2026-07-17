@@ -93,7 +93,19 @@ class SubscriptionProvider extends ChangeNotifier {
 
       if (!isAvailable) return;
 
-      final response = await _inAppPurchase.queryProductDetails(_kIds);
+      final ProductDetailsResponse response;
+      try {
+        response = await _inAppPurchase
+            .queryProductDetails(_kIds)
+            .timeout(const Duration(minutes: 15));
+      } on TimeoutException {
+        isLoading = false;
+        notifyListeners();
+        _addLog(
+            '⌛ Product query timed out after 15s — check simulator/sandbox account/App Store Connect agreements');
+        return;
+      }
+
       isLoading = false;
       notifyListeners();
       if (response.error != null) {
@@ -175,7 +187,6 @@ class SubscriptionProvider extends ChangeNotifier {
 
     _pendingProductId = product.id;
     isProcessing = true;
-    isLoading = true;
     notifyListeners();
 
     try {
@@ -210,7 +221,6 @@ class SubscriptionProvider extends ChangeNotifier {
 
     _pendingProductId = newProduct.id;
     isProcessing = true;
-    isLoading = true;
     notifyListeners();
 
     try {
@@ -483,7 +493,6 @@ class SubscriptionProvider extends ChangeNotifier {
   void _resetPurchaseState() {
     _pendingProductId = null;
     isProcessing = false;
-    isLoading = false;
     notifyListeners();
   }
 

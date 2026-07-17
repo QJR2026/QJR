@@ -76,6 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     validator: FormValidators.emailValidator,
                     prefixIconAsset: IconAssets.email,
                     bottomSpace: 20,
+                    keyboardType: TextInputType.emailAddress,
                   ),
                   MyTextFormField(
                     hintText: 'Password',
@@ -83,6 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     prefixIconAsset: IconAssets.password,
                     isPasswordField: true,
                     validator: FormValidators.passwordOnlyRequiredValidator,
+                    keyboardType: TextInputType.visiblePassword,
                     // bottomSpace: 5,
                   ),
                   Align(
