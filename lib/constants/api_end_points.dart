@@ -1,6 +1,6 @@
 class ApiEndpoints {
-  // static const String baseUrl = "https://qjh.mazedigital.us/";
-  static const String baseUrl = "https://b6z006k3-1020.inc1.devtunnels.ms/";
+  static const String baseUrl = "https://qjh.mazedigital.us/";
+  // static const String baseUrl = "https://b6z006k3-1020.inc1.devtunnels.ms/";
   static const String signUp = "${baseUrl}auth/signup";
   static const String verifyEmail = "${baseUrl}auth/verify-email";
   static const String verifyOtp = "${baseUrl}auth/verify-otp";
