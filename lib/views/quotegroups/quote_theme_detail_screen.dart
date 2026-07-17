@@ -6,36 +6,17 @@ import '../../extensions/size_box_extension.dart';
 import '../../model/quote_theme.dart';
 import '../../providers/theme_provider.dart';
 import '../../utils/my_colors.dart';
+import '../../utils/quote_theme_visuals.dart';
 import '../auth/widget/auth_button.dart';
 import '../widgets/app_image_resolver.dart';
 import '../widgets/custom_back_button.dart';
-
-/// Arguments for [Routes.quoteThemeDetail]. Carries the same fallback asset
-/// the listing card resolved to, so the detail screen's placeholder matches
-/// what the user tapped instead of always defaulting to one static image.
-class QuoteThemeDetailArgs {
-  final QuoteTheme theme;
-  final String fallbackAsset;
-
-  const QuoteThemeDetailArgs({
-    required this.theme,
-    required this.fallbackAsset,
-  });
-}
-
-/// Shared Hero tag between the listing card and the detail screen's image,
-/// so tapping a card smoothly morphs its background into the detail hero image.
-String quoteThemeImageHeroTag(QuoteTheme theme) =>
-    'quote-theme-image-${theme.id ?? theme.name ?? theme.hashCode}';
 
 class QuoteThemeDetailScreen extends StatelessWidget {
   const QuoteThemeDetailScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final args =
-        ModalRoute.of(context)!.settings.arguments as QuoteThemeDetailArgs;
-    final theme = args.theme;
+    final theme = ModalRoute.of(context)!.settings.arguments as QuoteTheme;
     final provider = context.watch<ThemeProvider>();
 
     final hasUsedByCount = theme.usedByCount != null;
@@ -63,7 +44,8 @@ class QuoteThemeDetailScreen extends StatelessWidget {
                           width: double.infinity,
                           child: AppImageResolver(
                             imageUrl: theme.bgUrl,
-                            fallbackAsset: args.fallbackAsset,
+                            fallbackAsset:
+                                resolveQuoteThemeFallbackAsset(theme),
                             borderRadius: BorderRadius.circular(24),
                           ),
                         ),

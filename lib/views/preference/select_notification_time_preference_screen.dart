@@ -10,10 +10,11 @@ import 'package:time_range_picker/time_range_picker.dart';
 
 import '../../model/quote_theme.dart';
 import '../../providers/notification_time_preference_provider.dart';
-import '../../utils/images.dart';
 import '../../utils/my_colors.dart';
+import '../../utils/quote_theme_visuals.dart';
 import '../home/setting/setting_screen.dart';
-import '../quotegroups/widget/group_quote_theme_widget.dart';
+import '../quotegroups/widget/quote_theme_card.dart';
+import '../widgets/custom_back_button.dart';
 
 class SelectNotificationTimePreferenceScreen extends StatefulWidget {
   const SelectNotificationTimePreferenceScreen({super.key});
@@ -40,37 +41,43 @@ class _SelectNotificationTimePreferenceScreenState
         ModalRoute.of(context)?.settings.arguments as QuoteTheme?;
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(horizontal: 30).copyWith(top: 20),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              100.vSpace(),
+              40.vSpace(),
+              const CustomBackButton(),
+              30.vSpace(),
               const Text(
                 'Quote Groups.',
                 style: TextStyle(
-                  fontSize: 38,
+                  fontSize: 40,
                   fontWeight: FontWeight.w600,
                   color: MyColors.blackTypeColor,
                 ),
               ),
-              12.vSpace(),
+              20.vSpace(),
               const Text(
-                'You will receive motivational quotes at your chosen time and on your selected.',
+                'You will receive motivational quotes at your chosen time.',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 16,
                   fontWeight: FontWeight.w500,
                   color: MyColors.colorE1E1,
                 ),
               ),
               25.vSpace(),
-              GroupQuoteThemeWidgetNew(
-                asset: Images.quoteGroupSilver,
-                name: theme?.name ?? 'Theme Zion.',
-                description: theme?.description ??
-                    'Lorem ipsum dolor sit amet consectetur. Lectus aliquam nibh ornare massa elit ut fermentum.',
-              ),
-              12.vSpace(),
+              if (theme != null)
+                SizedBox(
+                  height: 138.pxV(),
+                  width: double.infinity,
+                  child: QuoteThemeCard(
+                    theme: theme,
+                    fallbackAsset: resolveQuoteThemeFallbackAsset(theme),
+                    showCornerActions: false,
+                  ),
+                ),
+              16.vSpace(),
               Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
