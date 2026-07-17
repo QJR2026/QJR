@@ -17,6 +17,7 @@ class Routes {
   static const quoteThemeDetail = '/quote-theme-detail';
   static const selectNotificationTimePref = '/select-notification-time-pref';
   static const updateNotificationTimePref = '/update-notification-time-pref';
+  static const changeQuoteTheme = '/change-quote-theme';
   static const subThemeListing = '/sub-theme-listing';
   static const subThemeDetail = '/sub-theme-detail';
   static const subThemefavorite = '/sub-theme-favorite';

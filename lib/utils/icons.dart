@@ -7,6 +7,8 @@ class IconAssets {
   static const favoriteBorder = 'assets/icons/favorite-border.png';
   static const share = 'assets/icons/share.png';
   static const bell = 'assets/icons/bell.png';
+  static const notes = 'assets/icons/notes.png';
+  static const peoples = 'assets/icons/peoples.png';
 
   //for bottom navigation
   static const bNHomeBorderIcon = 'assets/icons/home-border-icon.png';

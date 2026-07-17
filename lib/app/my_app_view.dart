@@ -19,6 +19,7 @@ import 'package:motivational/views/home/favorite/favorite_sub_theme_notification
 import 'package:motivational/views/home/setting/setting_screen.dart';
 import 'package:motivational/views/onboarding/onboarding_screen.dart';
 import 'package:motivational/views/payment/subscription_screen.dart';
+import 'package:motivational/views/preference/change_quote_theme_screen.dart';
 import 'package:motivational/views/preference/select_notification_time_preference_screen.dart';
 import 'package:motivational/views/preference/update_notification_time_preference_screen.dart';
 import 'package:motivational/views/quotegroups/quote_theme_detail_screen.dart';
@@ -109,6 +110,7 @@ class MyApp extends StatelessWidget {
               const SelectNotificationTimePreferenceScreen(),
           Routes.updateNotificationTimePref: (ctx) =>
               const UpdateNotificationTimePreferenceScreen(),
+          Routes.changeQuoteTheme: (ctx) => const ChangeQuoteThemeScreen(),
           Routes.subThemeListing: (ctx) =>
               const SubThemeNotificationListingScreen(),
           Routes.subThemeDetail: (ctx) => const SubThemeDetailScreen(),

@@ -74,7 +74,8 @@ class _SelectNotificationTimePreferenceScreenState
                   child: QuoteThemeCard(
                     theme: theme,
                     fallbackAsset: resolveQuoteThemeFallbackAsset(theme),
-                    showCornerActions: false,
+                    showExpandIcon: false,
+                    showArrowButton: false,
                   ),
                 ),
               16.vSpace(),

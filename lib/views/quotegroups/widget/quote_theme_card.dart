@@ -10,13 +10,15 @@ import '../../widgets/custom_back_button.dart';
 
 /// Themed background card: popular-theme chip, title, and usage stats over
 /// a resolved background image. Used on the listing swiper (interactive,
-/// with corner actions) and on the notification-preference screen (a
-/// static summary of the theme the user already picked).
+/// with corner actions), on the change-theme list (selectable), and on the
+/// notification-preference screens (a static summary of the picked theme).
 class QuoteThemeCard extends StatelessWidget {
   final QuoteTheme theme;
   final String fallbackAsset;
   final VoidCallback? onTap;
-  final bool showCornerActions;
+  final bool showExpandIcon;
+  final bool showArrowButton;
+  final bool selected;
   final Object? heroTag;
 
   const QuoteThemeCard({
@@ -24,7 +26,9 @@ class QuoteThemeCard extends StatelessWidget {
     required this.theme,
     required this.fallbackAsset,
     this.onTap,
-    this.showCornerActions = true,
+    this.showExpandIcon = true,
+    this.showArrowButton = true,
+    this.selected = false,
     this.heroTag,
   });
 
@@ -33,14 +37,16 @@ class QuoteThemeCard extends StatelessWidget {
     final hasUsedByCount = theme.usedByCount != null;
     final hasQjrCount = theme.qjrCount != null;
     final updatedAgoText = theme.updatedAgoText;
+    final hasArrowButton = showArrowButton && onTap != null;
+    final borderRadius = BorderRadius.circular(30);
 
     Widget image = AppImageResolver(
       imageUrl: theme.bgUrl,
       fallbackAsset: fallbackAsset,
-      borderRadius: BorderRadius.circular(30),
+      borderRadius: borderRadius,
       overlay: Stack(
         children: [
-          if (showCornerActions)
+          if (showExpandIcon)
             Positioned(
               top: 20.pxV(),
               right: 20.pxH(),
@@ -92,16 +98,16 @@ class QuoteThemeCard extends StatelessWidget {
                   Row(
                     children: [
                       if (hasUsedByCount) ...[
-                        Icon(
-                          Icons.groups_outlined,
-                          size: 16.pxH(),
-                          color: MyColors.blackTypeColor,
+                        Image.asset(
+                          IconAssets.peoples,
+                          height: 18.pxH(),
+                          width: 18.pxH(),
                         ),
                         6.hSpace(),
                         Text(
                           'Used by ${theme.usedByCount}+ users',
                           style: TextStyle(
-                            fontSize: 13.pxH(),
+                            fontSize: 14.pxH(),
                             fontWeight: FontWeight.w500,
                             color: MyColors.blackTypeColor,
                           ),
@@ -109,16 +115,16 @@ class QuoteThemeCard extends StatelessWidget {
                       ],
                       if (hasUsedByCount && hasQjrCount) 16.hSpace(),
                       if (hasQjrCount) ...[
-                        Icon(
-                          Icons.article_outlined,
-                          size: 16.pxH(),
-                          color: MyColors.blackTypeColor,
+                        Image.asset(
+                          IconAssets.notes,
+                          height: 18.pxH(),
+                          width: 18.pxH(),
                         ),
                         6.hSpace(),
                         Text(
                           '${theme.qjrCount} QJR',
                           style: TextStyle(
-                            fontSize: 13.pxH(),
+                            fontSize: 14.pxH(),
                             fontWeight: FontWeight.w500,
                             color: MyColors.blackTypeColor,
                           ),
@@ -127,44 +133,53 @@ class QuoteThemeCard extends StatelessWidget {
                     ],
                   ),
                 ],
-                if (updatedAgoText != null) ...[
-                  8.vSpace(),
+                if (updatedAgoText != null || hasArrowButton) ...[
+                  12.vSpace(),
                   Row(
                     children: [
-                      Icon(
-                        Icons.autorenew,
-                        size: 14.pxH(),
-                        color: MyColors.colorE1E1,
-                      ),
-                      6.hSpace(),
-                      Text(
-                        updatedAgoText,
-                        style: TextStyle(
-                          fontSize: 12.pxH(),
-                          fontWeight: FontWeight.w400,
-                          color: MyColors.colorE1E1,
+                      if (updatedAgoText != null) ...[
+                        Container(
+                          padding: EdgeInsets.all(4.pxH()),
+                          decoration: BoxDecoration(
+                            color: MyColors.blackTypeColor,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Icon(
+                            Icons.autorenew,
+                            size: 12.pxH(),
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
+                        4.hSpace(),
+                        Expanded(
+                          child: Text(
+                            updatedAgoText,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12.pxH(),
+                              fontWeight: FontWeight.w500,
+                              color: MyColors.colorE1E1,
+                            ),
+                          ),
+                        ),
+                      ] else
+                        const Spacer(),
+                      if (hasArrowButton)
+                        CustomBackButton(
+                          onPressed: onTap,
+                          imageAsset: IconAssets.arrowForwardBold,
+                          alignment: Alignment.centerLeft,
+                          size: 30.pxV(),
+                          iconHeight: 8.pxV(),
+                          iconWidth: 13.pxV(),
+                        ),
                     ],
                   ),
                 ],
-                if (showCornerActions) 70.vSpace() else 16.vSpace(),
+                16.vSpace(),
               ],
             ),
           ),
-          if (showCornerActions)
-            Positioned(
-              right: 20.pxH(),
-              bottom: 40.pxV(),
-              child: CustomBackButton(
-                onPressed: onTap ?? () {},
-                imageAsset: IconAssets.arrowForwardBold,
-                alignment: Alignment.centerLeft,
-                size: 30.pxV(),
-                iconHeight: 8.pxV(),
-                iconWidth: 13.pxV(),
-              ),
-            ),
         ],
       ),
     );
@@ -172,6 +187,21 @@ class QuoteThemeCard extends StatelessWidget {
     if (heroTag != null) {
       image = Hero(tag: heroTag!, child: image);
     }
+
+    image = Container(
+      margin: EdgeInsets.symmetric(horizontal: 3.pxH()),
+      decoration: BoxDecoration(
+        borderRadius: borderRadius,
+
+        border: Border.all(
+          color: selected ? MyColors.blackTypeColor : Colors.transparent,
+          width: 3,
+          strokeAlign: BorderSide.strokeAlignOutside
+        ),
+      ),
+      // padding: const EdgeInsets.all(3),
+      child: ClipRRect(borderRadius: borderRadius, child: image),
+    );
 
     if (onTap == null) return image;
     return GestureDetector(onTap: onTap, child: image);

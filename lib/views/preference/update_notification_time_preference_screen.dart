@@ -13,10 +13,11 @@ import 'package:time_range_picker/time_range_picker.dart';
 import '../../app/my_app_view.dart';
 import '../../model/quote_theme.dart';
 import '../../providers/notification_time_preference_provider.dart';
-import '../../utils/images.dart';
 import '../../utils/my_colors.dart';
+import '../../utils/quote_theme_visuals.dart';
+import '../../utils/routes.dart';
 import '../home/setting/setting_screen.dart';
-import '../quotegroups/widget/group_quote_theme_widget.dart';
+import '../quotegroups/widget/quote_theme_card.dart';
 import '../widgets/custom_back_button.dart';
 import '../widgets/icon_wrapper_body.dart';
 
@@ -43,8 +44,14 @@ class _UpdateNotificationTimePreferenceScreenState
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<NotificationTimePreferenceProvider>();
-    // final userProvider = context.read<UserProvider>();
-    final QuoteTheme? theme = ApiService.userData?.quotetheme;
+    final themeProvider = context.watch<ThemeProvider>();
+    QuoteTheme? currentTheme;
+    try {
+      currentTheme = themeProvider.quoteThemesList
+          .firstWhere((val) => val.id == provider.selectedThemeId);
+    } catch (_) {
+      currentTheme = ApiService.userData?.quotetheme;
+    }
     return Scaffold(
       body: IconWrapperBody(
         body: Padding(
@@ -77,10 +84,26 @@ class _UpdateNotificationTimePreferenceScreenState
                   child: Column(
                     children: [
                       25.vSpace(),
-                      GroupQuoteThemeWidgetNew(
-                        asset: Images.quoteGroupSilver,
-                        name: theme?.name ?? 'N/A',
-                        description: theme?.description ?? 'N/A',
+                      if (currentTheme != null)
+                        SizedBox(
+                          height: currentTheme.isPopular ? 180 : 140,
+                          child: QuoteThemeCard(
+                            theme: currentTheme,
+                            fallbackAsset:
+                                resolveQuoteThemeFallbackAsset(currentTheme),
+                            showExpandIcon: false,
+                            onTap: () => Navigator.of(context)
+                                .pushNamed(Routes.changeQuoteTheme),
+                          ),
+                        ),
+                      16.vSpace(),
+                      Align(
+                        child: AuthButton(
+                          buttonWidth: 390,
+                          text: 'Change Theme',
+                          onPressed: () => Navigator.of(context)
+                              .pushNamed(Routes.changeQuoteTheme),
+                        ),
                       ),
                       20.vSpace(),
                       if (provider.getPreferenceLoading)
@@ -88,81 +111,6 @@ class _UpdateNotificationTimePreferenceScreenState
                       // else if (provider.preference == null)
                       //   const NoDataWidget()
                       else ...[
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            const Flexible(
-                              child: Text(
-                                'Choose QJR theme',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: MyColors.colorE1E1,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            Consumer<ThemeProvider>(
-                              builder: (context, value, child) {
-                                return SizedBox(
-                                  width: 50.percentWidth(),
-                                  child: DropdownButtonFormField<int>(
-                                    value: provider.selectedThemeId,
-                                    hint: const Text(
-                                      "Select Theme",
-                                      style: TextStyle(
-                                          fontSize: 15, color: Colors.black54),
-                                    ),
-                                    decoration: InputDecoration(
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        borderSide: const BorderSide(
-                                            width: 1.5,
-                                            color: MyColors.blackTypeColor),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(12),
-
-                                        borderSide: const BorderSide(
-                                            width: 1.5,
-                                            color: MyColors
-                                                .blackTypeColor), // Normal state border color
-                                      ),
-                                      // errorBorder: OutlineInputBorder(
-                                      //   borderRadius: BorderRadius.circular(12),
-                                      //   borderSide: const BorderSide(
-                                      //       color:
-                                      //           Colors.red), // Error state border color
-                                      // ),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                              horizontal: 12),
-                                    ),
-                                    items: value.quoteThemesList.map((val) {
-                                      return DropdownMenuItem(
-                                        value: val.id,
-                                        child: SizedBox(
-                                            width: 135,
-                                            child: Text(
-                                              val.name ?? '',
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            )),
-                                      );
-                                    }).toList(),
-                                    onChanged: (val) =>
-                                        provider.setSelectedThemeId(val!),
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                        22.vSpace(),
                         Container(
                           width: double.infinity,
                           decoration: BoxDecoration(
@@ -417,14 +365,10 @@ class _UpdateNotificationTimePreferenceScreenState
                         Align(
                           child: AuthButton(
                             loading: provider.loading,
+                            disable: currentTheme == null,
                             text: 'Save Changes',
-                            onPressed: () => provider.saveThemeAndTimePrefrence(
-                              context
-                                  .read<ThemeProvider>()
-                                  .quoteThemesList
-                                  .firstWhere((val) =>
-                                      provider.selectedThemeId == val.id),
-                            ),
+                            onPressed: () => provider
+                                .saveThemeAndTimePrefrence(currentTheme!),
                           ),
                         ),
                       ],
