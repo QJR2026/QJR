@@ -228,7 +228,7 @@ class AuthProvider with ChangeNotifier {
         "feedback": feedback,
       };
       final response = await _authRepo.feedback(bodyData);
-      CustomSnackBar.showSuccess(message: response["message"].toString());
+      CustomSnackBar.showPrimary(message: response["message"].toString());
       MyApp.gState.pop();
     } catch (error) {
       CustomSnackBar.showError(message: error.toString());

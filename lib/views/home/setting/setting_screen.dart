@@ -87,11 +87,11 @@ class _SettingScreenState extends State<SettingScreen> {
                   //   onTap: () => MyApp.gState.pushNamed(Routes.reportScreen),
                   // ),
                   // 12.vSpace(),
-                  // SettingItemRow(
-                  //   title: 'Feedback',
-                  //   onTap: () => MyApp.gState.pushNamed(Routes.feedBackScreen),
-                  // ),
-                  // 12.vSpace(),
+                  SettingItemRow(
+                    title: 'Add Feedback',
+                    onTap: () => MyApp.gState.pushNamed(Routes.feedBackScreen),
+                  ),
+                  12.vSpace(),
 
                   SettingItemRow(
                     title: 'Change Password',
