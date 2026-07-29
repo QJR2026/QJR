@@ -5,6 +5,7 @@ import '../../../extensions/size_box_extension.dart';
 import '../../../model/quote_theme.dart';
 import '../../../utils/icons.dart';
 import '../../../utils/my_colors.dart';
+import '../../../utils/quote_theme_visuals.dart';
 import '../../widgets/app_image_resolver.dart';
 import '../../widgets/custom_back_button.dart';
 
@@ -39,9 +40,11 @@ class QuoteThemeCard extends StatelessWidget {
     final updatedAgoText = theme.updatedAgoText;
     final hasArrowButton = showArrowButton && onTap != null;
     final borderRadius = BorderRadius.circular(30);
+    final resolvedImage = resolveThemeImage(theme);
 
     Widget image = AppImageResolver(
-      imageUrl: theme.bgUrl,
+      imageUrl: resolvedImage.networkUrl,
+      svgDataUri: resolvedImage.svgDataUri,
       fallbackAsset: fallbackAsset,
       borderRadius: borderRadius,
       overlay: Stack(

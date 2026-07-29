@@ -21,6 +21,7 @@ class QuoteThemeDetailScreen extends StatelessWidget {
 
     final hasUsedByCount = theme.usedByCount != null;
     final hasQjrCount = theme.qjrCount != null;
+    final resolvedImage = resolveThemeImage(theme);
 
     return Scaffold(
       body: SafeArea(
@@ -43,7 +44,8 @@ class QuoteThemeDetailScreen extends StatelessWidget {
                           height: 30.percentHeight(),
                           width: double.infinity,
                           child: AppImageResolver(
-                            imageUrl: theme.bgUrl,
+                            imageUrl: resolvedImage.networkUrl,
+                            svgDataUri: resolvedImage.svgDataUri,
                             fallbackAsset:
                                 resolveQuoteThemeFallbackAsset(theme),
                             borderRadius: BorderRadius.circular(24),

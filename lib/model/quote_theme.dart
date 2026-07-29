@@ -1,34 +1,78 @@
+/// Background image chosen for a theme: either one of the bundled "default"
+/// SVGs (looked up by [id] in `defaultThemeImages`), a "custom" uploaded
+/// image reachable at [src], or absent entirely (no image configured).
+class QuoteThemeImage {
+  final String type;
+  final String? id;
+  final String? src;
+
+  const QuoteThemeImage({
+    required this.type,
+    this.id,
+    this.src,
+  });
+
+  factory QuoteThemeImage.fromJson(Map<String, dynamic> json) {
+    return QuoteThemeImage(
+      type: json['type'] as String? ?? '',
+      id: json['id'] as String?,
+      src: json['src'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'type': type,
+      'id': id,
+      'src': src,
+    };
+  }
+
+  bool get isDefault => type == 'default';
+  bool get isCustom => type == 'custom';
+}
+
 class QuoteTheme {
   final int? id;
   final String? name;
   final String? description;
   final bool isPopular;
-  final String? bgUrl;
+  final QuoteThemeImage? image;
+  final String? imageSource;
   final int? usedByCount;
+  final int? usersLeft30;
   final int? qjrCount;
-  final DateTime? updatedAt;
+
+  /// Pre-formatted display date from the backend, e.g. "Jul 28, 2026".
+  final String? lastUpdated;
 
   QuoteTheme({
     this.id,
     this.name,
     this.description,
     this.isPopular = false,
-    this.bgUrl,
+    this.image,
+    this.imageSource,
     this.usedByCount,
+    this.usersLeft30,
     this.qjrCount,
-    this.updatedAt,
+    this.lastUpdated,
   });
 
   factory QuoteTheme.fromJson(Map<String, dynamic> json) {
     return QuoteTheme(
       id: json['id'] as int?,
       name: json['name'] as String?,
-      description: (json['description'] as String?)?.trim(),
-      isPopular: json['is_popular'] as bool? ?? false,
-      bgUrl: (json['image_url'] as String?)?.trim(),
-      usedByCount: json['users_using'] as int?,
-      qjrCount: json['total_quotes'] as int?,
-      updatedAt: DateTime.tryParse(json['updated_at'] as String? ?? ''),
+      description: (json['desc'] as String?)?.trim(),
+      isPopular: json['popularTheme'] as bool? ?? false,
+      image: json['image'] != null
+          ? QuoteThemeImage.fromJson(json['image'] as Map<String, dynamic>)
+          : null,
+      imageSource: json['imageSource'] as String?,
+      usedByCount: json['usersUsing'] as int?,
+      usersLeft30: json['usersLeft30'] as int?,
+      qjrCount: json['totalQuotes'] as int?,
+      lastUpdated: json['lastUpdated'] as String?,
     );
   }
 
@@ -37,12 +81,14 @@ class QuoteTheme {
     return {
       'id': id,
       'name': name,
-      'description': description,
-      'is_popular': isPopular,
-      'image_url': bgUrl,
-      'users_using': usedByCount,
-      'total_quotes': qjrCount,
-      'updated_at': updatedAt?.toIso8601String(),
+      'desc': description,
+      'popularTheme': isPopular,
+      'image': image?.toMap(),
+      'imageSource': imageSource,
+      'usersUsing': usedByCount,
+      'usersLeft30': usersLeft30,
+      'totalQuotes': qjrCount,
+      'lastUpdated': lastUpdated,
     };
   }
 
@@ -50,26 +96,10 @@ class QuoteTheme {
     return jsonList.map((json) => QuoteTheme.fromJson(json)).toList();
   }
 
-  /// Human readable relative time, e.g. "2 hrs ago". Null when [updatedAt] is unknown.
-  String? get updatedAgoText {
-    final at = updatedAt;
-    if (at == null) return null;
-
-    final diff = DateTime.now().difference(at);
-    if (diff.inSeconds < 60) return 'Updated just now';
-    if (diff.inMinutes < 60) {
-      final m = diff.inMinutes;
-      return 'Updated $m min${m == 1 ? '' : 's'} ago';
-    }
-    if (diff.inHours < 24) {
-      final h = diff.inHours;
-      return 'Updated $h hr${h == 1 ? '' : 's'} ago';
-    }
-    if (diff.inDays < 30) {
-      final d = diff.inDays;
-      return 'Updated $d day${d == 1 ? '' : 's'} ago';
-    }
-    final months = (diff.inDays / 30).floor();
-    return 'Updated $months month${months == 1 ? '' : 's'} ago';
-  }
+  /// Display text for the last-updated row, e.g. "Updated Jul 28, 2026".
+  /// Null when the backend didn't send a date.
+  String? get updatedAgoText =>
+      lastUpdated != null && lastUpdated!.isNotEmpty
+          ? 'Updated $lastUpdated'
+          : null;
 }

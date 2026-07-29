@@ -1,14 +1,17 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shimmer/shimmer.dart';
 
-/// Resolves an image source that may come from the backend (a network URL)
-/// or fall back to a bundled asset when the backend hasn't provided one yet.
+/// Resolves a theme's image source in priority order: a bundled default SVG
+/// ([svgDataUri]), a custom network URL ([imageUrl]), or a bundled asset
+/// fallback when neither is available.
 ///
 /// Network images are disk-cached via [CachedNetworkImage] and show a
 /// shimmer placeholder while they load.
 class AppImageResolver extends StatelessWidget {
   final String? imageUrl;
+  final String? svgDataUri;
   final String fallbackAsset;
   final BoxFit fit;
   final BorderRadius borderRadius;
@@ -18,10 +21,13 @@ class AppImageResolver extends StatelessWidget {
     super.key,
     required this.imageUrl,
     required this.fallbackAsset,
+    this.svgDataUri,
     this.fit = BoxFit.cover,
     this.borderRadius = BorderRadius.zero,
     this.overlay,
   });
+
+  bool get _hasSvg => svgDataUri != null && svgDataUri!.trim().isNotEmpty;
 
   bool get _hasNetworkImage {
     final url = imageUrl?.trim();
@@ -36,26 +42,62 @@ class AppImageResolver extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           Positioned.fill(
-            child: _hasNetworkImage
-                ? CachedNetworkImage(
-                    imageUrl: imageUrl!.trim(),
+            child: _hasSvg
+                ? _SvgDataUriImage(
+                    dataUri: svgDataUri!,
                     fit: fit,
-                    fadeInDuration: const Duration(milliseconds: 200),
-                    placeholder: (context, url) => const _ImageShimmer(),
-                    errorWidget: (context, url, error) => Image.asset(
-                      fallbackAsset,
-                      fit: fit,
-                    ),
+                    fallbackAsset: fallbackAsset,
                   )
-                : Image.asset(
-                    fallbackAsset,
-                    fit: fit,
-                  ),
+                : _hasNetworkImage
+                    ? CachedNetworkImage(
+                        imageUrl: imageUrl!.trim(),
+                        fit: fit,
+                        fadeInDuration: const Duration(milliseconds: 200),
+                        placeholder: (context, url) => const _ImageShimmer(),
+                        errorWidget: (context, url, error) => Image.asset(
+                          fallbackAsset,
+                          fit: fit,
+                        ),
+                      )
+                    : Image.asset(
+                        fallbackAsset,
+                        fit: fit,
+                      ),
           ),
           if (overlay != null) overlay!,
         ],
       ),
     );
+  }
+}
+
+/// Decodes a `data:image/svg+xml,<percent-encoded-svg>` URI and renders it.
+/// Falls back to the bundled asset if the URI can't be decoded.
+class _SvgDataUriImage extends StatelessWidget {
+  final String dataUri;
+  final BoxFit fit;
+  final String fallbackAsset;
+
+  const _SvgDataUriImage({
+    required this.dataUri,
+    required this.fit,
+    required this.fallbackAsset,
+  });
+
+  static const _prefix = 'data:image/svg+xml,';
+
+  @override
+  Widget build(BuildContext context) {
+    final trimmed = dataUri.trim();
+    if (!trimmed.startsWith(_prefix)) {
+      return Image.asset(fallbackAsset, fit: fit);
+    }
+    try {
+      final svgMarkup = Uri.decodeComponent(trimmed.substring(_prefix.length));
+      return SvgPicture.string(svgMarkup, fit: fit);
+    } catch (_) {
+      return Image.asset(fallbackAsset, fit: fit);
+    }
   }
 }
 
