@@ -19,10 +19,12 @@ import '../widgets/products_error_retry.dart';
 /// Lets the user browse all quote themes and pick a replacement for the one
 /// they already have. Selecting a card only updates local provider state;
 /// "Save Changes" is what actually persists the change, via
-/// [ThemeProvider.updateSelectedTheme] (the same theme-save endpoint
-/// onboarding uses). Only on a successful save does this screen pop —
-/// backing out any other way (button, swipe, hardware back) discards the
-/// in-progress pick instead.
+/// [NotificationTimePreferenceProvider.saveThemeAndTimePrefrence] — there's
+/// no endpoint for changing just the theme on an existing preference, so
+/// this resends the time/days already loaded in that provider (from the
+/// user's current saved preference) alongside the newly picked theme. Only
+/// on a successful save does this screen pop — backing out any other way
+/// (button, swipe, hardware back) discards the in-progress pick instead.
 class ChangeQuoteThemeScreen extends StatefulWidget {
   const ChangeQuoteThemeScreen({super.key});
 
@@ -65,12 +67,15 @@ class _ChangeQuoteThemeScreenState extends State<ChangeQuoteThemeScreen> {
     }
     if (theme == null) return;
 
-    final success = await themeProvider.updateSelectedTheme(theme);
-    if (!mounted) return;
-    if (success) {
-      _committed = true;
-      Navigator.of(context).pop();
-    }
+    // saveThemeAndTimePrefrence pops this screen itself (MyApp.gState.pop())
+    // as soon as the save succeeds, *before* control returns here — so
+    // PopScope's callback can fire before we'd get a chance to set
+    // _committed afterward. Set it optimistically first, then walk it back
+    // if the save actually failed (validation error, network error — none
+    // of which pop), so an uncommitted pop later still reverts correctly.
+    _committed = true;
+    final success = await prefProvider.saveThemeAndTimePrefrence(theme);
+    if (!success) _committed = false;
   }
 
   @override
@@ -194,9 +199,9 @@ class _ChangeQuoteThemeScreenState extends State<ChangeQuoteThemeScreen> {
                 Align(
                   child: AuthButton(
                     buttonWidth: 390,
-                    loading: themeProvider.updateThemeLoading,
+                    loading: prefProvider.loading,
                     disable: prefProvider.selectedThemeId == null ||
-                        themeProvider.updateThemeLoading,
+                        prefProvider.loading,
                     text: 'Save Changes',
                     onPressed: _handleSaveChanges,
                   ),

@@ -476,32 +476,6 @@ class ThemeProvider with ChangeNotifier {
     }
   }
 
-  bool updateThemeLoading = false;
-
-  /// Saves a theme change via the same theme-save endpoint onboarding uses
-  /// ([saveSelectedTheme]), but without that method's onboarding-specific
-  /// navigation reset — this just persists the change and reports success,
-  /// letting the caller (the change-theme screen) decide when to pop.
-  Future<bool> updateSelectedTheme(QuoteTheme theme) async {
-    updateThemeLoading = true;
-    notifyListeners();
-    try {
-      final body = {"themeId": theme.id};
-      final response = await _themeRepo.saveSelectedTheme(body);
-      if (response != null) {
-        ApiService.userData = ApiService.userData?.copyWith(theme: theme);
-        return true;
-      }
-      return false;
-    } catch (error) {
-      CustomSnackBar.showError(message: error.toString());
-      return false;
-    } finally {
-      updateThemeLoading = false;
-      notifyListeners();
-    }
-  }
-
   bool requestThemeLoading = false;
 
   startRequestThemeLoading() {

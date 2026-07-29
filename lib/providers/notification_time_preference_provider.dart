@@ -167,11 +167,18 @@ class NotificationTimePreferenceProvider with ChangeNotifier {
     }
   }
 
-  Future<void> saveThemeAndTimePrefrence(QuoteTheme theme) async {
+  /// Saves theme + notification time/days together (there's no endpoint for
+  /// changing just the theme on an existing preference) and pops the
+  /// current screen on success. Returns whether the save succeeded, so
+  /// callers other than the original update-preference screen — e.g. the
+  /// change-theme screen, which relies on whatever time/days are already
+  /// loaded in this provider from the user's current saved preference — can
+  /// tell success from failure instead of assuming the pop always happens.
+  Future<bool> saveThemeAndTimePrefrence(QuoteTheme theme) async {
     if (selectedTime == null && selectedDailyTime == null) {
       CustomSnackBar.showError(
           message: "Please select time and days before saving.");
-      return;
+      return false;
     }
 
 // Check if days are selected for custom time
@@ -183,7 +190,7 @@ class NotificationTimePreferenceProvider with ChangeNotifier {
       if (selectedDays.isEmpty) {
         CustomSnackBar.showError(
             message: "Please select at least one valid day before saving.");
-        return;
+        return false;
       }
     }
 
@@ -216,9 +223,12 @@ class NotificationTimePreferenceProvider with ChangeNotifier {
         SharedPreferencesService()
             .setString("data", jsonEncode(ApiService.userData));
         MyApp.gState.pop();
+        return true;
       }
+      return false;
     } catch (error) {
       CustomSnackBar.showError(message: error.toString());
+      return false;
     } finally {
       stopLoading();
     }
