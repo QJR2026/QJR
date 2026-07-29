@@ -7,28 +7,31 @@ class TermsOfServiceAndPrivacyPolicy extends StatelessWidget {
   final Function termOfServiceOnPressed;
   final Function privacyPolicyOnPressed;
   final String text;
+  final CrossAxisAlignment crossAxisAlignment;
   const TermsOfServiceAndPrivacyPolicy({
     super.key,
     required this.text,
     required this.termOfServiceOnPressed,
     required this.privacyPolicyOnPressed,
+    this.crossAxisAlignment = CrossAxisAlignment.center,
   });
 
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: crossAxisAlignment,
       children: [
-         FittedBox(
-           child: Text(
+        FittedBox(
+          child: Text(
             text,
-            style: const  TextStyle(
+            style: const TextStyle(
               fontSize: 12.5,
               fontWeight: FontWeight.w300,
               color: MyColors.blackTypeColor,
             ),
             // textAlign: TextAlign.center,
-                   ),
-         ),
+          ),
+        ),
         RichText(
           text: TextSpan(
             text: 'Terms of Services',

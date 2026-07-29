@@ -58,4 +58,23 @@ class FormValidators {
     }
     return null;
   }
+
+  static String? lengthValidator(
+    String? value, {
+    required String fieldName,
+    required int min,
+    required int max,
+  }) {
+    final trimmed = value?.trim() ?? '';
+    if (trimmed.isEmpty) {
+      return 'Please enter $fieldName';
+    }
+    if (trimmed.length < min) {
+      return '$fieldName must be at least $min characters long';
+    }
+    if (trimmed.length > max) {
+      return '$fieldName must not exceed $max characters';
+    }
+    return null;
+  }
 }

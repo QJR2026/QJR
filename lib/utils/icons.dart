@@ -19,4 +19,5 @@ class IconAssets {
   static const bNHomeFillIcon = 'assets/icons/home-fill-icon.png';
   static const bNSettingFillIcon = 'assets/icons/setting-fill-icon.png';
   static const bNFavoriteFillIcon = 'assets/icons/favorite-fill-icon.png';
+  static const galleryIcon = 'assets/icons/gallery.png';
 }

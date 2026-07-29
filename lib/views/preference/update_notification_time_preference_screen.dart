@@ -16,6 +16,7 @@ import '../../utils/my_colors.dart';
 import '../../utils/quote_theme_visuals.dart';
 import '../../utils/routes.dart';
 import '../home/setting/setting_screen.dart';
+import '../quotegroups/quote_theme_detail_screen.dart';
 import '../quotegroups/widget/quote_theme_card.dart';
 import '../widgets/custom_back_button.dart';
 import '../widgets/icon_wrapper_body.dart';
@@ -104,6 +105,14 @@ class _UpdateNotificationTimePreferenceScreenState
                               showExpandIcon: false,
                               onTap: () => Navigator.of(context)
                                   .pushNamed(Routes.changeQuoteTheme),
+                              onArrowTap: () => Navigator.of(context).pushNamed(
+                                Routes.quoteThemeDetail,
+                                arguments: QuoteThemeDetailArgs(
+                                  theme: currentTheme!,
+                                  continueButtonText: 'Close',
+                                  onContinue: () => Navigator.of(context).pop(),
+                                ),
+                              ),
                             ),
                           ),
                         16.vSpace(),

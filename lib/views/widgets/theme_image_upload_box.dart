@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import '../../utils/icons.dart';
 import '/extensions/size_box_extension.dart';
 import '/utils/my_colors.dart';
 
@@ -10,6 +11,7 @@ class ThemeImageUploadBox extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onRemove;
   final double height;
+  final bool isLoading;
 
   const ThemeImageUploadBox({
     super.key,
@@ -17,13 +19,42 @@ class ThemeImageUploadBox extends StatelessWidget {
     required this.onTap,
     required this.onRemove,
     this.height = 240,
+    this.isLoading = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) return _buildLoading();
     return image == null
         ? GestureDetector(onTap: onTap, child: _buildPlaceholder())
         : _buildPreview();
+  }
+
+  Widget _buildLoading() {
+    return Container(
+      width: double.infinity,
+      height: height,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MyColors.colorE1E1.withOpacity(0.4)),
+      ),
+      child: const Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircularProgressIndicator(color: MyColors.blackTypeColor),
+          SizedBox(height: 10),
+          Text(
+            'Loading image...',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: MyColors.blackTypeColor,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildPlaceholder() {
@@ -43,22 +74,27 @@ class ThemeImageUploadBox extends StatelessWidget {
               size: 32,
               color: MyColors.blackTypeColor.withOpacity(0.6),
             ),
+            Image.asset(
+              IconAssets.galleryIcon,
+              width: 32,
+              height: 32,
+            ),
             10.vSpace(),
             const Text(
               'Upload Theme Image',
               style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
                 color: MyColors.blackTypeColor,
               ),
             ),
             4.vSpace(),
-            Text(
+            const Text(
               'PNG, JPG up to 5 MB',
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: FontWeight.w400,
-                color: MyColors.blackTypeColor.withOpacity(0.5),
+                color: MyColors.blackTypeColor,
               ),
             ),
           ],

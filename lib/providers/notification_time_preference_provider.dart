@@ -315,4 +315,13 @@ class NotificationTimePreferenceProvider with ChangeNotifier {
     selectedThemeId = id;
     notifyListeners();
   }
+
+  /// Restores [selectedThemeId] to a prior value — used when the user backs
+  /// out of the change-theme screen without tapping "Save Changes", so a
+  /// theme they merely tapped (but didn't confirm) doesn't stick around as
+  /// if it were the saved selection.
+  void restoreSelectedThemeId(int? id) {
+    selectedThemeId = id;
+    notifyListeners();
+  }
 }

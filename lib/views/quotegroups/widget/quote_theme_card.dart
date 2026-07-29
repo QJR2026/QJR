@@ -17,6 +17,14 @@ class QuoteThemeCard extends StatelessWidget {
   final QuoteTheme theme;
   final String fallbackAsset;
   final VoidCallback? onTap;
+
+  /// Tap handler for just the corner arrow button. Defaults to [onTap] when
+  /// not given, so existing callers (where tapping anywhere on the card,
+  /// including the arrow, does the same thing) don't need to change. Pass a
+  /// distinct callback — e.g. opening [QuoteThemeDetailScreen] — when the
+  /// card body and the arrow should do different things (select vs. view
+  /// detail).
+  final VoidCallback? onArrowTap;
   final bool showExpandIcon;
   final bool showArrowButton;
   final bool selected;
@@ -27,6 +35,7 @@ class QuoteThemeCard extends StatelessWidget {
     required this.theme,
     required this.fallbackAsset,
     this.onTap,
+    this.onArrowTap,
     this.showExpandIcon = true,
     this.showArrowButton = true,
     this.selected = false,
@@ -38,7 +47,8 @@ class QuoteThemeCard extends StatelessWidget {
     final hasUsedByCount = theme.usedByCount != null;
     final hasQjrCount = theme.qjrCount != null;
     final updatedAgoText = theme.updatedAgoText;
-    final hasArrowButton = showArrowButton && onTap != null;
+    final arrowTap = onArrowTap ?? onTap;
+    final hasArrowButton = showArrowButton && arrowTap != null;
     final borderRadius = BorderRadius.circular(30);
     final resolvedImage = resolveThemeImage(theme);
 
@@ -169,7 +179,7 @@ class QuoteThemeCard extends StatelessWidget {
                         const Spacer(),
                       if (hasArrowButton)
                         CustomBackButton(
-                          onPressed: onTap,
+                          onPressed: arrowTap,
                           imageAsset: IconAssets.arrowForwardBold,
                           alignment: Alignment.centerLeft,
                           size: 30.pxV(),

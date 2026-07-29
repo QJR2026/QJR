@@ -11,12 +11,42 @@ import '../auth/widget/auth_button.dart';
 import '../widgets/app_image_resolver.dart';
 import '../widgets/custom_back_button.dart';
 
+/// Arguments for [Routes.quoteThemeDetail] when the caller wants control
+/// over what the bottom button does — e.g. from the change-theme list,
+/// where "Continue" should just select the theme locally and pop back,
+/// not hit the onboarding save API. Screens that just want the default
+/// (save this theme via the API and navigate on) can keep passing a plain
+/// [QuoteTheme] as the route argument instead.
+class QuoteThemeDetailArgs {
+  final QuoteTheme theme;
+  final VoidCallback onContinue;
+  final String continueButtonText;
+
+  const QuoteThemeDetailArgs({
+    required this.theme,
+    required this.onContinue,
+    this.continueButtonText = 'Continue',
+  });
+}
+
 class QuoteThemeDetailScreen extends StatelessWidget {
   const QuoteThemeDetailScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final theme = ModalRoute.of(context)!.settings.arguments as QuoteTheme;
+    final args = ModalRoute.of(context)!.settings.arguments;
+    final QuoteTheme theme;
+    final VoidCallback? onContinue;
+    final String continueButtonText;
+    if (args is QuoteThemeDetailArgs) {
+      theme = args.theme;
+      onContinue = args.onContinue;
+      continueButtonText = args.continueButtonText;
+    } else {
+      theme = args as QuoteTheme;
+      onContinue = null;
+      continueButtonText = 'Continue';
+    }
     final provider = context.watch<ThemeProvider>();
 
     final hasUsedByCount = theme.usedByCount != null;
@@ -94,7 +124,7 @@ class QuoteThemeDetailScreen extends StatelessWidget {
                               ),
                               6.hSpace(),
                               Text(
-                                'Used by ${theme.usedByCount}+ users',
+                                'Used by ${theme.usedByCount} users',
                                 style: TextStyle(
                                   fontSize: 13.pxH(),
                                   fontWeight: FontWeight.w500,
@@ -140,10 +170,11 @@ class QuoteThemeDetailScreen extends StatelessWidget {
               Align(
                 child: AuthButton(
                   buttonWidth: 390,
-                  loading: provider.saveQuoteThemeLoading,
-                  disable: provider.saveQuoteThemeLoading,
-                  text: 'Continue',
-                  onPressed: () => provider.saveSelectedTheme(theme),
+                  loading: onContinue == null && provider.saveQuoteThemeLoading,
+                  disable: onContinue == null && provider.saveQuoteThemeLoading,
+                  text: continueButtonText,
+                  onPressed:
+                      onContinue ?? () => provider.saveSelectedTheme(theme),
                 ),
               ),
               20.vSpace(),

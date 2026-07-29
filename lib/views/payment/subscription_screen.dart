@@ -410,6 +410,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                     // cardWidget(selected: true),
                     40.vSpace(),
                     TermsOfServiceAndPrivacyPolicy(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       text:
                           'By selecting payment plan you agree to Quick Jesus Reminder’s',
                       termOfServiceOnPressed: () =>

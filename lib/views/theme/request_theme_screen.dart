@@ -32,6 +32,7 @@ class _RequestThemeScreenState extends State<RequestThemeScreen> {
   final _descriptionController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   File? _selectedImage;
+  bool _pickingImage = false;
 
   @override
   void dispose() {
@@ -41,27 +42,32 @@ class _RequestThemeScreenState extends State<RequestThemeScreen> {
   }
 
   Future<void> _handleImageTap() async {
-    final status = await Permission.photos.status;
+    setState(() => _pickingImage = true);
+    try {
+      final status = await Permission.photos.status;
 
-    if (status.isGranted || status.isLimited) {
-      await _pickImage();
-      return;
-    }
+      if (status.isGranted || status.isLimited) {
+        await _pickImage();
+        return;
+      }
 
-    if (status.isPermanentlyDenied) {
-      _showOpenSettingsDialog();
-      return;
-    }
+      if (status.isPermanentlyDenied) {
+        _showOpenSettingsDialog();
+        return;
+      }
 
-    final result = await Permission.photos.request();
-    if (result.isGranted || result.isLimited) {
-      await _pickImage();
-    } else if (result.isPermanentlyDenied) {
-      _showOpenSettingsDialog();
-    } else {
-      CustomSnackBar.showError(
-        message: 'Photo library permission is required to upload an image.',
-      );
+      final result = await Permission.photos.request();
+      if (result.isGranted || result.isLimited) {
+        await _pickImage();
+      } else if (result.isPermanentlyDenied) {
+        _showOpenSettingsDialog();
+      } else {
+        CustomSnackBar.showError(
+          message: 'Photo library permission is required to upload an image.',
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _pickingImage = false);
     }
   }
 
@@ -169,9 +175,12 @@ class _RequestThemeScreenState extends State<RequestThemeScreen> {
                   hintText: 'Theme Title',
                   controller: _titleController,
                   bottomSpace: 16,
-                  validator: (v) => FormValidators.requiredFieldValidator(
+                  maxLength: 80,
+                  validator: (v) => FormValidators.lengthValidator(
                     v,
                     fieldName: 'Theme Title',
+                    min: 2,
+                    max: 80,
                   ),
                 ),
                 MyTextFormField(
@@ -180,13 +189,17 @@ class _RequestThemeScreenState extends State<RequestThemeScreen> {
                   controller: _descriptionController,
                   maxLines: 5,
                   bottomSpace: 16,
-                  validator: (v) => FormValidators.requiredFieldValidator(
+                  maxLength: 500,
+                  validator: (v) => FormValidators.lengthValidator(
                     v,
                     fieldName: 'Theme Description',
+                    min: 10,
+                    max: 500,
                   ),
                 ),
                 ThemeImageUploadBox(
                   image: _selectedImage,
+                  isLoading: _pickingImage,
                   onTap: _handleImageTap,
                   onRemove: () => setState(() => _selectedImage = null),
                 ),
@@ -198,7 +211,7 @@ class _RequestThemeScreenState extends State<RequestThemeScreen> {
                         buttonWidth: 390,
                         text: 'Submit Theme Request',
                         loading: provider.requestThemeLoading,
-                        disable: provider.requestThemeLoading,
+                        disable: provider.requestThemeLoading || _pickingImage,
                         onPressed: _submit,
                       ),
                     );
