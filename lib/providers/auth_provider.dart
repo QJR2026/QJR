@@ -54,7 +54,11 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> signUp({required String email, required String password}) async {
+  Future<void> signUp({
+    required String fullName,
+    required String email,
+    required String password,
+  }) async {
     final subscriptionProvider = MyApp.gCtx.read<SubscriptionProvider>();
     final String deviceId = await DeviceInfo.getDeviceId() ?? '';
     final String fcmToken = await getFcmToken();
@@ -62,6 +66,7 @@ class AuthProvider with ChangeNotifier {
 
     try {
       await _authRepo.signUp({
+        "fullName": fullName,
         "email": email,
         "password": password,
         "user_type": 0,

@@ -183,17 +183,24 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
                 fontSize: 14,
                 fontWeight: FontWeight.w500),
             // prefix: widget.prefix,
-            prefixIcon: widget.prefixIconAsset!= null ? Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: SizedBox(
-                width: 20,
-                height: 20,
-                child: Image.asset(
-                  widget.prefixIconAsset!,
-                  fit: BoxFit.fill,
-                ),
-              ),
-            ) :null,
+            prefixIcon: widget.prefixIcon != null
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: widget.prefixIcon,
+                  )
+                : widget.prefixIconAsset != null
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: Image.asset(
+                            widget.prefixIconAsset!,
+                            fit: BoxFit.fill,
+                          ),
+                        ),
+                      )
+                    : null,
             // contentPadding:
             //     const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
 

@@ -36,11 +36,26 @@ class FormValidators {
     }
     return null;
   }
-  static String? requiredFieldValidator(String? value, {String fieldName = 'This field'}) {
-  if (value == null || value.trim().isEmpty) {
-    return '$fieldName cannot be empty ';
-  }
-  return null;
-}
 
+  static String? requiredFieldValidator(String? value,
+      {String fieldName = 'This field'}) {
+    if (value == null || value.trim().isEmpty) {
+      return '$fieldName cannot be empty ';
+    }
+    return null;
+  }
+
+  static String? fullNameValidator(String? value) {
+    final trimmed = value?.trim() ?? '';
+    if (trimmed.isEmpty) {
+      return 'Please enter your Full Name';
+    }
+    if (trimmed.length < 2) {
+      return 'Full Name must be at least 2 characters long';
+    }
+    if (trimmed.length > 50) {
+      return 'Full Name must not exceed 50 characters';
+    }
+    return null;
+  }
 }

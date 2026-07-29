@@ -25,6 +25,7 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
+  final fullNameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
@@ -33,6 +34,7 @@ class _SignupScreenState extends State<SignupScreen> {
   signUpFormSubmit() {
     if (!formKey.currentState!.validate()) return;
     context.read<AuthProvider>().signUp(
+          fullName: fullNameController.text.trim(),
           email: emailController.text.trim(),
           password: passwordController.text.trim(),
         );
@@ -71,6 +73,15 @@ class _SignupScreenState extends State<SignupScreen> {
               mainAxisSize: MainAxisSize.max,
               children: [
                 const SizedBox(height: 50),
+                MyTextFormField(
+                  hintText: 'Full Name',
+                  controller: fullNameController,
+                  bottomSpace: 20,
+                  maxLength: 50,
+                  prefixIconAsset: IconAssets.profile,
+                  validator: FormValidators.fullNameValidator,
+                  textCapitalization: TextCapitalization.words,
+                ),
                 MyTextFormField(
                   hintText: 'Email Id',
                   controller: emailController,

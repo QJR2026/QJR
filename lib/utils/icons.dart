@@ -9,6 +9,7 @@ class IconAssets {
   static const bell = 'assets/icons/bell.png';
   static const notes = 'assets/icons/notes.png';
   static const peoples = 'assets/icons/peoples.png';
+  static const profile = 'assets/icons/profile.png';
 
   //for bottom navigation
   static const bNHomeBorderIcon = 'assets/icons/home-border-icon.png';
