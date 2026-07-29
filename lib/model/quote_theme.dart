@@ -98,8 +98,40 @@ class QuoteTheme {
 
   /// Display text for the last-updated row, e.g. "Updated Jul 28, 2026".
   /// Null when the backend didn't send a date.
-  String? get updatedAgoText =>
-      lastUpdated != null && lastUpdated!.isNotEmpty
-          ? 'Updated $lastUpdated'
-          : null;
+  String? get updatedAgoText => lastUpdated != null && lastUpdated!.isNotEmpty
+      ? 'Updated $lastUpdated'
+      : null;
+}
+
+/// One page of the paginated get-all-themes response, along with enough
+/// metadata to know whether there's another page to load.
+class QuoteThemesPage {
+  final List<QuoteTheme> themes;
+  final int page;
+  final int totalPages;
+  final int total;
+
+  const QuoteThemesPage({
+    required this.themes,
+    required this.page,
+    required this.totalPages,
+    required this.total,
+  });
+
+  factory QuoteThemesPage.fromJson(
+    Map<String, dynamic> json, {
+    required int requestedPage,
+  }) {
+    final themes =
+        QuoteTheme.fromJsonList(json['data'] as List<dynamic>? ?? []);
+    final pagination = json['pagination'] as Map<String, dynamic>?;
+    return QuoteThemesPage(
+      themes: themes,
+      page: pagination?['page'] as int? ?? requestedPage,
+      totalPages: pagination?['totalPages'] as int? ?? 1,
+      total: pagination?['total'] as int? ?? themes.length,
+    );
+  }
+
+  bool get hasMore => page < totalPages;
 }

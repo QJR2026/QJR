@@ -11,13 +11,22 @@ import 'upload_repository.dart';
 class ThemeRepository {
   final UploadRepository _uploadRepo = UploadRepository();
 
-  Future<List<QuoteTheme>> getAllQuoteThemes() async {
+  Future<QuoteThemesPage> getAllQuoteThemes({
+    int page = 1,
+    int limit = 8,
+  }) async {
     final ApiService apiService = ApiService();
     try {
-      final response = await apiService.get(ApiEndpoints.getAllQuoteThemes);
+      final response = await apiService.get(
+        ApiEndpoints.getAllQuoteThemes,
+        queryParameters: {'page': page, 'limit': limit},
+      );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return QuoteTheme.fromJsonList(response.data["data"] as List<dynamic>);
+        return QuoteThemesPage.fromJson(
+          response.data as Map<String, dynamic>,
+          requestedPage: page,
+        );
       } else {
         throw CustomException(
           message: response.data["message"] ?? 'Unexpected error occurred',

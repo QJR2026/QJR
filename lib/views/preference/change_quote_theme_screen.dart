@@ -11,19 +11,34 @@ import '../quotegroups/widget/quote_theme_card.dart';
 import '../widgets/custom_back_button.dart';
 import '../widgets/custom_loader_center.dart';
 import '../widgets/no_data_widget.dart';
+import '../widgets/products_error_retry.dart';
 
 /// Lets the user browse all quote themes and pick a replacement for the one
 /// they already have. Selecting a card only updates local provider state —
 /// there is no dedicated "change theme" endpoint, so the actual save still
 /// happens through [NotificationTimePreferenceProvider.saveThemeAndTimePrefrence]
 /// back on the update-preference screen once "Save Changes" is pressed there.
-class ChangeQuoteThemeScreen extends StatelessWidget {
+class ChangeQuoteThemeScreen extends StatefulWidget {
   const ChangeQuoteThemeScreen({super.key});
+
+  @override
+  State<ChangeQuoteThemeScreen> createState() => _ChangeQuoteThemeScreenState();
+}
+
+class _ChangeQuoteThemeScreenState extends State<ChangeQuoteThemeScreen> {
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ThemeProvider>().getAllQuoteThemes();
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
     final prefProvider = context.watch<NotificationTimePreferenceProvider>();
+    final themes = themeProvider.quoteThemesList;
 
     return Scaffold(
       body: SafeArea(
@@ -45,7 +60,7 @@ class ChangeQuoteThemeScreen extends StatelessWidget {
               ),
               8.vSpace(),
               Text(
-                'Browse ${themeProvider.quoteThemesList.length} motivational themes',
+                'Browse ${themeProvider.totalQuoteThemesCount} motivational themes',
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
@@ -56,29 +71,64 @@ class ChangeQuoteThemeScreen extends StatelessWidget {
               Expanded(
                 child: themeProvider.getQuoteThemesLoading
                     ? const CustomLoaderCenter()
-                    : themeProvider.quoteThemesList.isEmpty
-                        ? const NoDataWidget(text: 'Theme data not found')
-                        : ListView.separated(
-                            itemCount: themeProvider.quoteThemesList.length,
-                            separatorBuilder: (context, index) => 16.vSpace(),
-                            itemBuilder: (context, index) {
-                              final theme =
-                                  themeProvider.quoteThemesList[index];
-                              return SizedBox(
-                                height: theme.isPopular ? 180 : 140,
-                                child: QuoteThemeCard(
-                                  theme: theme,
-                                  fallbackAsset:
-                                      resolveQuoteThemeFallbackAsset(theme),
-                                  showExpandIcon: false,
-                                  selected:
-                                      theme.id == prefProvider.selectedThemeId,
-                                  onTap: () => prefProvider
-                                      .setSelectedThemeId(theme.id!),
+                    : themes.isEmpty &&
+                            themeProvider.getQuoteThemesError != null
+                        ? Center(
+                            child: ProductsErrorRetry(
+                              message: themeProvider.getQuoteThemesError!,
+                              onRetry: () => context
+                                  .read<ThemeProvider>()
+                                  .getAllQuoteThemes(refresh: true),
+                            ),
+                          )
+                        : themes.isEmpty
+                            ? const NoDataWidget(text: 'Theme data not found')
+                            : RefreshIndicator(
+                                onRefresh: () => context
+                                    .read<ThemeProvider>()
+                                    .refreshQuoteThemes(),
+                                child: ListView.separated(
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
+                                  itemCount: themes.length +
+                                      (themeProvider.hasMoreQuoteThemes
+                                          ? 1
+                                          : 0),
+                                  separatorBuilder: (context, index) =>
+                                      16.vSpace(),
+                                  itemBuilder: (context, index) {
+                                    if (index >= themes.length) {
+                                      WidgetsBinding.instance
+                                          .addPostFrameCallback((_) {
+                                        context
+                                            .read<ThemeProvider>()
+                                            .loadMoreQuoteThemes();
+                                      });
+                                      return const Padding(
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 16),
+                                        child: CustomLoaderCenter(),
+                                      );
+                                    }
+
+                                    final theme = themes[index];
+                                    return SizedBox(
+                                      height: theme.isPopular ? 180 : 140,
+                                      child: QuoteThemeCard(
+                                        theme: theme,
+                                        fallbackAsset:
+                                            resolveQuoteThemeFallbackAsset(
+                                                theme),
+                                        showExpandIcon: false,
+                                        selected: theme.id ==
+                                            prefProvider.selectedThemeId,
+                                        onTap: () => prefProvider
+                                            .setSelectedThemeId(theme.id!),
+                                      ),
+                                    );
+                                  },
                                 ),
-                              );
-                            },
-                          ),
+                              ),
               ),
               16.vSpace(),
               Align(

@@ -275,18 +275,75 @@ class ThemeProvider with ChangeNotifier {
   }
 
   List<QuoteTheme> quoteThemesList = [];
+  String? getQuoteThemesError;
+  int _quoteThemesPage = 1;
+  int _quoteThemesTotalPages = 1;
+  int totalQuoteThemesCount = 0;
+
+  bool get hasMoreQuoteThemes => _quoteThemesPage < _quoteThemesTotalPages;
+
+  bool loadMoreQuoteThemesLoading = false;
 
   List<NotificationSubTheme> notificationSubThemeList = [];
 
-  Future<void> getAllQuoteThemes() async {
+  /// Loads page 1. Skips the network call if a list is already loaded and
+  /// [refresh] isn't requested, so screens can call this from `initState`
+  /// without resetting pagination/scroll position on every revisit.
+  Future<void> getAllQuoteThemes({bool refresh = false}) async {
+    if (!refresh && quoteThemesList.isNotEmpty) return;
     startGetQuoteThemesLoading();
+    getQuoteThemesError = null;
     try {
-      quoteThemesList = await _themeRepo.getAllQuoteThemes();
+      final result = await _themeRepo.getAllQuoteThemes(page: 1);
+      quoteThemesList = result.themes;
+      _quoteThemesPage = result.page;
+      _quoteThemesTotalPages = result.totalPages;
+      totalQuoteThemesCount = result.total;
     } catch (error) {
-      stopGetQuoteThemesLoading();
-      CustomSnackBar.showError(message: error.toString());
+      getQuoteThemesError = error.toString();
     } finally {
       stopGetQuoteThemesLoading();
+    }
+  }
+
+  /// Pull-to-refresh: re-fetches page 1 and replaces the list, without
+  /// toggling [getQuoteThemesLoading] so the pull spinner (not a full-page
+  /// loader) represents progress. Keeps the existing list visible on failure.
+  Future<void> refreshQuoteThemes() async {
+    try {
+      final result = await _themeRepo.getAllQuoteThemes(page: 1);
+      quoteThemesList = result.themes;
+      _quoteThemesPage = result.page;
+      _quoteThemesTotalPages = result.totalPages;
+      totalQuoteThemesCount = result.total;
+      getQuoteThemesError = null;
+    } catch (error) {
+      CustomSnackBar.showError(message: error.toString());
+    } finally {
+      notifyListeners();
+    }
+  }
+
+  /// Appends the next page. Safe to call repeatedly (e.g. from swiper
+  /// swipe/scroll callbacks) — no-ops while already loading or once every
+  /// page has been fetched.
+  Future<void> loadMoreQuoteThemes() async {
+    if (loadMoreQuoteThemesLoading || !hasMoreQuoteThemes) return;
+    loadMoreQuoteThemesLoading = true;
+    notifyListeners();
+    try {
+      final result = await _themeRepo.getAllQuoteThemes(
+        page: _quoteThemesPage + 1,
+      );
+      quoteThemesList = [...quoteThemesList, ...result.themes];
+      _quoteThemesPage = result.page;
+      _quoteThemesTotalPages = result.totalPages;
+      totalQuoteThemesCount = result.total;
+    } catch (error) {
+      CustomSnackBar.showError(message: error.toString());
+    } finally {
+      loadMoreQuoteThemesLoading = false;
+      notifyListeners();
     }
   }
 
