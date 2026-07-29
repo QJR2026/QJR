@@ -86,6 +86,14 @@ class _SvgDataUriImage extends StatelessWidget {
 
   static const _prefix = 'data:image/svg+xml,';
 
+  /// Matches the bundled SVGs' native `width='400' height='400'` — used as
+  /// the SVG's fixed intrinsic canvas so [FittedBox] (not [SvgPicture]'s own
+  /// fit handling) does the scaling into whatever card size it lands in.
+  /// Letting SvgPicture stretch these viewBox-less SVGs directly via `fit`
+  /// under a `Positioned.fill`/`StackFit.expand` produced a rippled/tiled
+  /// rendering artifact on very tall, non-square cards.
+  static const _nativeSize = Size(400, 400);
+
   @override
   Widget build(BuildContext context) {
     final trimmed = dataUri.trim();
@@ -94,7 +102,15 @@ class _SvgDataUriImage extends StatelessWidget {
     }
     try {
       final svgMarkup = Uri.decodeComponent(trimmed.substring(_prefix.length));
-      return SvgPicture.string(svgMarkup, fit: fit);
+      return FittedBox(
+        fit: fit,
+        clipBehavior: Clip.hardEdge,
+        child: SizedBox(
+          width: _nativeSize.width,
+          height: _nativeSize.height,
+          child: SvgPicture.string(svgMarkup),
+        ),
+      );
     } catch (_) {
       return Image.asset(fallbackAsset, fit: fit);
     }

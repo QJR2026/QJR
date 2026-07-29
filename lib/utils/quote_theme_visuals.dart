@@ -10,13 +10,27 @@ const List<String> quoteThemeFallbackAssets = [
   Images.quoteGroupYellow,
 ];
 
+/// Thomas Wang's 32-bit integer hash — good bit diffusion so ids that are
+/// numerically close (or share a modular residue) still land in very
+/// different output buckets. A plain `id % 3` was tried first but clusters
+/// badly for this backend's actual id sequence (most page-1 ids happened to
+/// share the same residue mod 3, so neighbouring swiper cards kept landing
+/// on the same fallback asset — verified against real ids from the API).
+int _mixHash(int seed) {
+  var x = seed.abs() & 0xffffffff;
+  x = ((x >> 16) ^ x) * 0x45d9f3b & 0xffffffff;
+  x = ((x >> 16) ^ x) * 0x45d9f3b & 0xffffffff;
+  x = (x >> 16) ^ x;
+  return x & 0x7fffffff;
+}
+
 /// Deterministically maps a theme to one of [quoteThemeFallbackAssets] by its
 /// id, so the same theme always shows the same background everywhere in the
 /// app (listing card, detail screen, notification-preference screen) without
 /// having to thread the chosen asset through navigation arguments.
 String resolveQuoteThemeFallbackAsset(QuoteTheme theme) {
   final seed = theme.id ?? theme.name?.hashCode ?? theme.hashCode;
-  final index = seed.abs() % quoteThemeFallbackAssets.length;
+  final index = _mixHash(seed) % quoteThemeFallbackAssets.length;
   return quoteThemeFallbackAssets[index];
 }
 

@@ -112,7 +112,7 @@ class QuoteThemeCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 14.pxH(),
                             fontWeight: FontWeight.w500,
-                            color: MyColors.blackTypeColor,
+                            color: MyColors.colorE1E1,
                           ),
                         ),
                       ],
@@ -129,7 +129,7 @@ class QuoteThemeCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 14.pxH(),
                             fontWeight: FontWeight.w500,
-                            color: MyColors.blackTypeColor,
+                            color: MyColors.colorE1E1,
                           ),
                         ),
                       ],
@@ -142,7 +142,7 @@ class QuoteThemeCard extends StatelessWidget {
                     children: [
                       if (updatedAgoText != null) ...[
                         Container(
-                          padding: EdgeInsets.all(4.pxH()),
+                          padding: EdgeInsets.all(2.pxH()),
                           decoration: BoxDecoration(
                             color: MyColors.blackTypeColor,
                             borderRadius: BorderRadius.circular(6),
@@ -188,19 +188,28 @@ class QuoteThemeCard extends StatelessWidget {
     );
 
     if (heroTag != null) {
-      image = Hero(tag: heroTag!, child: image);
+      // Hero flights render this subtree inside the navigator's Overlay,
+      // outside any Material ancestor — without one of its own, the card's
+      // Text widgets fall back to Flutter's "no Material ancestor" debug
+      // style (which includes an underline) for the duration of the flight,
+      // and that can still be visible once it settles back into place.
+      image = Hero(
+        tag: heroTag!,
+        child: Material(
+          type: MaterialType.transparency,
+          child: image,
+        ),
+      );
     }
 
     image = Container(
       margin: EdgeInsets.symmetric(horizontal: 3.pxH()),
       decoration: BoxDecoration(
         borderRadius: borderRadius,
-
         border: Border.all(
-          color: selected ? MyColors.blackTypeColor : Colors.transparent,
-          width: 3,
-          strokeAlign: BorderSide.strokeAlignOutside
-        ),
+            color: selected ? MyColors.blackTypeColor : Colors.transparent,
+            width: 3,
+            strokeAlign: BorderSide.strokeAlignOutside),
       ),
       // padding: const EdgeInsets.all(3),
       child: ClipRRect(borderRadius: borderRadius, child: image),

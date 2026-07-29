@@ -280,6 +280,14 @@ class ThemeProvider with ChangeNotifier {
   int _quoteThemesTotalPages = 1;
   int totalQuoteThemesCount = 0;
 
+  /// Bumped every time [quoteThemesList] is *replaced* (initial load,
+  /// refresh) rather than appended to (load-more). Widgets that keep
+  /// internal position state keyed off list length — e.g. CardSwiper, which
+  /// has no way to clamp its own index when the list shrinks — can use this
+  /// as a Key to force a clean remount instead of risking a stale,
+  /// now-out-of-range index against the new (possibly shorter) list.
+  int quoteThemesListGeneration = 0;
+
   bool get hasMoreQuoteThemes => _quoteThemesPage < _quoteThemesTotalPages;
 
   bool loadMoreQuoteThemesLoading = false;
@@ -299,6 +307,7 @@ class ThemeProvider with ChangeNotifier {
       _quoteThemesPage = result.page;
       _quoteThemesTotalPages = result.totalPages;
       totalQuoteThemesCount = result.total;
+      quoteThemesListGeneration++;
     } catch (error) {
       getQuoteThemesError = error.toString();
     } finally {
@@ -316,6 +325,7 @@ class ThemeProvider with ChangeNotifier {
       _quoteThemesPage = result.page;
       _quoteThemesTotalPages = result.totalPages;
       totalQuoteThemesCount = result.total;
+      quoteThemesListGeneration++;
       getQuoteThemesError = null;
     } catch (error) {
       CustomSnackBar.showError(message: error.toString());

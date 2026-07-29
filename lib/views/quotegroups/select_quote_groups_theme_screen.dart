@@ -33,7 +33,6 @@ class _SelectQuoteGroupsThemeScreenState
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ThemeProvider>();
-    final swiperHeight = 38.percentHeight();
 
     return Scaffold(
       body: RefreshIndicator(
@@ -41,7 +40,6 @@ class _SelectQuoteGroupsThemeScreenState
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
               140.vSpace(),
               Padding(
@@ -71,34 +69,25 @@ class _SelectQuoteGroupsThemeScreenState
               ),
               70.vSpace(),
               if (provider.getQuoteThemesLoading)
-                SizedBox(
-                    height: swiperHeight, child: const CustomLoaderCenter())
+                const CustomLoaderCenter()
               else if (provider.quoteThemesList.isEmpty &&
                   provider.getQuoteThemesError != null)
-                SizedBox(
-                  height: swiperHeight,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Center(
-                      child: ProductsErrorRetry(
-                        message: provider.getQuoteThemesError!,
-                        onRetry: () =>
-                            context.read<ThemeProvider>().getAllQuoteThemes(
-                                  refresh: true,
-                                ),
-                      ),
-                    ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: ProductsErrorRetry(
+                    message: provider.getQuoteThemesError!,
+                    onRetry: () => context
+                        .read<ThemeProvider>()
+                        .getAllQuoteThemes(refresh: true),
                   ),
                 )
               else if (provider.quoteThemesList.isEmpty)
-                SizedBox(
-                  height: swiperHeight,
-                  child: const NoDataWidget(text: 'Theme data not found'),
-                )
+                const NoDataWidget(text: 'Theme data not found')
               else ...[
                 SizedBox(
-                  height: swiperHeight,
+                  height: 300.pxV(),
                   child: CardSwiper(
+                    key: ValueKey(provider.quoteThemesListGeneration),
                     numberOfCardsDisplayed: 3,
                     backCardOffset: const Offset(0, -45),
                     cardsCount: provider.quoteThemesList.length,
@@ -136,7 +125,7 @@ class _SelectQuoteGroupsThemeScreenState
                     child: CircularProgressIndicator(strokeWidth: 2),
                   ),
                 ],
-                40.vSpace(),
+                200.vSpace(),
               ],
             ],
           ),
