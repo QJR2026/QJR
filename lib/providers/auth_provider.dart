@@ -15,6 +15,7 @@ import '../utils/custom_snackbar.dart';
 import '../utils/device_info.dart';
 import '../utils/navigation_helper.dart';
 import 'subscription_provider.dart';
+import 'theme_provider.dart';
 
 class AuthProvider with ChangeNotifier {
   final _authRepo = AuthRepository();
@@ -259,6 +260,7 @@ class AuthProvider with ChangeNotifier {
     startLoading();
     try {
       await _authRepo.logout();
+      MyApp.gCtx.read<ThemeProvider>().resetQuoteThemes();
     } catch (error) {
       CustomSnackBar.showError(message: error.toString());
     } finally {
@@ -270,6 +272,7 @@ class AuthProvider with ChangeNotifier {
     startLoading();
     try {
       await _authRepo.deleteAccount();
+      MyApp.gCtx.read<ThemeProvider>().resetQuoteThemes();
     } catch (error) {
       CustomSnackBar.showError(message: error.toString());
     } finally {

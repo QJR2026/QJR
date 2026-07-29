@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../extensions/size_box_extension.dart';
+import '../../model/quote_theme.dart';
 import '../../providers/notification_time_preference_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../utils/my_colors.dart';
@@ -16,10 +17,12 @@ import '../widgets/no_data_widget.dart';
 import '../widgets/products_error_retry.dart';
 
 /// Lets the user browse all quote themes and pick a replacement for the one
-/// they already have. Selecting a card only updates local provider state —
-/// there is no dedicated "change theme" endpoint, so the actual save still
-/// happens through [NotificationTimePreferenceProvider.saveThemeAndTimePrefrence]
-/// back on the update-preference screen once "Save Changes" is pressed there.
+/// they already have. Selecting a card only updates local provider state;
+/// "Save Changes" is what actually persists the change, via
+/// [ThemeProvider.updateSelectedTheme] (the same theme-save endpoint
+/// onboarding uses). Only on a successful save does this screen pop —
+/// backing out any other way (button, swipe, hardware back) discards the
+/// in-progress pick instead.
 class ChangeQuoteThemeScreen extends StatefulWidget {
   const ChangeQuoteThemeScreen({super.key});
 
@@ -28,12 +31,11 @@ class ChangeQuoteThemeScreen extends StatefulWidget {
 }
 
 class _ChangeQuoteThemeScreenState extends State<ChangeQuoteThemeScreen> {
-  // Selecting a card is just local state (setSelectedThemeId) — nothing is
-  // actually saved until the outer update-preference screen's own "Save
-  // Changes" is pressed. If the user backs out of *this* screen (button,
-  // swipe, hardware back) without tapping this screen's "Save Changes",
-  // that in-progress pick shouldn't stick around as if it were confirmed —
-  // so we snapshot whatever was selected on entry and restore it on any
+  // Selecting a card is just local state (setSelectedThemeId) until "Save
+  // Changes" actually persists it. If the user backs out of *this* screen
+  // (button, swipe, hardware back) without a successful save, that
+  // in-progress pick shouldn't stick around as if it were confirmed — so we
+  // snapshot whatever was selected on entry and restore it on any
   // uncommitted pop.
   late final int? _initialSelectedThemeId;
   bool _committed = false;
@@ -43,9 +45,32 @@ class _ChangeQuoteThemeScreenState extends State<ChangeQuoteThemeScreen> {
     _initialSelectedThemeId =
         context.read<NotificationTimePreferenceProvider>().selectedThemeId;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ThemeProvider>().getAllQuoteThemes();
+      context.read<ThemeProvider>().getAllQuoteThemes(refresh: true);
     });
     super.initState();
+  }
+
+  Future<void> _handleSaveChanges() async {
+    final themeProvider = context.read<ThemeProvider>();
+    final prefProvider = context.read<NotificationTimePreferenceProvider>();
+    final selectedId = prefProvider.selectedThemeId;
+    if (selectedId == null) return;
+
+    QuoteTheme? theme;
+    try {
+      theme = themeProvider.quoteThemesList
+          .firstWhere((val) => val.id == selectedId);
+    } catch (_) {
+      theme = null;
+    }
+    if (theme == null) return;
+
+    final success = await themeProvider.updateSelectedTheme(theme);
+    if (!mounted) return;
+    if (success) {
+      _committed = true;
+      Navigator.of(context).pop();
+    }
   }
 
   @override
@@ -169,12 +194,11 @@ class _ChangeQuoteThemeScreenState extends State<ChangeQuoteThemeScreen> {
                 Align(
                   child: AuthButton(
                     buttonWidth: 390,
-                    disable: prefProvider.selectedThemeId == null,
+                    loading: themeProvider.updateThemeLoading,
+                    disable: prefProvider.selectedThemeId == null ||
+                        themeProvider.updateThemeLoading,
                     text: 'Save Changes',
-                    onPressed: () {
-                      _committed = true;
-                      Navigator.of(context).pop();
-                    },
+                    onPressed: _handleSaveChanges,
                   ),
                 ),
                 16.vSpace(),

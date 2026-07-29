@@ -7,6 +7,7 @@ import 'package:motivational/app/my_app_view.dart';
 import 'package:motivational/repositories/payment_repository.dart';
 
 import '../services/api_service.dart';
+import '../utils/custom_snackbar.dart';
 import '../utils/device_info.dart';
 import '../utils/error_handler.dart';
 import '../utils/navigation_helper.dart';
@@ -213,11 +214,20 @@ class SubscriptionProvider extends ChangeNotifier {
       await _clearPendingTransactions();
 
       final param = PurchaseParam(productDetails: product);
-      await _inAppPurchase.buyNonConsumable(purchaseParam: param);
+      await _inAppPurchase
+          .buyNonConsumable(purchaseParam: param)
+          .timeout(const Duration(seconds: 30));
 
       _addLog('✅ Purchase request sent to store');
+    } on TimeoutException {
+      _addLog('⌛ Purchase request timed out');
+      CustomSnackBar.showError(
+        message: 'The purchase request is taking too long. Please try again.',
+      );
+      _resetPurchaseState();
     } catch (e) {
       _addLog('❌ Purchase error: $e');
+      CustomSnackBar.showError(message: 'Purchase failed: $e');
       _resetPurchaseState();
     }
   }
@@ -247,11 +257,20 @@ class SubscriptionProvider extends ChangeNotifier {
       await _clearPendingTransactions();
 
       final param = PurchaseParam(productDetails: newProduct);
-      await _inAppPurchase.buyNonConsumable(purchaseParam: param);
+      await _inAppPurchase
+          .buyNonConsumable(purchaseParam: param)
+          .timeout(const Duration(seconds: 30));
 
       _addLog('✅ Subscription change request sent to store');
+    } on TimeoutException {
+      _addLog('⌛ Subscription change request timed out');
+      CustomSnackBar.showError(
+        message: 'The request is taking too long. Please try again.',
+      );
+      _resetPurchaseState();
     } catch (e) {
       _addLog('❌ Change subscription error: $e');
+      CustomSnackBar.showError(message: 'Failed to change subscription: $e');
       _resetPurchaseState();
     }
   }
@@ -268,6 +287,7 @@ class SubscriptionProvider extends ChangeNotifier {
       await _inAppPurchase.restorePurchases();
     } catch (e) {
       _addLog('❌ Restore error: $e');
+      CustomSnackBar.showError(message: 'Failed to restore purchases: $e');
     } finally {
       isProcessing = false;
       notifyListeners();
@@ -315,6 +335,11 @@ class SubscriptionProvider extends ChangeNotifier {
         case PurchaseStatus.error:
           _addLog('❌ Error: ${purchase.error?.message}');
           _processedTransactionIds.add(purchaseId);
+          CustomSnackBar.showError(
+            message: purchase.error?.message.isNotEmpty == true
+                ? purchase.error!.message
+                : 'Something went wrong with your purchase. Please try again.',
+          );
           await _completePurchase(purchase);
           _resetPurchaseState();
           break;
@@ -403,10 +428,19 @@ class SubscriptionProvider extends ChangeNotifier {
         _addLog('📦 Product: $activeProductId | ⏰ Expires: $expiresAt');
       } else {
         _addLog('⚠️ Subscription not active. Backend: ${result['message']}');
+        final backendMessage = result['message'] as String?;
+        CustomSnackBar.showError(
+          message: backendMessage?.isNotEmpty == true
+              ? backendMessage!
+              : 'We could not verify your purchase. Please try again.',
+        );
         _resetPurchaseState();
       }
     } catch (e) {
       _addLog('❌ Verification error: $e');
+      CustomSnackBar.showError(
+        message: 'Failed to verify your purchase: $e',
+      );
       _resetPurchaseState();
     }
   }

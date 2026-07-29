@@ -25,7 +25,7 @@ class _SelectQuoteGroupsThemeScreenState
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ThemeProvider>().getAllQuoteThemes();
+      context.read<ThemeProvider>().getAllQuoteThemes(refresh: true);
     });
     super.initState();
   }

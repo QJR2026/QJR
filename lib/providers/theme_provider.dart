@@ -292,6 +292,24 @@ class ThemeProvider with ChangeNotifier {
 
   bool loadMoreQuoteThemesLoading = false;
 
+  /// Clears the cached theme list and pagination state. [ThemeProvider] is a
+  /// long-lived singleton that outlives login sessions, and
+  /// [getAllQuoteThemes] skips refetching once it's already loaded — so
+  /// without this, a fresh user after logout/re-registration would keep
+  /// seeing the *previous* user's cached theme data (stale usage counts
+  /// etc.) until they happened to pull-to-refresh. Call this whenever a
+  /// session ends (logout, account deletion) so the next `getAllQuoteThemes`
+  /// call is forced to hit the network again.
+  void resetQuoteThemes() {
+    quoteThemesList = [];
+    getQuoteThemesError = null;
+    _quoteThemesPage = 1;
+    _quoteThemesTotalPages = 1;
+    totalQuoteThemesCount = 0;
+    quoteThemesListGeneration++;
+    notifyListeners();
+  }
+
   List<NotificationSubTheme> notificationSubThemeList = [];
 
   /// Loads page 1. Skips the network call if a list is already loaded and
@@ -455,6 +473,32 @@ class ThemeProvider with ChangeNotifier {
       CustomSnackBar.showError(message: error.toString());
     } finally {
       stopSaveQuoteThemeLoading();
+    }
+  }
+
+  bool updateThemeLoading = false;
+
+  /// Saves a theme change via the same theme-save endpoint onboarding uses
+  /// ([saveSelectedTheme]), but without that method's onboarding-specific
+  /// navigation reset — this just persists the change and reports success,
+  /// letting the caller (the change-theme screen) decide when to pop.
+  Future<bool> updateSelectedTheme(QuoteTheme theme) async {
+    updateThemeLoading = true;
+    notifyListeners();
+    try {
+      final body = {"themeId": theme.id};
+      final response = await _themeRepo.saveSelectedTheme(body);
+      if (response != null) {
+        ApiService.userData = ApiService.userData?.copyWith(theme: theme);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      CustomSnackBar.showError(message: error.toString());
+      return false;
+    } finally {
+      updateThemeLoading = false;
+      notifyListeners();
     }
   }
 
