@@ -11,4 +11,8 @@ class Images {
   static const shuffle = 'assets/images/shuffle.png';
   static const appIcon = 'assets/images/appicon.png';
   static const icon = 'assets/images/icon.png';
+  static const themeSunrise = 'assets/images/theme_sunrise.svg';
+  static const themeMountains = 'assets/images/theme_mountains.svg';
+  static const themeOcean = 'assets/images/theme_ocean.svg';
+  static const themeForest = 'assets/images/theme_forest.svg';
 }

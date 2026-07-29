@@ -4,14 +4,14 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shimmer/shimmer.dart';
 
 /// Resolves a theme's image source in priority order: a bundled default SVG
-/// ([svgDataUri]), a custom network URL ([imageUrl]), or a bundled asset
-/// fallback when neither is available.
+/// asset ([svgAssetPath]), a custom network URL ([imageUrl]), or a bundled
+/// raster asset fallback when neither is available.
 ///
 /// Network images are disk-cached via [CachedNetworkImage] and show a
 /// shimmer placeholder while they load.
 class AppImageResolver extends StatelessWidget {
   final String? imageUrl;
-  final String? svgDataUri;
+  final String? svgAssetPath;
   final String fallbackAsset;
   final BoxFit fit;
   final BorderRadius borderRadius;
@@ -21,13 +21,13 @@ class AppImageResolver extends StatelessWidget {
     super.key,
     required this.imageUrl,
     required this.fallbackAsset,
-    this.svgDataUri,
+    this.svgAssetPath,
     this.fit = BoxFit.cover,
     this.borderRadius = BorderRadius.zero,
     this.overlay,
   });
 
-  bool get _hasSvg => svgDataUri != null && svgDataUri!.trim().isNotEmpty;
+  bool get _hasSvg => svgAssetPath != null && svgAssetPath!.trim().isNotEmpty;
 
   bool get _hasNetworkImage {
     final url = imageUrl?.trim();
@@ -45,8 +45,8 @@ class AppImageResolver extends StatelessWidget {
         children: [
           Positioned.fill(
             child: _hasSvg
-                ? _SvgDataUriImage(
-                    dataUri: svgDataUri!,
+                ? _SvgAssetImage(
+                    assetPath: svgAssetPath!,
                     fit: fit,
                     fallbackAsset: fallbackAsset,
                   )
@@ -132,49 +132,44 @@ class _RetryingNetworkImageState extends State<_RetryingNetworkImage> {
   }
 }
 
-/// Decodes a `data:image/svg+xml,<percent-encoded-svg>` URI and renders it.
-/// Falls back to the bundled asset if the URI can't be decoded.
-class _SvgDataUriImage extends StatelessWidget {
-  final String dataUri;
+/// Renders a bundled default-theme SVG from `assets/`. Goes through
+/// Flutter's build-time SVG compilation (`SvgPicture.asset`), unlike the
+/// runtime string-decode path this used to go through — that path rendered
+/// blank/transparent in profile and release builds.
+class _SvgAssetImage extends StatelessWidget {
+  final String assetPath;
   final BoxFit fit;
   final String fallbackAsset;
 
-  const _SvgDataUriImage({
-    required this.dataUri,
+  const _SvgAssetImage({
+    required this.assetPath,
     required this.fit,
     required this.fallbackAsset,
   });
 
-  static const _prefix = 'data:image/svg+xml,';
-
-  /// Matches the bundled SVGs' native `width='400' height='400'` — used as
-  /// the SVG's fixed intrinsic canvas so [FittedBox] (not [SvgPicture]'s own
-  /// fit handling) does the scaling into whatever card size it lands in.
-  /// Letting SvgPicture stretch these viewBox-less SVGs directly via `fit`
-  /// under a `Positioned.fill`/`StackFit.expand` produced a rippled/tiled
-  /// rendering artifact on very tall, non-square cards.
+  /// Matches the bundled SVGs' native 400x400 canvas — used as a fixed
+  /// intrinsic size so [FittedBox] (not [SvgPicture]'s own fit handling)
+  /// does the scaling into whatever card size it lands in. Letting
+  /// SvgPicture scale itself directly under a `Positioned.fill`/
+  /// `StackFit.expand` produced a rippled/tiled rendering artifact on very
+  /// tall, non-square cards.
   static const _nativeSize = Size(400, 400);
 
   @override
   Widget build(BuildContext context) {
-    final trimmed = dataUri.trim();
-    if (!trimmed.startsWith(_prefix)) {
-      return Image.asset(fallbackAsset, fit: fit);
-    }
-    try {
-      final svgMarkup = Uri.decodeComponent(trimmed.substring(_prefix.length));
-      return FittedBox(
-        fit: fit,
-        clipBehavior: Clip.hardEdge,
-        child: SizedBox(
-          width: _nativeSize.width,
-          height: _nativeSize.height,
-          child: SvgPicture.string(svgMarkup),
+    return FittedBox(
+      fit: fit,
+      clipBehavior: Clip.hardEdge,
+      child: SizedBox(
+        width: _nativeSize.width,
+        height: _nativeSize.height,
+        child: SvgPicture.asset(
+          assetPath,
+          placeholderBuilder: (context) =>
+              Image.asset(fallbackAsset, fit: BoxFit.cover),
         ),
-      );
-    } catch (_) {
-      return Image.asset(fallbackAsset, fit: fit);
-    }
+      ),
+    );
   }
 }
 

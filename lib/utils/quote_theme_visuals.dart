@@ -35,17 +35,17 @@ String resolveQuoteThemeFallbackAsset(QuoteTheme theme) {
 }
 
 /// A theme's background resolved to exactly one concrete source: a bundled
-/// default SVG, a custom network URL, or neither (backend sent no image —
-/// caller should fall back to [resolveQuoteThemeFallbackAsset]).
+/// default SVG asset, a custom network URL, or neither (backend sent no
+/// image — caller should fall back to [resolveQuoteThemeFallbackAsset]).
 class ResolvedThemeImage {
-  final String? svgDataUri;
+  final String? svgAssetPath;
   final String? networkUrl;
 
-  const ResolvedThemeImage({this.svgDataUri, this.networkUrl});
+  const ResolvedThemeImage({this.svgAssetPath, this.networkUrl});
 }
 
 /// Resolves [QuoteTheme.image] per its `type`:
-/// - `default`: looks up the bundled SVG by [QuoteThemeImage.id].
+/// - `default`: looks up the bundled SVG asset by [QuoteThemeImage.id].
 /// - `custom`: uses [QuoteThemeImage.src] as a network URL.
 /// - absent, or a default id we don't have artwork for: neither is set, so
 ///   the caller should render [resolveQuoteThemeFallbackAsset] instead.
@@ -63,7 +63,7 @@ ResolvedThemeImage resolveThemeImage(QuoteTheme theme) {
 
   if (image.isDefault && image.id != null) {
     final svg = defaultThemeImages[image.id];
-    if (svg != null) return ResolvedThemeImage(svgDataUri: svg);
+    if (svg != null) return ResolvedThemeImage(svgAssetPath: svg);
   }
 
   return const ResolvedThemeImage();

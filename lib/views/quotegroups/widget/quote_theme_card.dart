@@ -44,7 +44,7 @@ class QuoteThemeCard extends StatelessWidget {
 
     Widget image = AppImageResolver(
       imageUrl: resolvedImage.networkUrl,
-      svgDataUri: resolvedImage.svgDataUri,
+      svgAssetPath: resolvedImage.svgAssetPath,
       fallbackAsset: fallbackAsset,
       borderRadius: borderRadius,
       overlay: Stack(

@@ -45,7 +45,7 @@ class QuoteThemeDetailScreen extends StatelessWidget {
                           width: double.infinity,
                           child: AppImageResolver(
                             imageUrl: resolvedImage.networkUrl,
-                            svgDataUri: resolvedImage.svgDataUri,
+                            svgAssetPath: resolvedImage.svgAssetPath,
                             fallbackAsset:
                                 resolveQuoteThemeFallbackAsset(theme),
                             borderRadius: BorderRadius.circular(24),
