@@ -31,7 +31,9 @@ class AppImageResolver extends StatelessWidget {
 
   bool get _hasNetworkImage {
     final url = imageUrl?.trim();
-    return url != null && url.isNotEmpty && url.startsWith(RegExp(r'https?://'));
+    return url != null &&
+        url.isNotEmpty &&
+        url.startsWith(RegExp(r'https?://'));
   }
 
   @override
@@ -49,15 +51,10 @@ class AppImageResolver extends StatelessWidget {
                     fallbackAsset: fallbackAsset,
                   )
                 : _hasNetworkImage
-                    ? CachedNetworkImage(
+                    ? _RetryingNetworkImage(
                         imageUrl: imageUrl!.trim(),
                         fit: fit,
-                        fadeInDuration: const Duration(milliseconds: 200),
-                        placeholder: (context, url) => const _ImageShimmer(),
-                        errorWidget: (context, url, error) => Image.asset(
-                          fallbackAsset,
-                          fit: fit,
-                        ),
+                        fallbackAsset: fallbackAsset,
                       )
                     : Image.asset(
                         fallbackAsset,
@@ -67,6 +64,70 @@ class AppImageResolver extends StatelessWidget {
           if (overlay != null) overlay!,
         ],
       ),
+    );
+  }
+}
+
+/// A [CachedNetworkImage] that retries a couple of times (behind the same
+/// shimmer placeholder) before giving up to [fallbackAsset]. Guards against
+/// the app's very first network image request — right after a cold launch —
+/// transiently failing (DNS/TLS not warmed up yet) and flashing the fallback
+/// asset for a real theme image that would have succeeded a moment later.
+class _RetryingNetworkImage extends StatefulWidget {
+  final String imageUrl;
+  final BoxFit fit;
+  final String fallbackAsset;
+
+  const _RetryingNetworkImage({
+    required this.imageUrl,
+    required this.fit,
+    required this.fallbackAsset,
+  });
+
+  @override
+  State<_RetryingNetworkImage> createState() => _RetryingNetworkImageState();
+}
+
+class _RetryingNetworkImageState extends State<_RetryingNetworkImage> {
+  static const _maxRetries = 2;
+  static const _retryDelay = Duration(milliseconds: 500);
+
+  int _attempt = 0;
+  bool _gaveUp = false;
+  bool _retryScheduled = false;
+
+  void _scheduleRetry() {
+    if (_retryScheduled) return;
+    if (_attempt >= _maxRetries) {
+      if (mounted) setState(() => _gaveUp = true);
+      return;
+    }
+    _retryScheduled = true;
+    Future.delayed(_retryDelay, () {
+      if (!mounted) return;
+      setState(() {
+        _attempt++;
+        _retryScheduled = false;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_gaveUp) {
+      return Image.asset(widget.fallbackAsset, fit: widget.fit);
+    }
+    return CachedNetworkImage(
+      // Forces a fresh attempt each retry instead of reusing a failed one.
+      key: ValueKey(_attempt),
+      imageUrl: widget.imageUrl,
+      fit: widget.fit,
+      fadeInDuration: const Duration(milliseconds: 200),
+      placeholder: (context, url) => const _ImageShimmer(),
+      errorWidget: (context, url, error) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => _scheduleRetry());
+        return const _ImageShimmer();
+      },
     );
   }
 }

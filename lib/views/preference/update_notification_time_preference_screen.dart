@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:motivational/extensions/media_query_extension.dart';
 import 'package:motivational/extensions/size_box_extension.dart';
 import 'package:motivational/providers/theme_provider.dart';
-import 'package:motivational/services/api_service.dart';
 import 'package:motivational/utils/icons.dart';
 import 'package:motivational/views/auth/widget/auth_button.dart';
 import 'package:motivational/views/widgets/custom_loader_center.dart';
@@ -45,12 +44,17 @@ class _UpdateNotificationTimePreferenceScreenState
   Widget build(BuildContext context) {
     final provider = context.watch<NotificationTimePreferenceProvider>();
     final themeProvider = context.watch<ThemeProvider>();
+    // Only ever sourced from the rich theme list — no cached/local fallback,
+    // so the card never flashes a possibly-incomplete version of the theme
+    // before the real data (image, stats) is ready. While the preference
+    // fetch (which resolves selectedThemeId) is still in flight, this stays
+    // null and the loading state below is shown instead.
     QuoteTheme? currentTheme;
     try {
       currentTheme = themeProvider.quoteThemesList
           .firstWhere((val) => val.id == provider.selectedThemeId);
     } catch (_) {
-      currentTheme = ApiService.userData?.quotetheme;
+      currentTheme = null;
     }
     return Scaffold(
       body: IconWrapperBody(
@@ -84,27 +88,34 @@ class _UpdateNotificationTimePreferenceScreenState
                   child: Column(
                     children: [
                       25.vSpace(),
-                      if (currentTheme != null)
-                        SizedBox(
-                          height: currentTheme.isPopular ? 180 : 140,
-                          child: QuoteThemeCard(
-                            theme: currentTheme,
-                            fallbackAsset:
-                                resolveQuoteThemeFallbackAsset(currentTheme),
-                            showExpandIcon: false,
-                            onTap: () => Navigator.of(context)
+                      if (provider.getPreferenceLoading)
+                        const SizedBox(
+                          height: 140,
+                          child: CustomLoaderCenter(),
+                        )
+                      else ...[
+                        if (currentTheme != null)
+                          SizedBox(
+                            height: currentTheme.isPopular ? 180 : 140,
+                            child: QuoteThemeCard(
+                              theme: currentTheme,
+                              fallbackAsset:
+                                  resolveQuoteThemeFallbackAsset(currentTheme),
+                              showExpandIcon: false,
+                              onTap: () => Navigator.of(context)
+                                  .pushNamed(Routes.changeQuoteTheme),
+                            ),
+                          ),
+                        16.vSpace(),
+                        Align(
+                          child: AuthButton(
+                            buttonWidth: 390,
+                            text: 'Change Theme',
+                            onPressed: () => Navigator.of(context)
                                 .pushNamed(Routes.changeQuoteTheme),
                           ),
                         ),
-                      16.vSpace(),
-                      Align(
-                        child: AuthButton(
-                          buttonWidth: 390,
-                          text: 'Change Theme',
-                          onPressed: () => Navigator.of(context)
-                              .pushNamed(Routes.changeQuoteTheme),
-                        ),
-                      ),
+                      ],
                       20.vSpace(),
                       if (provider.getPreferenceLoading)
                         const CustomLoaderCenter()
