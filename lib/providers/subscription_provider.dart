@@ -327,7 +327,20 @@ class SubscriptionProvider extends ChangeNotifier {
 
       switch (purchase.status) {
         case PurchaseStatus.purchased:
+          if (_pendingProductId != null) {
+            await _handleSuccessfulPurchase(purchase);
+          } else {
+            // Stale re-delivery from a previous session — the server already
+            // has the correct state. Just finish the transaction so StoreKit
+            // stops re-delivering it; never re-verify on the backend.
+            _addLog('⏭️ Finishing stale transaction: ${purchase.productID}');
+            await _completePurchase(purchase);
+          }
+          _processedTransactionIds.add(purchaseId);
+          break;
+
         case PurchaseStatus.restored:
+          // Only arrives from an explicit restorePurchases() call — always process.
           await _handleSuccessfulPurchase(purchase);
           _processedTransactionIds.add(purchaseId);
           break;
