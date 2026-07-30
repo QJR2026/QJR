@@ -46,8 +46,9 @@ class _SelectNotificationTimePreferenceScreenState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              40.vSpace(),
-              const CustomBackButton(),
+              // 40.vSpace(),
+              20.vSpace(),
+              // const CustomBackButton(),
               30.vSpace(),
               const Text(
                 'Quote Groups.',

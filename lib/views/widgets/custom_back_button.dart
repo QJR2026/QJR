@@ -25,7 +25,9 @@ class CustomBackButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onPressed != null ? () => onPressed!() : () => MyApp.gState.pop(),
+      onTap: onPressed != null
+          ? () => onPressed!()
+          : () => MyApp.gState.canPop() ? MyApp.gState.pop() : null,
       child: Container(
         height: size ?? 50.pxV(),
         width: size ?? 50.pxV(),

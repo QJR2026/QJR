@@ -118,7 +118,7 @@ class QuoteThemeCard extends StatelessWidget {
                         ),
                         6.hSpace(),
                         Text(
-                          'Used by ${theme.usedByCount}+ users',
+                          'Used by ${theme.usedByCount} users',
                           style: TextStyle(
                             fontSize: 14.pxH(),
                             fontWeight: FontWeight.w500,
