@@ -9,7 +9,7 @@ class UserData {
   final String packageId;
   QuoteTheme? quotetheme;
   final bool hasPreference;
-  final CardDetail? cardDetail;
+  // final CardDetail? cardDetail;
   final bool autoRenew;
   final bool isGlobal;
   final bool isPremium;
@@ -22,7 +22,7 @@ class UserData {
     required this.packageId,
     this.quotetheme,
     required this.hasPreference,
-    required this.cardDetail,
+    // required this.cardDetail,
     required this.autoRenew,
     required this.isCard,
     required this.isGlobal,
@@ -40,9 +40,9 @@ class UserData {
       quotetheme:
           json['theme'] == null ? null : QuoteTheme.fromJson(json['theme']!),
       hasPreference: json['hasPreference'] ?? false,
-      cardDetail: (json['brand'] ?? '').toString().isEmpty
-          ? null
-          : CardDetail.fromJson(json),
+      // cardDetail: (json['brand'] ?? '').toString().isEmpty
+      //     ? null
+      //     : CardDetail.fromJson(json),
       autoRenew: json['auto_renew'] == 1,
       isGlobal: json['isGlobal'] == 1,
       isCard: json['isCard'] == 1,
@@ -78,10 +78,10 @@ class UserData {
       'auto_renew': autoRenew ? 1 : 0,
       'isGlobal': isGlobal ? 1 : 0,
       'isPremium': isPremium ? 1 : 0,
-      'brand': cardDetail?.brand,
-      'exp_month': cardDetail?.expMonth,
-      'exp_year': cardDetail?.expiryYear,
-      'last4': cardDetail?.last4,
+      // 'brand': cardDetail?.brand,
+      // 'exp_month': cardDetail?.expMonth,
+      // 'exp_year': cardDetail?.expiryYear,
+      // 'last4': cardDetail?.last4,
       'subscription': {
         'isActive': isIAPSubsucriptionActive,
       },
@@ -111,7 +111,7 @@ class UserData {
       packageId: packageId ?? this.packageId,
       quotetheme: theme ?? this.quotetheme,
       hasPreference: hasPreference ?? this.hasPreference,
-      cardDetail: cardDetail ?? this.cardDetail,
+      // cardDetail: cardDetail ?? this.cardDetail,
       autoRenew: autoRenew ?? this.autoRenew,
       isGlobal: isGlobal ?? this.isGlobal,
       isPremium: isPremium ?? this.isPremium,

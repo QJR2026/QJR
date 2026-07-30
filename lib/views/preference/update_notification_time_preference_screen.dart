@@ -103,16 +103,9 @@ class _UpdateNotificationTimePreferenceScreenState
                               fallbackAsset:
                                   resolveQuoteThemeFallbackAsset(currentTheme),
                               showExpandIcon: false,
-                              onTap: () => Navigator.of(context)
-                                  .pushNamed(Routes.changeQuoteTheme),
-                              onArrowTap: () => Navigator.of(context).pushNamed(
-                                Routes.quoteThemeDetail,
-                                arguments: QuoteThemeDetailArgs(
-                                  theme: currentTheme!,
-                                  continueButtonText: 'Close',
-                                  onContinue: () => Navigator.of(context).pop(),
-                                ),
-                              ),
+                              onTap: () => _onDetailTap(context, currentTheme!),
+                              onArrowTap: () =>
+                                  _onDetailTap(context, currentTheme!),
                             ),
                           ),
                         16.vSpace(),
@@ -588,6 +581,17 @@ class _UpdateNotificationTimePreferenceScreenState
             const CustomForwardIcon(),
           ],
         ),
+      ),
+    );
+  }
+
+  void _onDetailTap(BuildContext context, QuoteTheme quoteTheme) {
+    Navigator.of(context).pushNamed(
+      Routes.quoteThemeDetail,
+      arguments: QuoteThemeDetailArgs(
+        theme: quoteTheme,
+        continueButtonText: 'Close',
+        onContinue: () => Navigator.of(context).pop(),
       ),
     );
   }

@@ -70,7 +70,7 @@ class _SelectNotificationTimePreferenceScreenState
               25.vSpace(),
               if (theme != null)
                 SizedBox(
-                  height: 138.pxV(),
+                   height: theme.isPopular ? 180 : 140,
                   width: double.infinity,
                   child: QuoteThemeCard(
                     theme: theme,
