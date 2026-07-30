@@ -53,7 +53,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                     style: TextStyle(fontSize: 38, fontWeight: FontWeight.w500),
                   ),
                   const Text(
-                    "Please Login To Your Account!",
+                    "Enter your registered email and we'll send you a reset code.",
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                   ),
                   60.vSpace(),
@@ -63,6 +63,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                     controller: emailController,
                     prefixIconAsset: IconAssets.email,
                     validator: FormValidators.emailValidator,
+                    keyboardType: TextInputType.emailAddress,
                     // bottomSpace: 5,
                   ),
                   40.vSpace(),

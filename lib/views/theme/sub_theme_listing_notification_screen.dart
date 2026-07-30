@@ -34,14 +34,17 @@ class _SubThemeNotificationListingScreenState
   }
 
   Future<void> _onRefresh() async {
+    final isAuthenticated = ApiService.authToken != null;
     try {
       await Future.wait([
-        context.read<UserProvider>().getUserDetail(),
-        context.read<ThemeProvider>().getAllSubThemeNotifications(),
+        if (isAuthenticated) context.read<UserProvider>().getUserDetail(),
+        if (isAuthenticated)
+          context.read<ThemeProvider>().getAllSubThemeNotifications(),
       ]);
     } catch (_) {
       return;
     }
+    if (!isAuthenticated) return;
     final userData = ApiService.userData;
     if (userData == null) return;
     if (!userData.isAdminAllowed && !userData.isIAPSubsucriptionActive) {
