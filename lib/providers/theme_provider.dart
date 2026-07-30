@@ -333,6 +333,26 @@ class ThemeProvider with ChangeNotifier {
     }
   }
 
+  /// Fetches all themes in a single request (no page/limit params).
+  /// Used by screens that need the complete list — e.g. the preference screen
+  /// checking whether the saved themeId still exists in the catalogue.
+  Future<void> fetchAllQuoteThemes() async {
+    startGetQuoteThemesLoading();
+    getQuoteThemesError = null;
+    try {
+      final result = await _themeRepo.getAllQuoteThemes(noPagination: true);
+      quoteThemesList = result.themes;
+      _quoteThemesPage = result.page;
+      _quoteThemesTotalPages = result.totalPages;
+      totalQuoteThemesCount = result.total;
+      quoteThemesListGeneration++;
+    } catch (error) {
+      getQuoteThemesError = error.toString();
+    } finally {
+      stopGetQuoteThemesLoading();
+    }
+  }
+
   /// Pull-to-refresh: re-fetches page 1 and replaces the list, without
   /// toggling [getQuoteThemesLoading] so the pull spinner (not a full-page
   /// loader) represents progress. Keeps the existing list visible on failure.

@@ -287,7 +287,7 @@ class NotificationTimePreferenceProvider with ChangeNotifier {
     try {
       init();
       final themeProvider = MyApp.gCtx.read<ThemeProvider>();
-      await themeProvider.getAllQuoteThemes(refresh: true);
+      await themeProvider.fetchAllQuoteThemes();
 
       final fetchedPreference =
           await _notificationRepo.getPrefrenceForNotication();

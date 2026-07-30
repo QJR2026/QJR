@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:motivational/extensions/media_query_extension.dart';
 
 import '../../utils/icons.dart';
 import '/extensions/size_box_extension.dart';
@@ -69,15 +70,10 @@ class ThemeImageUploadBox extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.image_outlined,
-              size: 32,
-              color: MyColors.blackTypeColor.withOpacity(0.6),
-            ),
             Image.asset(
               IconAssets.galleryIcon,
-              width: 32,
-              height: 32,
+              width: 32.pxH(),
+              height: 32.pxH(),
             ),
             10.vSpace(),
             const Text(

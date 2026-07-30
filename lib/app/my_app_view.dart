@@ -86,7 +86,8 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           fontFamily: 'Urbanist',
         ),
-        // home: const SelectQuoteGroupsThemeScreen(), // TEMP: visual verification, revert before commit
+        // home:
+        //     const SelectQuoteGroupsThemeScreen(), // TEMP: visual verification, revert before commit
         home:
             const SplashScreen(), // TEMP: visual verification, revert before commit
 

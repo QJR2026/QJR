@@ -14,18 +14,19 @@ class ThemeRepository {
   Future<QuoteThemesPage> getAllQuoteThemes({
     int page = 1,
     int limit = 8,
+    bool noPagination = false,
   }) async {
     final ApiService apiService = ApiService();
     try {
       final response = await apiService.get(
         ApiEndpoints.getAllQuoteThemes,
-        queryParameters: {'page': page, 'limit': limit},
+        queryParameters: noPagination ? null : {'page': page, 'limit': limit},
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return QuoteThemesPage.fromJson(
           response.data as Map<String, dynamic>,
-          requestedPage: page,
+          requestedPage: noPagination ? 1 : page,
         );
       } else {
         throw CustomException(
