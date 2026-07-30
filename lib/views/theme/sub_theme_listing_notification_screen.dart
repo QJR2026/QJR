@@ -132,9 +132,18 @@ class _SubThemeNotificationListingScreenState
               if (provider.getSubThemesLoading)
                 const Expanded(child: CustomLoaderCenter())
               else if (provider.notificationSubThemeList.isEmpty)
-                const Expanded(
-                  child: NoDataWidget(
-                    text: 'Theme quotes data not found.',
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: _onRefresh,
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.6,
+                        child: const NoDataWidget(
+                          text: 'Theme quotes data not found.',
+                        ),
+                      ),
+                    ),
                   ),
                 )
               else
