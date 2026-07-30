@@ -377,6 +377,10 @@ class SubscriptionProvider extends ChangeNotifier {
 
   Future<void> _verifyPurchaseOnServer(
       PurchaseDetails purchase, bool isUpgrade) async {
+    // Capture before any await or reset — stale StoreKit re-deliveries arrive
+    // with _pendingProductId == null because the user didn't initiate them.
+    final wasUserInitiated = _pendingProductId != null;
+
     try {
       _addLog('🚀 Verifying on backend...');
 
@@ -414,7 +418,8 @@ class SubscriptionProvider extends ChangeNotifier {
           _addLog('🎉 Subscription upgraded!');
           _addLog('📦 Previous: $oldProductId → New: $newProductId');
 
-          if (EditPaymentPlanScreen.isOnSubscriptionChangePage &&
+          if (wasUserInitiated &&
+              EditPaymentPlanScreen.isOnSubscriptionChangePage &&
               Navigator.canPop(MyApp.gCtx)) {
             _resetPurchaseState();
             MyApp.gState.pop();
