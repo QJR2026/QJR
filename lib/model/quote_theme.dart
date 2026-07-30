@@ -43,7 +43,7 @@ class QuoteTheme {
   final int? usersLeft30;
   final int? qjrCount;
 
-  /// Pre-formatted display date from the backend, e.g. "Jul 28, 2026".
+  /// ISO 8601 timestamp from the backend, e.g. "2026-07-30T09:41:55.000Z".
   final String? lastUpdated;
 
   QuoteTheme({
@@ -96,11 +96,31 @@ class QuoteTheme {
     return jsonList.map((json) => QuoteTheme.fromJson(json)).toList();
   }
 
-  /// Display text for the last-updated row, e.g. "Updated Jul 28, 2026".
-  /// Null when the backend didn't send a date.
-  String? get updatedAgoText => lastUpdated != null && lastUpdated!.isNotEmpty
-      ? 'Updated $lastUpdated'
-      : null;
+  /// Human-readable "time ago" string, e.g. "Updated 3h ago".
+  /// Returns null when [lastUpdated] is null, empty, or unparseable.
+  String? get updatedAgoText {
+    if (lastUpdated == null || lastUpdated!.isEmpty) return null;
+    final date = DateTime.tryParse(lastUpdated!);
+    if (date == null) return null;
+    final diff = DateTime.now().difference(date.toLocal());
+    final String ago;
+    if (diff.inSeconds < 60) {
+      ago = 'Just now';
+    } else if (diff.inMinutes < 60) {
+      ago = '${diff.inMinutes} mins ago';
+    } else if (diff.inHours < 24) {
+      ago = '${diff.inHours} hrs ago';
+    } else if (diff.inDays < 7) {
+      ago = '${diff.inDays}d ago';
+    } else if (diff.inDays < 30) {
+      ago = '${(diff.inDays / 7).floor()}w ago';
+    } else if (diff.inDays < 365) {
+      ago = '${(diff.inDays / 30).floor()}mo ago';
+    } else {
+      ago = '${(diff.inDays / 365).floor()}y ago';
+    }
+    return 'Updated $ago';
+  }
 }
 
 /// One page of the paginated get-all-themes response, along with enough

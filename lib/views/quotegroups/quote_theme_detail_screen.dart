@@ -124,7 +124,7 @@ class QuoteThemeDetailScreen extends StatelessWidget {
                               ),
                               6.hSpace(),
                               Text(
-                                'Used by ${theme.usedByCount} users',
+                                'Used by ${theme.usedByCount ?? 0} ${theme.usedByCount == 1 ? 'user' : 'users'}',
                                 style: TextStyle(
                                   fontSize: 13.pxH(),
                                   fontWeight: FontWeight.w500,

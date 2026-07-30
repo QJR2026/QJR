@@ -106,7 +106,7 @@ class SubscriptionProvider extends ChangeNotifier {
       try {
         response = await _inAppPurchase
             .queryProductDetails(_kIds)
-            .timeout(const Duration(seconds: 15));
+            .timeout(const Duration(seconds: 30));
       } on TimeoutException {
         isLoading = false;
         productsError =
