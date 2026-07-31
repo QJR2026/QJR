@@ -69,8 +69,13 @@ class Preference {
     }
 
     // Parse days
-    List<String>? parsedDays =
-        json['days'] != null ? (json['days'] as String).split(',') : null;
+    final rawDays = json['days'];
+    List<String>? parsedDays;
+    if (rawDays is String && rawDays.isNotEmpty) {
+      parsedDays = rawDays.split(',');
+    } else if (rawDays is List) {
+      parsedDays = rawDays.map((e) => e.toString()).toList();
+    }
     bool isDaily = parsedDays?.contains('Daily') ?? false;
 
     return Preference(
@@ -90,6 +95,7 @@ class Preference {
           : null,
     );
   }
+ 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
