@@ -235,6 +235,9 @@ import 'package:provider/provider.dart';
 import 'package:motivational/app/my_app_view.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../providers/user_provider.dart';
+import '../../services/api_service.dart';
+import '../../utils/navigation_helper.dart';
 import '../../utils/routes.dart';
 import '/utils/my_colors.dart';
 import '/extensions/size_box_extension.dart';
@@ -272,6 +275,19 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   final ValueNotifier<ProductDetails?> selectedId =
       ValueNotifier<ProductDetails?>(null);
 
+  Future<void> _onRefresh() async {
+    try {
+      await context.read<UserProvider>().getUserDetail();
+    } catch (_) {
+      return;
+    }
+    final userData = ApiService.userData;
+    if (userData == null || !mounted) return;
+    if (userData.isAdminAllowed) {
+      NavigationHelper.navigateAfterAuth();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<SubscriptionProvider>();
@@ -281,154 +297,159 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       body: Stack(
         children: [
           Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            120.vSpace(),
-            const Text(
-              'Payment Method.',
-              style: TextStyle(
-                fontSize: 38,
-                fontWeight: FontWeight.w600,
-                color: MyColors.blackTypeColor,
-              ),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    25.vSpace(),
-                    // const Text(
-                    //   'To continue enjoying our premium features, please select a payment plan that suits your needs and enter your card details below. Your payment information will be securely processed.',
-                    //   style: TextStyle(
-                    //     fontSize: 14,
-                    //     fontWeight: FontWeight.w400,
-                    //     color: MyColors.colorE1E1,
-                    //   ),
-                    // ),
-                    // 16.vSpace(),
-                    // const Text(
-                    //   'Choose from our available plans to unlock exclusive content and remove limitations. Once you\'ve selected a plan, provide your card details to complete the payment process.',
-                    //   style: TextStyle(
-                    //     fontSize: 14,
-                    //     fontWeight: FontWeight.w400,
-                    //     color: MyColors.colorE1E1,
-                    //   ),
-                    // ),
-                    // 16.vSpace(),
-                    const Text(
-                      'QJR doesn’t sell or store any information. Your QJR will show up randomly during your selected time frames. Your QJR is also random. No two are alike.  Always remember, Jesus is in Control.',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: MyColors.colorE1E1,
-                      ),
-                    ),
-                    40.vSpace(),
-                    if (provider.isLoading) ...[
-                      const CustomLoaderCenter(),
-                      40.vSpace(),
-                    ] else if (provider.products.isEmpty &&
-                        provider.productsError != null)
-                      ProductsErrorRetry(
-                        message: provider.productsError!,
-                        onRetry: () => provider.retryLoadProducts(),
-                      )
-                    else if (provider.products.isEmpty)
-                      const Text(
-                        'No payment plan found',
-                        style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.w600,
-                          color: MyColors.blackTypeColor,
-                        ),
-                      )
-                    else ...[
-                      const Text(
-                        'Choose your plan.',
-                        style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.w600,
-                          color: MyColors.blackTypeColor,
-                        ),
-                      ),
-                      12.vSpace(),
-                      ...provider.products.map((val) {
-                        return ValueListenableBuilder(
-                          valueListenable: selectedId,
-                          builder: (context, value, child) {
-                            return PaymentPlanWidget(
-                                paymentPlan: val,
-                                selected: val == value,
-                                onTap: () {
-                                  selectedId.value = val;
-                                });
-                          },
-                        );
-                      }),
-                    ],
-
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.end,
-                    //   children: [
-                    //     const Text('Auto Renew'),
-                    //     ValueListenableBuilder<bool>(
-                    //       valueListenable: _isChecked,
-                    //       builder: (context, isChecked, child) {
-                    //         return Checkbox.adaptive(
-                    //           activeColor: MyColors.blackTypeColor,
-                    //           checkColor: MyColors.primaryColor,
-                    //           value: isChecked,
-                    //           onChanged: (bool? newValue) {
-                    //             if (newValue != null) {
-                    //               _isChecked.value = newValue;
-                    //             }
-                    //           },
-                    //         );
-                    //       },
-                    //     ),
-                    //     10.hSpace()
-                    //   ],
-                    // ),
-
-                    30.vSpace(),
-                    ValueListenableBuilder(
-                      valueListenable: selectedId,
-                      builder: (context, value, child) {
-                        return Align(
-                          child: AuthButton(
-                            disable: value == null || provider.isProcessing,
-                            loading: provider.isProcessing,
-                            text: 'Pay now',
-                            onPressed: () => provider.buy(value!),
-                            // padding: const EdgeInsets.symmetric(
-                            //     horizontal: 24, vertical: 14),
-                          ),
-                        );
-                      },
-                    ),
-
-                    // cardWidget(selected: true),
-                    40.vSpace(),
-                    TermsOfServiceAndPrivacyPolicy(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      text:
-                          'By selecting payment plan you agree to Quick Jesus Reminder’s',
-                      termOfServiceOnPressed: () =>
-                          MyApp.gState.pushNamed(Routes.termsOfService),
-                      privacyPolicyOnPressed: () =>
-                          MyApp.gState.pushNamed(Routes.privacyPolicy),
-                    ),
-                    70.vSpace(),
-                  ],
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                120.vSpace(),
+                const Text(
+                  'Payment Method.',
+                  style: TextStyle(
+                    fontSize: 38,
+                    fontWeight: FontWeight.w600,
+                    color: MyColors.blackTypeColor,
+                  ),
                 ),
-              ),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: _onRefresh,
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          25.vSpace(),
+                          // const Text(
+                          //   'To continue enjoying our premium features, please select a payment plan that suits your needs and enter your card details below. Your payment information will be securely processed.',
+                          //   style: TextStyle(
+                          //     fontSize: 14,
+                          //     fontWeight: FontWeight.w400,
+                          //     color: MyColors.colorE1E1,
+                          //   ),
+                          // ),
+                          // 16.vSpace(),
+                          // const Text(
+                          //   'Choose from our available plans to unlock exclusive content and remove limitations. Once you\'ve selected a plan, provide your card details to complete the payment process.',
+                          //   style: TextStyle(
+                          //     fontSize: 14,
+                          //     fontWeight: FontWeight.w400,
+                          //     color: MyColors.colorE1E1,
+                          //   ),
+                          // ),
+                          // 16.vSpace(),
+                          const Text(
+                            'QJR doesn’t sell or store any information. Your QJR will show up randomly during your selected time frames. Your QJR is also random. No two are alike.  Always remember, Jesus is in Control.',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              color: MyColors.colorE1E1,
+                            ),
+                          ),
+                          40.vSpace(),
+                          if (provider.isLoading) ...[
+                            const CustomLoaderCenter(),
+                            40.vSpace(),
+                          ] else if (provider.products.isEmpty &&
+                              provider.productsError != null)
+                            ProductsErrorRetry(
+                              message: provider.productsError!,
+                              onRetry: () => provider.retryLoadProducts(),
+                            )
+                          else if (provider.products.isEmpty)
+                            const Text(
+                              'No payment plan found',
+                              style: TextStyle(
+                                fontSize: 30,
+                                fontWeight: FontWeight.w600,
+                                color: MyColors.blackTypeColor,
+                              ),
+                            )
+                          else ...[
+                            const Text(
+                              'Choose your plan.',
+                              style: TextStyle(
+                                fontSize: 30,
+                                fontWeight: FontWeight.w600,
+                                color: MyColors.blackTypeColor,
+                              ),
+                            ),
+                            12.vSpace(),
+                            ...provider.products.map((val) {
+                              return ValueListenableBuilder(
+                                valueListenable: selectedId,
+                                builder: (context, value, child) {
+                                  return PaymentPlanWidget(
+                                      paymentPlan: val,
+                                      selected: val == value,
+                                      onTap: () {
+                                        selectedId.value = val;
+                                      });
+                                },
+                              );
+                            }),
+                          ],
+
+                          // Row(
+                          //   mainAxisAlignment: MainAxisAlignment.end,
+                          //   children: [
+                          //     const Text('Auto Renew'),
+                          //     ValueListenableBuilder<bool>(
+                          //       valueListenable: _isChecked,
+                          //       builder: (context, isChecked, child) {
+                          //         return Checkbox.adaptive(
+                          //           activeColor: MyColors.blackTypeColor,
+                          //           checkColor: MyColors.primaryColor,
+                          //           value: isChecked,
+                          //           onChanged: (bool? newValue) {
+                          //             if (newValue != null) {
+                          //               _isChecked.value = newValue;
+                          //             }
+                          //           },
+                          //         );
+                          //       },
+                          //     ),
+                          //     10.hSpace()
+                          //   ],
+                          // ),
+
+                          30.vSpace(),
+                          ValueListenableBuilder(
+                            valueListenable: selectedId,
+                            builder: (context, value, child) {
+                              return Align(
+                                child: AuthButton(
+                                  disable:
+                                      value == null || provider.isProcessing,
+                                  loading: provider.isProcessing,
+                                  text: 'Pay now',
+                                  onPressed: () => provider.buy(value!),
+                                  // padding: const EdgeInsets.symmetric(
+                                  //     horizontal: 24, vertical: 14),
+                                ),
+                              );
+                            },
+                          ),
+
+                          // cardWidget(selected: true),
+                          40.vSpace(),
+                          TermsOfServiceAndPrivacyPolicy(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            text:
+                                'By selecting payment plan you agree to Quick Jesus Reminder’s',
+                            termOfServiceOnPressed: () =>
+                                MyApp.gState.pushNamed(Routes.termsOfService),
+                            privacyPolicyOnPressed: () =>
+                                MyApp.gState.pushNamed(Routes.privacyPolicy),
+                          ),
+                          70.vSpace(),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
           SafeArea(
             child: Align(
               alignment: Alignment.topRight,
