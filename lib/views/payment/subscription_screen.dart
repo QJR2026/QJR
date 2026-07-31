@@ -429,6 +429,15 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                               );
                             },
                           ),
+                          12.vSpace(),
+                          Center(
+                            child: TextButton(
+                              onPressed: provider.isProcessing
+                                  ? null
+                                  : () => provider.restorePurchases(),
+                              child: const Text('Restore Purchases'),
+                            ),
+                          ),
 
                           // cardWidget(selected: true),
                           40.vSpace(),

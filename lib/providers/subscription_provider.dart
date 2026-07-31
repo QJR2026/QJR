@@ -37,6 +37,7 @@ class SubscriptionProvider extends ChangeNotifier {
   String? _pendingProductId;
 
   bool _hasNavigatedToHome = false;
+  bool _isRestoring = false;
 
   static const String kMonthlyProductId = 'monthly_plan';
   static const String kYearlyProductId = 'yearly_plan';
@@ -281,12 +282,26 @@ class SubscriptionProvider extends ChangeNotifier {
     try {
       _addLog('♻️ Restoring purchases...');
       isProcessing = true;
+      _isRestoring = true;
       notifyListeners();
 
       await _clearPendingTransactions();
       await _inAppPurchase.restorePurchases();
+      // _isRestoring stays true — StoreKit delivers restored events
+      // asynchronously via the purchase stream after this returns.
+      // Fallback: if no restored events arrive within 10 s (nothing to restore),
+      // clear the flag so it doesn't leak.
+      Future.delayed(const Duration(seconds: 10), () {
+        if (_isRestoring) {
+          _isRestoring = false;
+          _addLog('⚠️ Restore timed out — no purchases found');
+          CustomSnackBar.showError(message: 'No previous purchases found to restore.');
+          notifyListeners();
+        }
+      });
     } catch (e) {
       _addLog('❌ Restore error: $e');
+      _isRestoring = false;
       CustomSnackBar.showError(message: 'Failed to restore purchases: $e');
     } finally {
       isProcessing = false;
@@ -343,6 +358,7 @@ class SubscriptionProvider extends ChangeNotifier {
           // Only arrives from an explicit restorePurchases() call — always process.
           await _handleSuccessfulPurchase(purchase);
           _processedTransactionIds.add(purchaseId);
+          _isRestoring = false;
           break;
 
         case PurchaseStatus.error:
@@ -392,7 +408,7 @@ class SubscriptionProvider extends ChangeNotifier {
       PurchaseDetails purchase, bool isUpgrade) async {
     // Capture before any await or reset — stale StoreKit re-deliveries arrive
     // with _pendingProductId == null because the user didn't initiate them.
-    final wasUserInitiated = _pendingProductId != null;
+    final wasUserInitiated = _pendingProductId != null || _isRestoring;
 
     try {
       _addLog('🚀 Verifying on backend...');
@@ -563,6 +579,7 @@ class SubscriptionProvider extends ChangeNotifier {
 
   void _resetPurchaseState() {
     _pendingProductId = null;
+    _isRestoring = false;
     isProcessing = false;
     notifyListeners();
   }
