@@ -86,11 +86,17 @@ class SubscriptionProvider extends ChangeNotifier {
         : 'Something went wrong with your purchase. Please try again.';
   }
 
+  void _addToProcessed(String id) {
+    if (_processedTransactionIds.length >= 100) _processedTransactionIds.clear();
+    _processedTransactionIds.add(id);
+  }
+
   void _addLog(String message) {
     final timestamp = DateTime.now().toIso8601String().substring(11, 19);
     final logEntry = "[$timestamp] $message";
     if (kDebugMode) print("🟢 IAP: $logEntry");
     logs.insert(0, logEntry);
+    if (logs.length > 200) logs.removeLast();
     notifyListeners();
   }
 
@@ -224,7 +230,7 @@ class SubscriptionProvider extends ChangeNotifier {
       for (final transaction in transactions) {
         try {
           await wrapper.finishTransaction(transaction);
-          _processedTransactionIds.add(transaction.transactionIdentifier!);
+          _addToProcessed(transaction.transactionIdentifier!);
           _addLog('✅ Finished: ${transaction.transactionIdentifier}');
         } catch (e) {
           _addLog('⚠️ Error finishing transaction: $e');
@@ -345,9 +351,9 @@ class SubscriptionProvider extends ChangeNotifier {
       await _inAppPurchase.restorePurchases();
       // _isRestoring stays true — StoreKit delivers restored events
       // asynchronously via the purchase stream after this returns.
-      // Fallback: if no restored events arrive within 10 s (nothing to restore),
+      // Fallback: if no restored events arrive within 15 s (nothing to restore),
       // clear the flag so it doesn't leak.
-      Future.delayed(const Duration(seconds: 10), () {
+      Future.delayed(const Duration(seconds: 15), () {
         if (_isRestoring) {
           _isRestoring = false;
           _addLog('⚠️ Restore timed out — no purchases found');
@@ -358,7 +364,7 @@ class SubscriptionProvider extends ChangeNotifier {
     } catch (e) {
       _addLog('❌ Restore error: $e');
       _isRestoring = false;
-      CustomSnackBar.showError(message: 'Failed to restore purchases: $e');
+      CustomSnackBar.showError(message: 'Failed to restore purchases. Please try again.');
     } finally {
       isProcessing = false;
       notifyListeners();
@@ -370,7 +376,8 @@ class SubscriptionProvider extends ChangeNotifier {
     purchases = list;
 
     for (final purchase in list) {
-      final purchaseId = purchase.purchaseID ?? 'unknown';
+      final purchaseId = purchase.purchaseID ??
+          '${purchase.productID}-${purchase.transactionDate}';
 
       final isExpectedChange =
           _pendingProductId != null && purchase.productID == _pendingProductId;
@@ -390,7 +397,7 @@ class SubscriptionProvider extends ChangeNotifier {
           activeProductId == purchase.productID &&
           _pendingProductId == null) {
         _addLog('⏭️ Skipping: already subscribed to ${purchase.productID}');
-        _processedTransactionIds.add(purchaseId);
+        _addToProcessed(purchaseId);
         continue;
       }
 
@@ -407,19 +414,19 @@ class SubscriptionProvider extends ChangeNotifier {
             _addLog('⏭️ Finishing stale transaction: ${purchase.productID}');
             await _completePurchase(purchase);
           }
-          _processedTransactionIds.add(purchaseId);
+          _addToProcessed(purchaseId);
           break;
 
         case PurchaseStatus.restored:
           // Only arrives from an explicit restorePurchases() call — always process.
           await _handleSuccessfulPurchase(purchase);
-          _processedTransactionIds.add(purchaseId);
+          _addToProcessed(purchaseId);
           _isRestoring = false;
           break;
 
         case PurchaseStatus.error:
           _addLog('❌ Error: ${purchase.error?.message}');
-          _processedTransactionIds.add(purchaseId);
+          _addToProcessed(purchaseId);
           CustomSnackBar.showError(message: _friendlyIAPError(purchase.error));
           await _completePurchase(purchase);
           _resetPurchaseState();
@@ -427,7 +434,7 @@ class SubscriptionProvider extends ChangeNotifier {
 
         case PurchaseStatus.canceled:
           _addLog('⚠️ Purchase canceled');
-          _processedTransactionIds.add(purchaseId);
+          _addToProcessed(purchaseId);
           await _completePurchase(purchase);
           _resetPurchaseState();
           break;
@@ -538,7 +545,7 @@ class SubscriptionProvider extends ChangeNotifier {
     } catch (e) {
       _addLog('❌ Verification error: $e');
       CustomSnackBar.showError(
-        message: 'Failed to verify your purchase: $e',
+        message: 'We could not verify your purchase. Please contact support if the issue persists.',
       );
       _resetPurchaseState();
     }
