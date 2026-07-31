@@ -234,6 +234,7 @@ import 'package:motivational/providers/subscription_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:motivational/app/my_app_view.dart';
 
+import '../../providers/auth_provider.dart';
 import '../../utils/routes.dart';
 import '/utils/my_colors.dart';
 import '/extensions/size_box_extension.dart';
@@ -277,7 +278,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
     //  context.read<PaymentProvider>().getAllPackages();
     return Scaffold(
-      body: Padding(
+      body: Stack(
+        children: [
+          Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -425,6 +428,56 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             ),
           ],
         ),
+      ),
+          SafeArea(
+            child: Align(
+              alignment: Alignment.topRight,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Consumer<AuthProvider>(
+                  builder: (context, authProvider, _) => IconButton(
+                    icon: authProvider.loading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.logout_rounded),
+                    onPressed: authProvider.loading
+                        ? null
+                        : () => _confirmLogout(context, authProvider),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmLogout(BuildContext context, AuthProvider authProvider) {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              authProvider.logout();
+            },
+            child: const Text(
+              'Logout',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
       ),
     );
   }
