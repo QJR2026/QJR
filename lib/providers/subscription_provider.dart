@@ -460,8 +460,17 @@ class SubscriptionProvider extends ChangeNotifier {
         }
 
         _addLog('📦 Product: $activeProductId | ⏰ Expires: $expiresAt');
+      } else if (result['success'] == true && !isSubscribed) {
+        // Backend verified the receipt but the subscription is no longer active
+        // (expired). Show a friendly message — never show the backend's internal
+        // success string as a red error.
+        _addLog('⚠️ Receipt valid but subscription expired.');
+        CustomSnackBar.showError(
+          message: 'Your previous subscription has expired. Please choose a plan to continue.',
+        );
+        _resetPurchaseState();
       } else {
-        _addLog('⚠️ Subscription not active. Backend: ${result['message']}');
+        _addLog('⚠️ Verification failed. Backend: ${result['message']}');
         final backendMessage = result['message'] as String?;
         CustomSnackBar.showError(
           message: backendMessage?.isNotEmpty == true
