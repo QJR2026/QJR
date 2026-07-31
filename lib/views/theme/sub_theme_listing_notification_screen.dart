@@ -44,7 +44,9 @@ class _SubThemeNotificationListingScreenState
     } catch (_) {
       return;
     }
-    if (!isAuthenticated) return;
+    // Re-check after await: a 401 during the refresh clears the token and
+    // navigates to login — don't race it with a subscription navigation.
+    if (ApiService.authToken == null) return;
     final userData = ApiService.userData;
     if (userData == null) return;
     if (!userData.isAdminAllowed && !userData.isIAPSubsucriptionActive) {

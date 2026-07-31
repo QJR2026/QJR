@@ -58,6 +58,8 @@ class DioInterceptor extends Interceptor {
 
     // Handle 401 (Unauthorized)
     if (e.response?.statusCode == 401) {
+      ApiService.authToken = null;
+      ApiService.userData = null;
       AuthRepository().clearPreferences();
       MyApp.gState.pushNamedAndRemoveUntil(Routes.login, (route) => false);
     }
