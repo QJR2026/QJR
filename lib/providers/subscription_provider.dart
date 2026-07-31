@@ -13,7 +13,6 @@ import '../utils/error_handler.dart';
 import '../utils/navigation_helper.dart';
 import '../utils/routes.dart';
 import '../views/payment/edit_payment_plan_screen.dart';
-import '../views/payment/subscription_screen.dart';
 
 class SubscriptionProvider extends ChangeNotifier {
   final InAppPurchase _inAppPurchase = InAppPurchase.instance;
@@ -206,6 +205,7 @@ class SubscriptionProvider extends ChangeNotifier {
     }
 
     _pendingProductId = product.id;
+    _hasNavigatedToHome = false;
     isProcessing = true;
     notifyListeners();
 
@@ -440,7 +440,7 @@ class SubscriptionProvider extends ChangeNotifier {
           }
         } else {
           _addLog('🎉 Subscription activated!');
-          if (SubscriptionScreen.isOnSubscriptionPage) await _navigateToHome();
+          if (wasUserInitiated) await _navigateToHome();
         }
 
         _addLog('📦 Product: $activeProductId | ⏰ Expires: $expiresAt');
