@@ -45,6 +45,47 @@ class SubscriptionProvider extends ChangeNotifier {
 
   final paymentRepo = PaymentRepository();
 
+  String _friendlyIAPError(IAPError? error) {
+    if (error == null) {
+      return 'Something went wrong with your purchase. Please try again.';
+    }
+    final code = error.code;
+    // For PurchaseStatus.error stream events the plugin sets:
+    //   code    = 'purchase_error'  (always)
+    //   message = the error domain string ('SKErrorDomain', 'NSURLErrorDomain', …)
+    // For direct PlatformException throws from buyNonConsumable/restorePurchases:
+    //   code    = the PlatformException code (e.g. 'storekit_duplicate_product_object')
+    //   message = the exception message
+    final domain = error.message;
+
+    // Plugin-level codes — only appear on direct throws, not stream events.
+    if (code == 'storekit_duplicate_product_object') {
+      return 'A purchase is already in progress. Please wait a moment and try again.';
+    }
+
+    // Domain-based checks — reliable for stream errors.
+    if (domain == 'NSURLErrorDomain' || domain.contains('NSURLErrorDomain')) {
+      return 'A network error occurred. Please check your connection and try again.';
+    }
+    if (domain == 'SKErrorDomain' || domain.contains('SKErrorDomain')) {
+      return 'Something went wrong with your purchase. Please try again.';
+    }
+
+    // Fallback: message-text checks for any non-standard formats.
+    if (domain.toLowerCase().contains('network') ||
+        domain.toLowerCase().contains('internet') ||
+        domain.toLowerCase().contains('connection')) {
+      return 'A network error occurred. Please check your connection and try again.';
+    }
+    if (domain.contains('NSError') || domain.contains('Domain=')) {
+      return 'Something went wrong with your purchase. Please try again.';
+    }
+
+    return domain.isNotEmpty
+        ? domain
+        : 'Something went wrong with your purchase. Please try again.';
+  }
+
   void _addLog(String message) {
     final timestamp = DateTime.now().toIso8601String().substring(11, 19);
     final logEntry = "[$timestamp] $message";
@@ -214,6 +255,15 @@ class SubscriptionProvider extends ChangeNotifier {
       _addLog('💰 Starting purchase: ${product.id}');
       await _clearPendingTransactions();
 
+      // A purchasing transaction can't be finished while still in-flight.
+      // If the product is still in the queue after clearing, don't add a
+      // duplicate — the existing stream event will deliver the result.
+      final remaining = await SKPaymentQueueWrapper().transactions();
+      if (remaining.any((t) => t.payment.productIdentifier == product.id)) {
+        _addLog('⏳ Already in StoreKit queue — waiting for existing transaction');
+        return;
+      }
+
       final param = PurchaseParam(productDetails: product);
       await _inAppPurchase
           .buyNonConsumable(purchaseParam: param)
@@ -228,7 +278,7 @@ class SubscriptionProvider extends ChangeNotifier {
       _resetPurchaseState();
     } catch (e) {
       _addLog('❌ Purchase error: $e');
-      CustomSnackBar.showError(message: 'Purchase failed: $e');
+      CustomSnackBar.showError(message: 'Something went wrong with your purchase. Please try again.');
       _resetPurchaseState();
     }
   }
@@ -257,6 +307,12 @@ class SubscriptionProvider extends ChangeNotifier {
       _addLog('🔄 Changing subscription: $activeProductId → ${newProduct.id}');
       await _clearPendingTransactions();
 
+      final remaining = await SKPaymentQueueWrapper().transactions();
+      if (remaining.any((t) => t.payment.productIdentifier == newProduct.id)) {
+        _addLog('⏳ Already in StoreKit queue — waiting for existing transaction');
+        return;
+      }
+
       final param = PurchaseParam(productDetails: newProduct);
       await _inAppPurchase
           .buyNonConsumable(purchaseParam: param)
@@ -271,7 +327,7 @@ class SubscriptionProvider extends ChangeNotifier {
       _resetPurchaseState();
     } catch (e) {
       _addLog('❌ Change subscription error: $e');
-      CustomSnackBar.showError(message: 'Failed to change subscription: $e');
+      CustomSnackBar.showError(message: 'Something went wrong. Please try again.');
       _resetPurchaseState();
     }
   }
@@ -364,11 +420,7 @@ class SubscriptionProvider extends ChangeNotifier {
         case PurchaseStatus.error:
           _addLog('❌ Error: ${purchase.error?.message}');
           _processedTransactionIds.add(purchaseId);
-          CustomSnackBar.showError(
-            message: purchase.error?.message.isNotEmpty == true
-                ? purchase.error!.message
-                : 'Something went wrong with your purchase. Please try again.',
-          );
+          CustomSnackBar.showError(message: _friendlyIAPError(purchase.error));
           await _completePurchase(purchase);
           _resetPurchaseState();
           break;
