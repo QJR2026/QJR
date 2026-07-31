@@ -1,9 +1,17 @@
+enum _Env { production, staging, tunnel }
+
+const _active = _Env.staging; // ← change only this line to switch environment
+
+const _baseUrl = _active == _Env.production
+    ? "https://qjh.mazedigital.us/"
+    : _active == _Env.staging
+        ? "https://qjr-staging.mazedigital.us/"
+        : _active == _Env.tunnel
+            ? "https://0znq2n4t-8080.inc1.devtunnels.ms/"
+            : "https://qjh.mazedigital.us/";
+
 class ApiEndpoints {
-  // static const String baseUrl = "https://qjh.mazedigital.us/";
-  static const String baseUrl = "https://qjr-staging- .mazedigital.us/";
-  //owais tunnel
-  // static const String baseUrl = "https://0znq2n4t-8080.inc1.devtunnels.ms/";
-  // static const String baseUrl = "https://b6z006k3-1020.inc1.devtunnels.ms/";
+  static const String baseUrl = _baseUrl;
   static const String signUp = "${baseUrl}auth/signup";
   static const String verifyEmail = "${baseUrl}auth/verify-email";
   static const String verifyOtp = "${baseUrl}auth/verify-otp";
