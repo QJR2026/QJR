@@ -448,6 +448,10 @@ class SubscriptionProvider extends ChangeNotifier {
   }
 
   Future<void> _completePurchase(PurchaseDetails purchase) async {
+    if (!purchase.pendingCompletePurchase) {
+      _addLog('⏭️ No pending complete needed for ${purchase.productID}');
+      return;
+    }
     try {
       await _inAppPurchase.completePurchase(purchase);
       _addLog('✅ Purchase completed');
