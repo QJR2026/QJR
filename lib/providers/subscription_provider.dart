@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show PlatformException;
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
 import 'package:motivational/app/my_app_view.dart';
@@ -261,15 +262,6 @@ class SubscriptionProvider extends ChangeNotifier {
       _addLog('💰 Starting purchase: ${product.id}');
       await _clearPendingTransactions();
 
-      // A purchasing transaction can't be finished while still in-flight.
-      // If the product is still in the queue after clearing, don't add a
-      // duplicate — the existing stream event will deliver the result.
-      final remaining = await SKPaymentQueueWrapper().transactions();
-      if (remaining.any((t) => t.payment.productIdentifier == product.id)) {
-        _addLog('⏳ Already in StoreKit queue — waiting for existing transaction');
-        return;
-      }
-
       final param = PurchaseParam(productDetails: product);
       await _inAppPurchase
           .buyNonConsumable(purchaseParam: param)
@@ -282,9 +274,28 @@ class SubscriptionProvider extends ChangeNotifier {
         message: 'The purchase request is taking too long. Please try again.',
       );
       _resetPurchaseState();
+    } on PlatformException catch (e) {
+      if (e.code == 'storekit_duplicate_product_object') {
+        // Product is still in-flight — keep _pendingProductId set so the
+        // existing stream event still navigates to home when it arrives.
+        _addLog('⏳ Already in StoreKit queue — waiting for existing transaction');
+        isProcessing = false;
+        notifyListeners();
+        CustomSnackBar.showError(
+          message: 'Your purchase is already being processed. Please wait.',
+        );
+      } else {
+        _addLog('❌ Purchase error: ${e.code} ${e.message}');
+        CustomSnackBar.showError(
+          message: 'Something went wrong with your purchase. Please try again.',
+        );
+        _resetPurchaseState();
+      }
     } catch (e) {
       _addLog('❌ Purchase error: $e');
-      CustomSnackBar.showError(message: 'Something went wrong with your purchase. Please try again.');
+      CustomSnackBar.showError(
+        message: 'Something went wrong with your purchase. Please try again.',
+      );
       _resetPurchaseState();
     }
   }
@@ -316,6 +327,8 @@ class SubscriptionProvider extends ChangeNotifier {
       final remaining = await SKPaymentQueueWrapper().transactions();
       if (remaining.any((t) => t.payment.productIdentifier == newProduct.id)) {
         _addLog('⏳ Already in StoreKit queue — waiting for existing transaction');
+        isProcessing = false;
+        notifyListeners();
         return;
       }
 
@@ -331,6 +344,21 @@ class SubscriptionProvider extends ChangeNotifier {
         message: 'The request is taking too long. Please try again.',
       );
       _resetPurchaseState();
+    } on PlatformException catch (e) {
+      if (e.code == 'storekit_duplicate_product_object') {
+        _addLog('⏳ Already in StoreKit queue — waiting for existing transaction');
+        isProcessing = false;
+        notifyListeners();
+        CustomSnackBar.showError(
+          message: 'Your purchase is already being processed. Please wait.',
+        );
+      } else {
+        _addLog('❌ Change subscription error: ${e.code} ${e.message}');
+        CustomSnackBar.showError(
+          message: 'Something went wrong. Please try again.',
+        );
+        _resetPurchaseState();
+      }
     } catch (e) {
       _addLog('❌ Change subscription error: $e');
       CustomSnackBar.showError(message: 'Something went wrong. Please try again.');
