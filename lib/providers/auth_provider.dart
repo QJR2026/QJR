@@ -261,6 +261,7 @@ class AuthProvider with ChangeNotifier {
     try {
       await _authRepo.logout();
       MyApp.gCtx.read<ThemeProvider>().resetQuoteThemes();
+      MyApp.gCtx.read<SubscriptionProvider>().clearSubscriptionData();
     } catch (error) {
       CustomSnackBar.showError(message: error.toString());
     } finally {
@@ -273,6 +274,7 @@ class AuthProvider with ChangeNotifier {
     try {
       await _authRepo.deleteAccount();
       MyApp.gCtx.read<ThemeProvider>().resetQuoteThemes();
+      MyApp.gCtx.read<SubscriptionProvider>().clearSubscriptionData();
     } catch (error) {
       CustomSnackBar.showError(message: error.toString());
     } finally {

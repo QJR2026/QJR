@@ -1211,23 +1211,11 @@ class _EditPaymentPlanScreenState extends State<EditPaymentPlanScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final provider =
           Provider.of<SubscriptionProvider>(context, listen: false);
-      provider.initStoreInfo();
-      selectedId.value = provider.activePlan;
-
-      // final userProvider = context.read<UserProvider>();
-      // final paymentProvider = context.read<PaymentProvider>();
-
-      // // Run both API calls simultaneously
-      // await Future.wait([
-      //   userProvider.getUserDetail(),
-      //   paymentProvider.getAllPackages(),
-      // ]);
-
-      // // Proceed after both are done
-      // String? packageId = ApiService.userData?.packageId;
-      // if (packageId != null) {
-      //   paymentProvider.setSelectedId(int.parse(packageId));
-      // }
+      await provider.initStoreInfo();
+      // Seed selection once from the current plan — never overwrite a user tap.
+      if (selectedId.value == null) {
+        selectedId.value = provider.activePlan;
+      }
     });
 
     super.initState();
@@ -1245,6 +1233,15 @@ class _EditPaymentPlanScreenState extends State<EditPaymentPlanScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<SubscriptionProvider>();
+
+    // Seed once when products/active plan become available — never clobber a tap.
+    if (selectedId.value == null && provider.activePlan != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (selectedId.value == null) {
+          selectedId.value = provider.activePlan;
+        }
+      });
+    }
 
     // final userProvider = context.watch<UserProvider>();
     return Scaffold(

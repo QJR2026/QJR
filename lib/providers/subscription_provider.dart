@@ -14,6 +14,7 @@ import '../utils/error_handler.dart';
 import '../utils/navigation_helper.dart';
 import '../utils/routes.dart';
 import '../views/payment/edit_payment_plan_screen.dart';
+import '../views/payment/subscription_screen.dart';
 
 class SubscriptionProvider extends ChangeNotifier {
   final InAppPurchase _inAppPurchase = InAppPurchase.instance;
@@ -39,6 +40,13 @@ class SubscriptionProvider extends ChangeNotifier {
 
   bool _hasNavigatedToHome = false;
   bool _isRestoring = false;
+  bool _listenerAttached = false;
+
+  /// Serializes async purchase-stream handlers so they cannot race on shared state.
+  Future<void> _purchaseUpdateChain = Future.value();
+
+  Timer? _purchaseWatchdog;
+  Timer? _restoreTimeoutTimer;
 
   static const String kMonthlyProductId = 'monthly_plan';
   static const String kYearlyProductId = 'yearly_plan';
@@ -101,6 +109,24 @@ class SubscriptionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Accepts both flat and `{ data: { ... } }` backend shapes.
+  Map<String, dynamic> _normalizeSubscriptionResult(dynamic result) {
+    if (result is! Map) return <String, dynamic>{};
+    final map = Map<String, dynamic>.from(result);
+    final data = map['data'];
+    if (data is Map) {
+      final nested = Map<String, dynamic>.from(data);
+      return <String, dynamic>{
+        'success': map['success'] ?? nested['success'] ?? true,
+        'isActive': map['isActive'] ?? nested['isActive'] ?? false,
+        'expiresAt': map['expiresAt'] ?? nested['expiresAt'],
+        'productId': map['productId'] ?? nested['productId'],
+        'message': map['message'] ?? nested['message'],
+      };
+    }
+    return map;
+  }
+
   Future<void> initialize() async {
     if (_isInitialized) {
       _addLog('⚠️ Already initialized, skipping...');
@@ -110,15 +136,19 @@ class SubscriptionProvider extends ChangeNotifier {
     _addLog('Initializing In-App Purchase...');
 
     try {
-      await _clearPendingTransactions();
+      // Attach listener once, before touching the queue, so purchased events are not lost.
+      if (!_listenerAttached) {
+        _subscription = _inAppPurchase.purchaseStream.listen(
+          _enqueuePurchaseUpdates,
+          onError: (error) => _addLog('❌ Purchase stream error: $error'),
+          onDone: () => _addLog('✅ Purchase stream closed'),
+        );
+        _listenerAttached = true;
+        _addLog('✅ Purchase stream listener attached');
+      }
 
-      _subscription = _inAppPurchase.purchaseStream.listen(
-        _handlePurchaseUpdates,
-        onError: (error) => _addLog('❌ Purchase stream error: $error'),
-        onDone: () => _addLog('✅ Purchase stream closed'),
-      );
-
-      _addLog('✅ Purchase stream listener attached');
+      // Only finish failed transactions — never finish purchased/restored here.
+      await _finishFailedTransactions();
 
       await initStoreInfo();
 
@@ -130,6 +160,7 @@ class SubscriptionProvider extends ChangeNotifier {
       _isInitialized = true;
     } catch (e) {
       _addLog('❌ Initialization error: $e');
+      // Allow a later retry; keep listener if already attached.
     }
   }
 
@@ -183,7 +214,6 @@ class SubscriptionProvider extends ChangeNotifier {
       }
 
       products = response.productDetails;
-      // isLoading = false;
       notifyListeners();
       _addLog('✅ Products fetched: ${products.map((p) => p.id).join(", ")}');
     } catch (e) {
@@ -215,9 +245,11 @@ class SubscriptionProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> _clearPendingTransactions() async {
+  /// Finishes only failed StoreKit transactions. Purchased/restored must go
+  /// through the purchase stream → verify → completePurchase path.
+  Future<void> _finishFailedTransactions() async {
     try {
-      _addLog('🧹 Clearing pending transactions...');
+      _addLog('🧹 Finishing failed transactions only...');
       final wrapper = SKPaymentQueueWrapper();
       final transactions = await wrapper.transactions();
 
@@ -229,16 +261,23 @@ class SubscriptionProvider extends ChangeNotifier {
       _addLog('Found ${transactions.length} transaction(s)');
 
       for (final transaction in transactions) {
+        final state = transaction.transactionState;
+        if (state != SKPaymentTransactionStateWrapper.failed) {
+          _addLog(
+              '⏭️ Leaving $state transaction for purchase stream: ${transaction.transactionIdentifier}');
+          continue;
+        }
         try {
           await wrapper.finishTransaction(transaction);
-          _addToProcessed(transaction.transactionIdentifier!);
-          _addLog('✅ Finished: ${transaction.transactionIdentifier}');
+          final id = transaction.transactionIdentifier;
+          if (id != null) _addToProcessed(id);
+          _addLog('✅ Finished failed: $id');
         } catch (e) {
-          _addLog('⚠️ Error finishing transaction: $e');
+          _addLog('⚠️ Error finishing failed transaction: $e');
         }
       }
     } catch (e) {
-      _addLog('❌ Error clearing transactions: $e');
+      _addLog('❌ Error finishing failed transactions: $e');
     }
   }
 
@@ -257,10 +296,11 @@ class SubscriptionProvider extends ChangeNotifier {
     _hasNavigatedToHome = false;
     isProcessing = true;
     notifyListeners();
+    _armPurchaseWatchdog();
 
     try {
       _addLog('💰 Starting purchase: ${product.id}');
-      await _clearPendingTransactions();
+      await _finishFailedTransactions();
 
       final param = PurchaseParam(productDetails: product);
       await _inAppPurchase
@@ -281,7 +321,7 @@ class SubscriptionProvider extends ChangeNotifier {
         _addLog('⏳ Already in StoreKit queue — waiting for existing transaction');
         isProcessing = false;
         notifyListeners();
-        CustomSnackBar.showError(
+        CustomSnackBar.showPrimary(
           message: 'Your purchase is already being processed. Please wait.',
         );
       } else {
@@ -317,12 +357,14 @@ class SubscriptionProvider extends ChangeNotifier {
     }
 
     _pendingProductId = newProduct.id;
+    _hasNavigatedToHome = false;
     isProcessing = true;
     notifyListeners();
+    _armPurchaseWatchdog();
 
     try {
       _addLog('🔄 Changing subscription: $activeProductId → ${newProduct.id}');
-      await _clearPendingTransactions();
+      await _finishFailedTransactions();
 
       final remaining = await SKPaymentQueueWrapper().transactions();
       if (remaining.any((t) => t.payment.productIdentifier == newProduct.id)) {
@@ -349,7 +391,7 @@ class SubscriptionProvider extends ChangeNotifier {
         _addLog('⏳ Already in StoreKit queue — waiting for existing transaction');
         isProcessing = false;
         notifyListeners();
-        CustomSnackBar.showError(
+        CustomSnackBar.showPrimary(
           message: 'Your purchase is already being processed. Please wait.',
         );
       } else {
@@ -367,36 +409,52 @@ class SubscriptionProvider extends ChangeNotifier {
   }
 
   Future<void> restorePurchases() async {
-    if (isProcessing) return;
+    if (isProcessing || _isRestoring) return;
 
     try {
       _addLog('♻️ Restoring purchases...');
       isProcessing = true;
       _isRestoring = true;
+      _hasNavigatedToHome = false;
       notifyListeners();
 
-      await _clearPendingTransactions();
+      await _finishFailedTransactions();
       await _inAppPurchase.restorePurchases();
-      // _isRestoring stays true — StoreKit delivers restored events
-      // asynchronously via the purchase stream after this returns.
-      // Fallback: if no restored events arrive within 15 s (nothing to restore),
-      // clear the flag so it doesn't leak.
-      Future.delayed(const Duration(seconds: 15), () {
-        if (_isRestoring) {
-          _isRestoring = false;
-          _addLog('⚠️ Restore timed out — no purchases found');
-          CustomSnackBar.showError(message: 'No previous purchases found to restore.');
-          notifyListeners();
-        }
+      // Keep isProcessing / _isRestoring until stream events arrive or timeout.
+      _restoreTimeoutTimer?.cancel();
+      _restoreTimeoutTimer = Timer(const Duration(seconds: 15), () async {
+        if (!_isRestoring) return;
+        _addLog('⚠️ Restore timed out — checking server before giving up');
+        _isRestoring = false;
+        isProcessing = false;
+        notifyListeners();
+        try {
+          final active = await checkDeviceSubscriptionOnServer();
+          if (active && SubscriptionScreen.isOnSubscriptionPage) {
+            await _navigateToHome();
+            return;
+          }
+        } catch (_) {}
+        CustomSnackBar.showError(
+          message: 'No previous purchases found to restore.',
+        );
       });
     } catch (e) {
       _addLog('❌ Restore error: $e');
       _isRestoring = false;
-      CustomSnackBar.showError(message: 'Failed to restore purchases. Please try again.');
-    } finally {
       isProcessing = false;
+      _restoreTimeoutTimer?.cancel();
+      CustomSnackBar.showError(message: 'Failed to restore purchases. Please try again.');
       notifyListeners();
     }
+  }
+
+  void _enqueuePurchaseUpdates(List<PurchaseDetails> list) {
+    _purchaseUpdateChain = _purchaseUpdateChain
+        .then((_) => _handlePurchaseUpdates(list))
+        .catchError((Object e) {
+      _addLog('❌ Purchase queue error: $e');
+    });
   }
 
   Future<void> _handlePurchaseUpdates(List<PurchaseDetails> list) async {
@@ -412,6 +470,12 @@ class SubscriptionProvider extends ChangeNotifier {
 
       if (_processedTransactionIds.contains(purchaseId) && !isExpectedChange) {
         _addLog('⏭️ Skipping already processed: $purchaseId');
+        // User may be stuck on subscription after a prior success — recover.
+        if (purchase.status == PurchaseStatus.purchased &&
+            SubscriptionScreen.isOnSubscriptionPage &&
+            !_hasNavigatedToHome) {
+          await _fallbackNavigateIfActive();
+        }
         continue;
       }
 
@@ -421,34 +485,47 @@ class SubscriptionProvider extends ChangeNotifier {
         _processedTransactionIds.remove(purchaseId);
       }
 
-      if (isSubscribed &&
-          activeProductId == purchase.productID &&
-          _pendingProductId == null) {
-        _addLog('⏭️ Skipping: already subscribed to ${purchase.productID}');
-        _addToProcessed(purchaseId);
-        continue;
-      }
-
       _addLog('🧾 ${purchase.productID} | ${purchase.status}');
 
       switch (purchase.status) {
         case PurchaseStatus.purchased:
-          if (_pendingProductId != null) {
-            await _handleSuccessfulPurchase(purchase);
+          final wasUserInitiated =
+              _pendingProductId != null || _isRestoring;
+          if (wasUserInitiated) {
+            // Explicit buy / change / in-flight restore — verify + UI feedback.
+            final ok = await _handleSuccessfulPurchase(purchase);
+            if (ok) _addToProcessed(purchaseId);
+          } else if (!isSubscribed) {
+            // Not subscribed yet (e.g. paywall) — verify so activation can proceed.
+            final ok = await _handleSuccessfulPurchase(purchase);
+            if (ok) _addToProcessed(purchaseId);
           } else {
-            // Stale re-delivery from a previous session — the server already
-            // has the correct state. Just finish the transaction so StoreKit
-            // stops re-delivering it; never re-verify on the backend.
-            _addLog('⏭️ Finishing stale transaction: ${purchase.productID}');
+            // Already subscribed + not user-initiated = stale StoreKit redelivery.
+            // Finish only — never re-verify / change activeProductId / pop / snackbar.
+            _addLog(
+                '⏭️ Finishing stale transaction: ${purchase.productID}');
             await _completePurchase(purchase);
+            _addToProcessed(purchaseId);
+            if (SubscriptionScreen.isOnSubscriptionPage &&
+                !_hasNavigatedToHome) {
+              await _fallbackNavigateIfActive();
+            }
           }
-          _addToProcessed(purchaseId);
           break;
 
         case PurchaseStatus.restored:
-          // Only arrives from an explicit restorePurchases() call — always process.
-          await _handleSuccessfulPurchase(purchase);
-          _addToProcessed(purchaseId);
+          // Only honor restore events from an explicit restorePurchases() call.
+          // Unexpected restored redeliveries must not flip activeProductId / selection.
+          if (!_isRestoring) {
+            _addLog(
+                '⏭️ Ignoring unexpected restored event: ${purchase.productID}');
+            await _completePurchase(purchase);
+            _addToProcessed(purchaseId);
+            break;
+          }
+          final ok = await _handleSuccessfulPurchase(purchase);
+          if (ok) _addToProcessed(purchaseId);
+          _restoreTimeoutTimer?.cancel();
           _isRestoring = false;
           break;
 
@@ -468,18 +545,33 @@ class SubscriptionProvider extends ChangeNotifier {
           break;
 
         case PurchaseStatus.pending:
-          _addLog('⏳ Pending...');
+          _addLog('⏳ Pending (Ask to Buy / deferred)...');
+          // Keep _pendingProductId + isProcessing so approval can complete later.
+          isProcessing = true;
+          notifyListeners();
+          CustomSnackBar.showPrimary(
+            message:
+                'Your purchase is pending approval. We\'ll continue once it\'s approved.',
+          );
           break;
       }
     }
   }
 
-  Future<void> _handleSuccessfulPurchase(PurchaseDetails purchase) async {
+  /// Returns true when the purchase was fully handled (verified or rejected by
+  /// backend). Returns false on transport errors so StoreKit can redeliver.
+  Future<bool> _handleSuccessfulPurchase(PurchaseDetails purchase) async {
     _addLog('✅ Purchase successful: ${purchase.productID}');
 
     final isUpgrade = isSubscribed && activeProductId != purchase.productID;
-    await _verifyPurchaseOnServer(purchase, isUpgrade);
+    final outcome = await _verifyPurchaseOnServer(purchase, isUpgrade);
+    if (outcome == _VerifyOutcome.transportError) {
+      _addLog(
+          '⚠️ Verify transport error — leaving transaction unfinished for StoreKit retry');
+      return false;
+    }
     await _completePurchase(purchase);
+    return true;
   }
 
   Future<void> _completePurchase(PurchaseDetails purchase) async {
@@ -495,11 +587,15 @@ class SubscriptionProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> _verifyPurchaseOnServer(
+  /// Returns how verification ended so callers know whether to finish the txn.
+  Future<_VerifyOutcome> _verifyPurchaseOnServer(
       PurchaseDetails purchase, bool isUpgrade) async {
-    // Capture before any await or reset — stale StoreKit re-deliveries arrive
-    // with _pendingProductId == null because the user didn't initiate them.
+    // Only true when the user tapped buy / change / restore — NOT merely because
+    // they opened the edit/subscription screen (stale StoreKit events must not
+    // pop, snackbar, or change the selected / active plan).
     final wasUserInitiated = _pendingProductId != null || _isRestoring;
+    final onPaywall = SubscriptionScreen.isOnSubscriptionPage;
+    final wasAlreadySubscribed = isSubscribed;
 
     try {
       _addLog('🚀 Verifying on backend...');
@@ -520,46 +616,63 @@ class SubscriptionProvider extends ChangeNotifier {
       newPay.remove("receipt");
       debugPrint(newPay.toString());
 
-      final result = await paymentRepo.updatePaymentPlanNew(payload);
+      final raw = await paymentRepo.updatePaymentPlanNew(payload);
+      final result = _normalizeSubscriptionResult(raw);
 
-      isSubscribed = result['isActive'] ?? false;
+      final success = result['success'] == true || result['success'] == 'true';
+      isSubscribed = result['isActive'] == true || result['isActive'] == 'true';
       _resetPurchaseState();
 
-      _addLog('📥 Success: ${result['success']}, Active: $isSubscribed');
+      _addLog('📥 Success: $success, Active: $isSubscribed');
 
-      if (result['success'] == true && isSubscribed) {
+      if (success && isSubscribed) {
         final String newProductId = purchase.productID;
         final String? oldProductId = activeProductId;
 
-        activeProductId = newProductId;
-        expiresAt = result['expiresAt'];
+        // Never let a non-user-initiated verify flip the active / selected plan
+        // while the user already has a subscription (edit-screen loop).
+        final mayUpdatePlan = wasUserInitiated || !wasAlreadySubscribed;
+        if (!mayUpdatePlan) {
+          _addLog(
+              '⏭️ Stale verify — keeping activeProductId=$activeProductId (ignoring $newProductId)');
+          return _VerifyOutcome.handled;
+        }
 
-        if (isUpgrade) {
+        activeProductId = newProductId;
+        expiresAt = result['expiresAt']?.toString();
+        notifyListeners();
+
+        if (isUpgrade && wasUserInitiated) {
           _addLog('🎉 Subscription upgraded!');
           _addLog('📦 Previous: $oldProductId → New: $newProductId');
 
-          if (wasUserInitiated &&
-              EditPaymentPlanScreen.isOnSubscriptionChangePage &&
+          // Pop + success ONLY after an explicit changeSubscription tap.
+          if (EditPaymentPlanScreen.isOnSubscriptionChangePage &&
               Navigator.canPop(MyApp.gCtx)) {
-            _resetPurchaseState();
             MyApp.gState.pop();
             showCenteredSnackBar();
           }
-        } else {
+        } else if (!isUpgrade) {
           _addLog('🎉 Subscription activated!');
-          if (wasUserInitiated) await _navigateToHome();
+          // First-time activation: user buy/restore, or stuck on paywall.
+          if (wasUserInitiated || onPaywall) {
+            await _ensureNavigatedAfterActivation();
+          } else {
+            _addLog(
+                '⏭️ Active but not user-initiated / not on paywall — skip navigate');
+          }
         }
 
         _addLog('📦 Product: $activeProductId | ⏰ Expires: $expiresAt');
-      } else if (result['success'] == true && !isSubscribed) {
-        // Backend verified the receipt but the subscription is no longer active
-        // (expired). Show a friendly message — never show the backend's internal
-        // success string as a red error.
+        return _VerifyOutcome.handled;
+      } else if (success && !isSubscribed) {
         _addLog('⚠️ Receipt valid but subscription expired.');
         CustomSnackBar.showError(
-          message: 'Your previous subscription has expired. Please choose a plan to continue.',
+          message:
+              'Your previous subscription has expired. Please choose a plan to continue.',
         );
         _resetPurchaseState();
+        return _VerifyOutcome.handled;
       } else {
         _addLog('⚠️ Verification failed. Backend: ${result['message']}');
         final backendMessage = result['message'] as String?;
@@ -569,13 +682,23 @@ class SubscriptionProvider extends ChangeNotifier {
               : 'We could not verify your purchase. Please try again.',
         );
         _resetPurchaseState();
+        if (SubscriptionScreen.isOnSubscriptionPage) {
+          await _fallbackNavigateIfActive();
+        }
+        // Backend responded — finish txn to avoid infinite redelivery of a rejected receipt.
+        return _VerifyOutcome.handled;
       }
     } catch (e) {
       _addLog('❌ Verification error: $e');
       CustomSnackBar.showError(
-        message: 'We could not verify your purchase. Please contact support if the issue persists.',
+        message:
+            'We could not verify your purchase. Please contact support if the issue persists.',
       );
       _resetPurchaseState();
+      if (SubscriptionScreen.isOnSubscriptionPage) {
+        await _fallbackNavigateIfActive();
+      }
+      return _VerifyOutcome.transportError;
     }
   }
 
@@ -611,6 +734,32 @@ class SubscriptionProvider extends ChangeNotifier {
     );
   }
 
+  /// Navigate now, then re-check after a short delay if still on subscription.
+  Future<void> _ensureNavigatedAfterActivation() async {
+    await _navigateToHome();
+
+    Future.delayed(const Duration(seconds: 2), () async {
+      if (!SubscriptionScreen.isOnSubscriptionPage) return;
+      _addLog('⚠️ Still on subscription screen after navigate — running fallback');
+      _hasNavigatedToHome = false;
+      await _fallbackNavigateIfActive();
+    });
+  }
+
+  Future<void> _fallbackNavigateIfActive() async {
+    try {
+      final active = await checkDeviceSubscriptionOnServer();
+      if (active &&
+          SubscriptionScreen.isOnSubscriptionPage &&
+          !_hasNavigatedToHome) {
+        _addLog('🏠 Fallback: server active — navigating');
+        await _navigateToHome();
+      }
+    } catch (e) {
+      _addLog('❌ Fallback check failed: $e');
+    }
+  }
+
   // Keep IAP listener alive — do NOT cancel it here.
   Future<void> _navigateToHome() async {
     if (_hasNavigatedToHome) {
@@ -627,6 +776,8 @@ class SubscriptionProvider extends ChangeNotifier {
       _addLog('✅ Navigation complete');
     } catch (e) {
       _addLog('❌ Navigation error: $e');
+      // Allow a later retry / fallback to navigate.
+      _hasNavigatedToHome = false;
     }
   }
 
@@ -636,20 +787,22 @@ class SubscriptionProvider extends ChangeNotifier {
 
       final deviceId = await DeviceInfo.getDeviceId() ?? 'unknown';
 
-      final result =
+      final raw =
           await paymentRepo.checkSubscription({"device_id": deviceId});
+      final result = _normalizeSubscriptionResult(raw);
 
-      isSubscribed = result['isActive'] ?? false;
+      isSubscribed =
+          result['isActive'] == true || result['isActive'] == 'true';
 
       _addLog('📊 Status: ${isSubscribed ? "ACTIVE" : "INACTIVE"}');
 
       if (result['productId'] != null) {
-        activeProductId = result['productId'];
+        activeProductId = result['productId']?.toString();
         _addLog('📦 Product: $activeProductId');
       }
 
       if (result['expiresAt'] != null) {
-        expiresAt = result['expiresAt'];
+        expiresAt = result['expiresAt']?.toString();
         _addLog('⏰ Expires: $expiresAt');
       }
 
@@ -677,10 +830,40 @@ class SubscriptionProvider extends ChangeNotifier {
     }
   }
 
+  void _armPurchaseWatchdog() {
+    _purchaseWatchdog?.cancel();
+    _purchaseWatchdog = Timer(const Duration(minutes: 2), () async {
+      if (_pendingProductId == null && !isProcessing) return;
+      _addLog('⚠️ Purchase watchdog fired — checking server');
+      try {
+        final active = await checkDeviceSubscriptionOnServer();
+        if (active && SubscriptionScreen.isOnSubscriptionPage) {
+          _hasNavigatedToHome = false;
+          await _navigateToHome();
+          return;
+        }
+      } catch (_) {}
+      if (_pendingProductId != null || isProcessing) {
+        CustomSnackBar.showError(
+          message:
+              'This is taking longer than expected. If you were charged, tap Restore Purchases or reopen the app.',
+        );
+        _resetPurchaseState();
+      }
+    });
+  }
+
+  void _cancelPurchaseWatchdog() {
+    _purchaseWatchdog?.cancel();
+    _purchaseWatchdog = null;
+  }
+
   void _resetPurchaseState() {
     _pendingProductId = null;
     _isRestoring = false;
     isProcessing = false;
+    _cancelPurchaseWatchdog();
+    _restoreTimeoutTimer?.cancel();
     notifyListeners();
   }
 
@@ -689,14 +872,27 @@ class SubscriptionProvider extends ChangeNotifier {
     activeProductId = null;
     expiresAt = null;
     _hasNavigatedToHome = false;
+    _pendingProductId = null;
+    _isRestoring = false;
+    isProcessing = false;
+    _processedTransactionIds.clear();
+    _cancelPurchaseWatchdog();
+    _restoreTimeoutTimer?.cancel();
     notifyListeners();
   }
 
   @override
   void dispose() {
     _addLog('🧹 Disposing provider...');
-    _subscription.cancel();
+    _cancelPurchaseWatchdog();
+    _restoreTimeoutTimer?.cancel();
+    if (_listenerAttached) {
+      _subscription.cancel();
+      _listenerAttached = false;
+    }
     _addLog('✅ Listener canceled on app close');
     super.dispose();
   }
 }
+
+enum _VerifyOutcome { handled, transportError }

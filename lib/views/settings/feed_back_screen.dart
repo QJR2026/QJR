@@ -81,6 +81,7 @@ class _FeedBackScreenState extends State<FeedBackScreen> {
                   Expanded(
                     child: SingleChildScrollView(
                       child: MyTextFormField(
+                        backgroundColor: Colors.transparent,
                         hintText: 'Feedback Message',
                         controller: controller,
                         validator: (v) => FormValidators.lengthValidator(
