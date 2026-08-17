@@ -61,10 +61,12 @@
 
 enum _Env { production, staging, tunnel }
 
-const _active = _Env.tunnel; // ← change only this line to switch environment
+const _active =
+    _Env.production; // ← change only this line to switch environment
 
 // const _baseUrl = 'https://0znq2n4t-8080.inc1.devtunnels.ms/';
-const _baseUrl = 'https://qjr-staging-backend.mazedigital.us/';
+// const _baseUrl = 'https://qjr-staging-backend.mazedigital.us/';
+const _baseUrl = 'https://qjh.mazedigital.us/';
 // const _baseUrl = _active == _Env.production
 //     ? "https://qjh.mazedigital.us/"
 //     : _active == _Env.staging
