@@ -283,7 +283,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     }
     final userData = ApiService.userData;
     if (userData == null || !mounted) return;
-    if (userData.isAdminAllowed) {
+    if (userData.isAdminAllowed || userData.isIAPSubsucriptionActive) {
       NavigationHelper.navigateAfterAuth();
     }
   }
