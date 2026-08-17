@@ -35,6 +35,7 @@ class _SubThemeDetailScreenState extends State<SubThemeDetailScreen> {
   }
 
   Color? color;
+  final ValueNotifier<bool> _isSharing = ValueNotifier(false);
 
   markAsFavoriteOrUnFavoriteSubTheme(int subThemeId) async {
     final provider = context.read<FavoriteProvider>();
@@ -44,33 +45,40 @@ class _SubThemeDetailScreenState extends State<SubThemeDetailScreen> {
 
   GlobalKey globalKey = GlobalKey();
   Future<void> captureAndShare() async {
-    RenderRepaintBoundary boundary =
-        globalKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
-    ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+    if (_isSharing.value) return;
+    _isSharing.value = true;
+    try {
+      RenderRepaintBoundary boundary =
+          globalKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+      ui.Image image = await boundary.toImage(pixelRatio: 3.0);
 
-    // Create a recorder to manually draw on a canvas
-    ui.PictureRecorder recorder = ui.PictureRecorder();
-    Canvas canvas = Canvas(recorder);
+      ui.PictureRecorder recorder = ui.PictureRecorder();
+      Canvas canvas = Canvas(recorder);
 
-    // Draw a solid background before painting the widget
-    Paint paint = Paint()..color = Colors.white;
-    canvas.drawRect(
-        Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
-        paint);
+      Paint paint = Paint()..color = Colors.white;
+      canvas.drawRect(
+          Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
+          paint);
 
-    // Draw the captured widget image
-    canvas.drawImage(image, Offset.zero, Paint());
+      canvas.drawImage(image, Offset.zero, Paint());
 
-    // Convert to final image
-    ui.Image finalImage =
-        await recorder.endRecording().toImage(image.width, image.height);
-    ByteData? byteData =
-        await finalImage.toByteData(format: ui.ImageByteFormat.png);
-    Uint8List pngBytes = byteData!.buffer.asUint8List();
+      ui.Image finalImage =
+          await recorder.endRecording().toImage(image.width, image.height);
+      ByteData? byteData =
+          await finalImage.toByteData(format: ui.ImageByteFormat.png);
+      Uint8List pngBytes = byteData!.buffer.asUint8List();
 
-    // Share the image directly without saving
-    await Share.shareXFiles([XFile.fromData(pngBytes, mimeType: 'image/png')],
-        text: "Check this out!");
+      await Share.shareXFiles([XFile.fromData(pngBytes, mimeType: 'image/png')],
+          text: "Check this out!");
+    } finally {
+      _isSharing.value = false;
+    }
+  }
+
+  @override
+  void dispose() {
+    _isSharing.dispose();
+    super.dispose();
   }
 
   @override
@@ -202,15 +210,35 @@ class _SubThemeDetailScreenState extends State<SubThemeDetailScreen> {
                               },
                             ),
                             4.hSpace(),
-                            iconCustomButton(
-                                asset: IconAssets.share,
-                                iconWidth: 24,
-                                iconHeight: 26,
-                                onTap: () {
-                                  if (provider.isLoggedIn()) {
-                                    captureAndShare();
-                                  }
-                                }),
+                            ValueListenableBuilder<bool>(
+                              valueListenable: _isSharing,
+                              builder: (context, isSharing, _) {
+                                if (isSharing) {
+                                  return Container(
+                                    width: 45.pxH(),
+                                    height: 45.pxV(),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    padding: const EdgeInsets.all(10),
+                                    child: const CircularProgressIndicator(
+                                      strokeWidth: 2.5,
+                                      color: MyColors.yellowColor,
+                                    ),
+                                  );
+                                }
+                                return iconCustomButton(
+                                    asset: IconAssets.share,
+                                    iconWidth: 24,
+                                    iconHeight: 26,
+                                    onTap: () {
+                                      if (provider.isLoggedIn()) {
+                                        captureAndShare();
+                                      }
+                                    });
+                              },
+                            ),
                           ],
                         ),
                       )
@@ -220,13 +248,6 @@ class _SubThemeDetailScreenState extends State<SubThemeDetailScreen> {
               ),
             ),
           ),
-          // Consumer<FavoriteProvider>(
-          //   builder: (context, value, child) {
-          //     return value.markAsFavoriteLoading
-          //         ? const Align(child: CircularProgressIndicator())
-          //         : const SizedBox();
-          //   },
-          // )
         ],
       ),
     );

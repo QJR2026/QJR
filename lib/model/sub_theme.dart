@@ -21,7 +21,7 @@ class SubTheme {
     return SubTheme(
       id: json['id'] as int?,
       description: (json['description'] ?? '').toString().trim(),
-      isLiked: json['isLiked'] == 1 ? true : false,
+      isLiked: json['isLiked'] == 1 || json['isLiked'] == true ? true : false,
     );
   }
 
