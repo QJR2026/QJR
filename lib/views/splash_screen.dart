@@ -33,7 +33,6 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _initializeSubscriptionProvider();
     _navigateToHome();
   }
 
@@ -43,12 +42,6 @@ class _SplashScreenState extends State<SplashScreen> {
     _noInternet.dispose();
     _retrying.dispose();
     super.dispose();
-  }
-
-  void _initializeSubscriptionProvider() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<SubscriptionProvider>().initialize();
-    });
   }
 
   void _restoreSession() {

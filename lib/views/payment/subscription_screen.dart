@@ -260,7 +260,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   void initState() {
     SubscriptionScreen.isOnSubscriptionPage = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // context.read<PaymentProvider>().getAllPackages();
+      context.read<SubscriptionProvider>().initialize();
     });
 
     super.initState();
