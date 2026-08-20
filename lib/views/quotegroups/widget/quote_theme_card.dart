@@ -46,7 +46,7 @@ class QuoteThemeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasUsedByCount = theme.usedByCount != null;
     final hasQjrCount = theme.qjrCount != null;
-    final updatedAgoText = theme.updatedAgoText;
+    // final updatedAgoText = theme.updatedAgoText;
     final arrowTap = onArrowTap ?? onTap;
     final hasArrowButton = showArrowButton && arrowTap != null;
     final borderRadius = BorderRadius.circular(30);
@@ -146,36 +146,36 @@ class QuoteThemeCard extends StatelessWidget {
                     ],
                   ),
                 ],
-                if (updatedAgoText != null || hasArrowButton) ...[
+                if (hasArrowButton) ...[
                   12.vSpace(),
                   Row(
                     children: [
-                      if (updatedAgoText != null) ...[
-                        Container(
-                          padding: EdgeInsets.all(2.pxH()),
-                          decoration: BoxDecoration(
-                            color: MyColors.blackTypeColor,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Icon(
-                            Icons.autorenew,
-                            size: 12.pxH(),
-                            color: Colors.white,
-                          ),
-                        ),
-                        4.hSpace(),
-                        Expanded(
-                          child: Text(
-                            updatedAgoText,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 12.pxH(),
-                              fontWeight: FontWeight.w500,
-                              color: MyColors.colorE1E1,
-                            ),
-                          ),
-                        ),
-                      ] else
+                      // if (updatedAgoText != null) ...[
+                      //   Container(
+                      //     padding: EdgeInsets.all(2.pxH()),
+                      //     decoration: BoxDecoration(
+                      //       color: MyColors.blackTypeColor,
+                      //       borderRadius: BorderRadius.circular(6),
+                      //     ),
+                      //     child: Icon(
+                      //       Icons.autorenew,
+                      //       size: 12.pxH(),
+                      //       color: Colors.white,
+                      //     ),
+                      //   ),
+                      //   4.hSpace(),
+                      //   Expanded(
+                      //     child: Text(
+                      //       updatedAgoText,
+                      //       overflow: TextOverflow.ellipsis,
+                      //       style: TextStyle(
+                      //         fontSize: 12.pxH(),
+                      //         fontWeight: FontWeight.w500,
+                      //         color: MyColors.colorE1E1,
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ] else
                         const Spacer(),
                       if (hasArrowButton)
                         CustomBackButton(
@@ -189,6 +189,7 @@ class QuoteThemeCard extends StatelessWidget {
                     ],
                   ),
                 ],
+                
                 16.vSpace(),
               ],
             ),
