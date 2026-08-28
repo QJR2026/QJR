@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
@@ -18,6 +20,35 @@ class OtpScreen extends StatefulWidget {
 class _OtpScreenState extends State<OtpScreen> {
   final formKeyOtp = GlobalKey<FormState>();
   String otp = '';
+
+  final ValueNotifier<int> _countdown = ValueNotifier(60);
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startCountdown();
+  }
+
+  void _startCountdown() {
+    _timer?.cancel();
+    _countdown.value = 60;
+    _timer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (_countdown.value <= 1) {
+        _countdown.value = 0;
+        t.cancel();
+      } else {
+        _countdown.value--;
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _countdown.dispose();
+    super.dispose();
+  }
 
   otpFormSubmit(String email) {
     if (!formKeyOtp.currentState!.validate()) return;
@@ -123,18 +154,41 @@ class _OtpScreenState extends State<OtpScreen> {
                     );
                   }),
                   const Spacer(),
-                  const Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      "Didn’t received code yet?",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 16,
-                        decoration: TextDecoration.underline,
-                        decorationColor: MyColors.blackTypeColor,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
+                  ValueListenableBuilder<int>(
+                    valueListenable: _countdown,
+                    builder: (context, seconds, _) {
+                      final canResend = seconds == 0;
+                      return Align(
+                        alignment: Alignment.center,
+                        child: GestureDetector(
+                          onTap: canResend
+                              ? () {
+                                  context
+                                      .read<AuthProvider>()
+                                      .resendOTP(email: email);
+                                  _startCountdown();
+                                }
+                              : null,
+                          child: Text(
+                            canResend
+                                ? "Didn’t receive code yet? Resend"
+                                : "Resend code in ${seconds}s",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w400,
+                              fontSize: 16,
+                              decoration: canResend
+                                  ? TextDecoration.underline
+                                  : TextDecoration.none,
+                              decorationColor: MyColors.blackTypeColor,
+                              color: canResend
+                                  ? MyColors.blackTypeColor
+                                  : MyColors.colorE1E1,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                   const Spacer(flex: 2),
                 ],

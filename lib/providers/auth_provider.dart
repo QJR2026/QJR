@@ -159,6 +159,18 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  Future<void> resendOTP({required String email}) async {
+    startLoading();
+    try {
+      await _authRepo.verifyEmail({"email": email});
+      CustomSnackBar.showSuccess(message: 'OTP resent successfully.');
+    } catch (error) {
+      CustomSnackBar.showError(message: error.toString());
+    } finally {
+      stopLoading();
+    }
+  }
+
   Future<void> verifyOTP({required String email, required String otp}) async {
     startLoading();
 
