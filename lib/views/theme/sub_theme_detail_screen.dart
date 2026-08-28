@@ -44,6 +44,8 @@ class _SubThemeDetailScreenState extends State<SubThemeDetailScreen> {
   }
 
   GlobalKey globalKey = GlobalKey();
+  final GlobalKey _shareButtonKey = GlobalKey();
+
   Future<void> captureAndShare() async {
     if (_isSharing.value) return;
     _isSharing.value = true;
@@ -68,8 +70,20 @@ class _SubThemeDetailScreenState extends State<SubThemeDetailScreen> {
           await finalImage.toByteData(format: ui.ImageByteFormat.png);
       Uint8List pngBytes = byteData!.buffer.asUint8List();
 
-      await Share.shareXFiles([XFile.fromData(pngBytes, mimeType: 'image/png')],
-          text: "Check this out!");
+      // Determine share button position for iPad popover anchor.
+      Rect shareOrigin = Rect.zero;
+      final renderBox = _shareButtonKey.currentContext?.findRenderObject()
+          as RenderBox?;
+      if (renderBox != null) {
+        final offset = renderBox.localToGlobal(Offset.zero);
+        shareOrigin = offset & renderBox.size;
+      }
+
+      await Share.shareXFiles(
+        [XFile.fromData(pngBytes, mimeType: 'image/png')],
+        text: "Check this out!",
+        sharePositionOrigin: shareOrigin,
+      );
     } finally {
       _isSharing.value = false;
     }
@@ -215,6 +229,7 @@ class _SubThemeDetailScreenState extends State<SubThemeDetailScreen> {
                               builder: (context, isSharing, _) {
                                 if (isSharing) {
                                   return Container(
+                                    key: _shareButtonKey,
                                     width: 45.pxH(),
                                     height: 45.pxV(),
                                     decoration: const BoxDecoration(
@@ -228,15 +243,18 @@ class _SubThemeDetailScreenState extends State<SubThemeDetailScreen> {
                                     ),
                                   );
                                 }
-                                return iconCustomButton(
-                                    asset: IconAssets.share,
-                                    iconWidth: 24,
-                                    iconHeight: 26,
-                                    onTap: () {
-                                      if (provider.isLoggedIn()) {
-                                        captureAndShare();
-                                      }
-                                    });
+                                return KeyedSubtree(
+                                  key: _shareButtonKey,
+                                  child: iconCustomButton(
+                                      asset: IconAssets.share,
+                                      iconWidth: 24,
+                                      iconHeight: 26,
+                                      onTap: () {
+                                        if (provider.isLoggedIn()) {
+                                          captureAndShare();
+                                        }
+                                      }),
+                                );
                               },
                             ),
                           ],
