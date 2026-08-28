@@ -49,8 +49,8 @@ class QuoteThemeDetailScreen extends StatelessWidget {
     }
     final provider = context.watch<ThemeProvider>();
 
-    final hasUsedByCount = theme.usedByCount != null;
-    final hasQjrCount = theme.qjrCount != null;
+    // final hasUsedByCount = theme.usedByCount != null;
+    // final hasQjrCount = theme.qjrCount != null;
     final resolvedImage = resolveThemeImage(theme);
 
     return Scaffold(
@@ -112,46 +112,47 @@ class QuoteThemeDetailScreen extends StatelessWidget {
                           color: MyColors.blackTypeColor,
                         ),
                       ),
-                      if (hasUsedByCount || hasQjrCount) ...[
-                        10.vSpace(),
-                        Row(
-                          children: [
-                            if (hasUsedByCount) ...[
-                              Icon(
-                                Icons.groups_outlined,
-                                size: 16.pxH(),
-                                color: MyColors.blackTypeColor,
-                              ),
-                              6.hSpace(),
-                              Text(
-                                'Used by ${theme.usedByCount ?? 0} ${theme.usedByCount == 1 ? 'user' : 'users'}',
-                                style: TextStyle(
-                                  fontSize: 13.pxH(),
-                                  fontWeight: FontWeight.w500,
-                                  color: MyColors.blackTypeColor,
-                                ),
-                              ),
-                            ],
-                            if (hasUsedByCount && hasQjrCount) 16.hSpace(),
-                            if (hasQjrCount) ...[
-                              Icon(
-                                Icons.article_outlined,
-                                size: 16.pxH(),
-                                color: MyColors.blackTypeColor,
-                              ),
-                              6.hSpace(),
-                              Text(
-                                '${theme.qjrCount} QJR',
-                                style: TextStyle(
-                                  fontSize: 13.pxH(),
-                                  fontWeight: FontWeight.w500,
-                                  color: MyColors.blackTypeColor,
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ],
+                      // if (hasUsedByCount || hasQjrCount) ...[
+                      //   10.vSpace(),
+                      //   Row(
+                      //     children: [
+                      //       if (hasUsedByCount) ...[
+                      //         Icon(
+                      //           Icons.groups_outlined,
+                      //           size: 16.pxH(),
+                      //           color: MyColors.blackTypeColor,
+                      //         ),
+                      //         6.hSpace(),
+                      //         Text(
+                      //           'Used by ${theme.usedByCount ?? 0} ${theme.usedByCount == 1 ? 'user' : 'users'}',
+                      //           style: TextStyle(
+                      //             fontSize: 13.pxH(),
+                      //             fontWeight: FontWeight.w500,
+                      //             color: MyColors.blackTypeColor,
+                      //           ),
+                      //         ),
+                      //       ],
+                      //       if (hasUsedByCount && hasQjrCount) 16.hSpace(),
+                      //       if (hasQjrCount) ...[
+                      //         Icon(
+                      //           Icons.article_outlined,
+                      //           size: 16.pxH(),
+                      //           color: MyColors.blackTypeColor,
+                      //         ),
+                      //         6.hSpace(),
+                      //         Text(
+                      //           '${theme.qjrCount} QJR',
+                      //           style: TextStyle(
+                      //             fontSize: 13.pxH(),
+                      //             fontWeight: FontWeight.w500,
+                      //             color: MyColors.blackTypeColor,
+                      //           ),
+                      //         ),
+                      //       ],
+                      //     ],
+                      //   ),
+                      // ],
+                      
                       16.vSpace(),
                       Text(
                         theme.description ?? '',

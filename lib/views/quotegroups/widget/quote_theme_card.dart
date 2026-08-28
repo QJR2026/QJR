@@ -44,8 +44,8 @@ class QuoteThemeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasUsedByCount = theme.usedByCount != null;
-    final hasQjrCount = theme.qjrCount != null;
+    // final hasUsedByCount = theme.usedByCount != null;
+    // final hasQjrCount = theme.qjrCount != null;
     // final updatedAgoText = theme.updatedAgoText;
     final arrowTap = onArrowTap ?? onTap;
     final hasArrowButton = showArrowButton && arrowTap != null;
@@ -106,46 +106,47 @@ class QuoteThemeCard extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                if (hasUsedByCount || hasQjrCount) ...[
-                  10.vSpace(),
-                  Row(
-                    children: [
-                      if (hasUsedByCount) ...[
-                        Image.asset(
-                          IconAssets.peoples,
-                          height: 18.pxH(),
-                          width: 18.pxH(),
-                        ),
-                        6.hSpace(),
-                        Text(
-                          'Used by ${theme.usedByCount ?? 0} ${theme.usedByCount == 1 ? 'user' : 'users'}',
-                          style: TextStyle(
-                            fontSize: 14.pxH(),
-                            fontWeight: FontWeight.w500,
-                            color: MyColors.colorE1E1,
-                          ),
-                        ),
-                      ],
-                      if (hasUsedByCount && hasQjrCount) 16.hSpace(),
-                      if (hasQjrCount) ...[
-                        Image.asset(
-                          IconAssets.notes,
-                          height: 18.pxH(),
-                          width: 18.pxH(),
-                        ),
-                        6.hSpace(),
-                        Text(
-                          '${theme.qjrCount} QJR',
-                          style: TextStyle(
-                            fontSize: 14.pxH(),
-                            fontWeight: FontWeight.w500,
-                            color: MyColors.colorE1E1,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ],
+                // if (hasUsedByCount || hasQjrCount) ...[
+                //   10.vSpace(),
+                //   Row(
+                //     children: [
+                //       if (hasUsedByCount) ...[
+                //         Image.asset(
+                //           IconAssets.peoples,
+                //           height: 18.pxH(),
+                //           width: 18.pxH(),
+                //         ),
+                //         6.hSpace(),
+                //         Text(
+                //           'Used by ${theme.usedByCount ?? 0} ${theme.usedByCount == 1 ? 'user' : 'users'}',
+                //           style: TextStyle(
+                //             fontSize: 14.pxH(),
+                //             fontWeight: FontWeight.w500,
+                //             color: MyColors.colorE1E1,
+                //           ),
+                //         ),
+                //       ],
+                //       if (hasUsedByCount && hasQjrCount) 16.hSpace(),
+                //       if (hasQjrCount) ...[
+                //         Image.asset(
+                //           IconAssets.notes,
+                //           height: 18.pxH(),
+                //           width: 18.pxH(),
+                //         ),
+                //         6.hSpace(),
+                //         Text(
+                //           '${theme.qjrCount} QJR',
+                //           style: TextStyle(
+                //             fontSize: 14.pxH(),
+                //             fontWeight: FontWeight.w500,
+                //             color: MyColors.colorE1E1,
+                //           ),
+                //         ),
+                //       ],
+                //     ],
+                //   ),
+                // ],
+                
                 if (hasArrowButton) ...[
                   12.vSpace(),
                   Row(
