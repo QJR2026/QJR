@@ -77,7 +77,7 @@ class _UpdateNotificationTimePreferenceScreenState
               ),
               12.vSpace(),
               const Text(
-                'Select a theme to personalize your notifications. Want a different theme? Email Info@quickjesusreminder for a theme request.',
+                'Select a theme to personalize your QJRs.',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
