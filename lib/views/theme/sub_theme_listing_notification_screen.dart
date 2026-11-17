@@ -5,6 +5,7 @@ import 'package:motivational/app/my_app_view.dart';
 import 'package:motivational/model/notification_sub_theme.dart';
 
 import 'package:motivational/utils/my_colors.dart';
+import 'package:motivational/utils/platform_features.dart';
 import 'package:motivational/utils/routes.dart';
 import 'package:provider/provider.dart';
 
@@ -49,7 +50,9 @@ class _SubThemeNotificationListingScreenState
     if (ApiService.authToken == null) return;
     final userData = ApiService.userData;
     if (userData == null) return;
-    if (!userData.isAdminAllowed && !userData.isIAPSubsucriptionActive) {
+    if (PlatformFeatures.isSubscriptionEnabled &&
+        !userData.isAdminAllowed &&
+        !userData.isIAPSubsucriptionActive) {
       if (!mounted) return;
       MyApp.gState.pushNamedAndRemoveUntil(Routes.subscription, (_) => false);
     }

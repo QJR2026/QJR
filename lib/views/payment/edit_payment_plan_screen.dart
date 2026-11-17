@@ -1189,6 +1189,7 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:motivational/utils/custom_snackbar.dart';
 import 'package:provider/provider.dart';
 import '../../providers/subscription_provider.dart';
+import '../../utils/platform_features.dart';
 import '../widgets/custom_back_button.dart';
 import '/utils/my_colors.dart';
 import '/extensions/size_box_extension.dart';
@@ -1209,6 +1210,11 @@ class _EditPaymentPlanScreenState extends State<EditPaymentPlanScreen> {
   void initState() {
     EditPaymentPlanScreen.isOnSubscriptionChangePage = true;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Safety net: plan management is iOS-only. Never query billing on Android.
+      if (!PlatformFeatures.isSubscriptionEnabled) {
+        Navigator.of(context).maybePop();
+        return;
+      }
       final provider =
           Provider.of<SubscriptionProvider>(context, listen: false);
       await provider.initStoreInfo();

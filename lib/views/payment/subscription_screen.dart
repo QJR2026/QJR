@@ -238,6 +238,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../services/api_service.dart';
 import '../../utils/navigation_helper.dart';
+import '../../utils/platform_features.dart';
 import '../../utils/routes.dart';
 import '/utils/my_colors.dart';
 import '/extensions/size_box_extension.dart';
@@ -260,6 +261,11 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   void initState() {
     SubscriptionScreen.isOnSubscriptionPage = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Safety net: the paywall is iOS-only. Never start billing on Android.
+      if (!PlatformFeatures.isSubscriptionEnabled) {
+        NavigationHelper.navigateAfterAuth();
+        return;
+      }
       context.read<SubscriptionProvider>().initialize();
     });
 

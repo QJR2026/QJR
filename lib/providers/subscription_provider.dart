@@ -12,6 +12,7 @@ import '../utils/custom_snackbar.dart';
 import '../utils/device_info.dart';
 import '../utils/error_handler.dart';
 import '../utils/navigation_helper.dart';
+import '../utils/platform_features.dart';
 import '../utils/routes.dart';
 import '../views/payment/edit_payment_plan_screen.dart';
 import '../views/payment/subscription_screen.dart';
@@ -782,6 +783,8 @@ class SubscriptionProvider extends ChangeNotifier {
   }
 
   Future<bool> checkDeviceSubscriptionOnServer() async {
+    // Android build is free — no subscription check needed.
+    if (!PlatformFeatures.isSubscriptionEnabled) return true;
     try {
       _addLog('📡 Checking subscription...');
 
@@ -818,7 +821,8 @@ class SubscriptionProvider extends ChangeNotifier {
   }
 
   Future<void> checkSubscriptionOnServerAndNavigate() async {
-    if (ApiService.userData?.isAdminAllowed == true) {
+    if (!PlatformFeatures.isSubscriptionEnabled ||
+        ApiService.userData?.isAdminAllowed == true) {
       NavigationHelper.navigateAfterAuth();
       return;
     }
