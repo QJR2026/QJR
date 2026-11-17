@@ -9,8 +9,8 @@ import 'package:motivational/utils/routes.dart';
 import 'package:motivational/app/my_app_view.dart';
 import 'package:provider/provider.dart';
 
-import '../repositories/auth_respository.dart';
-import '../services/shared_prefrence_service.dart';
+import '../repositories/auth_repository.dart';
+import '../services/shared_preference_service.dart';
 import '../utils/custom_snackbar.dart';
 import '../utils/device_info.dart';
 import '../utils/navigation_helper.dart';
@@ -269,11 +269,14 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> logout() async {
+    // Resolve app-wide providers before the async gap.
+    final themeProvider = MyApp.gCtx.read<ThemeProvider>();
+    final subscriptionProvider = MyApp.gCtx.read<SubscriptionProvider>();
     startLoading();
     try {
       await _authRepo.logout();
-      MyApp.gCtx.read<ThemeProvider>().resetQuoteThemes();
-      MyApp.gCtx.read<SubscriptionProvider>().clearSubscriptionData();
+      themeProvider.resetQuoteThemes();
+      subscriptionProvider.clearSubscriptionData();
     } catch (error) {
       CustomSnackBar.showError(message: error.toString());
     } finally {
@@ -282,11 +285,14 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> deleteAccount() async {
+    // Resolve app-wide providers before the async gap.
+    final themeProvider = MyApp.gCtx.read<ThemeProvider>();
+    final subscriptionProvider = MyApp.gCtx.read<SubscriptionProvider>();
     startLoading();
     try {
       await _authRepo.deleteAccount();
-      MyApp.gCtx.read<ThemeProvider>().resetQuoteThemes();
-      MyApp.gCtx.read<SubscriptionProvider>().clearSubscriptionData();
+      themeProvider.resetQuoteThemes();
+      subscriptionProvider.clearSubscriptionData();
     } catch (error) {
       CustomSnackBar.showError(message: error.toString());
     } finally {

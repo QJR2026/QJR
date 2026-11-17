@@ -11,7 +11,7 @@ import 'package:provider/provider.dart';
 import '../providers/subscription_provider.dart';
 import '../providers/user_provider.dart';
 import '../services/api_service.dart';
-import '../services/shared_prefrence_service.dart';
+import '../services/shared_preference_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

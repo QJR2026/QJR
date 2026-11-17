@@ -92,51 +92,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           ),
         ),
       ),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      // floatingActionButton: TextButton(
-      //   onPressed: () {
-      //     showConfirmationDialog(
-      //       context,
-      //       'Confirm Deletion',
-      //       'Are you sure you want to delete this item?',
-      //       'Delete',
-      //       () => _deleteAccount(),
-      //     );
-      //   },
-      //   child: const Text(
-      //     'Delete Account',
-      //     style: TextStyle(fontSize: 17, color: Colors.red),
-      //   ),
-      // ),
 
       resizeToAvoidBottomInset: false,
     );
   }
-
-  // void _deleteAccount() {
-  //   context.read<AuthProvider>().deleteAccount();
-  // }
-
-  // void showConfirmationDialog(
-  //   BuildContext context,
-  //   String title,
-  //   String content,
-  //   String confirmText,
-  //   VoidCallback onConfirm,
-  // ) {
-  //   showDialog(
-  //     context: context,
-  //     barrierDismissible: false,
-  //     builder: (BuildContext context) {
-  //       return CustomConfirmationDialog(
-  //         title: title,
-  //         content: content,
-  //         confirmText: confirmText,
-  //         onConfirm: onConfirm,
-  //       );
-  //     },
-  //   );
-  // }
 
   changePasswordFormSubmit() {
     if (!formKey.currentState!.validate()) return;

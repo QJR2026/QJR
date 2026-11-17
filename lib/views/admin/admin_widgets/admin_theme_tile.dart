@@ -37,7 +37,7 @@ class AdminThemeTile extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          shadowColor: Colors.black.withOpacity(0.3),
+          shadowColor: Colors.black.withValues(alpha: 0.3),
           color: color,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 25),

@@ -66,7 +66,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
               decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
+                    color: Colors.black.withValues(alpha: 0.15),
                     spreadRadius: 1,
                     blurRadius: 20,
                   ),

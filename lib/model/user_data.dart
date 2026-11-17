@@ -13,7 +13,7 @@ class UserData {
   final bool autoRenew;
   final bool isGlobal;
   final bool isPremium;
-  final bool isIAPSubsucriptionActive;
+  final bool isIAPSubscriptionActive;
 
   UserData({
     required this.id,
@@ -27,7 +27,7 @@ class UserData {
     required this.isCard,
     required this.isGlobal,
     required this.isPremium,
-    required this.isIAPSubsucriptionActive,
+    required this.isIAPSubscriptionActive,
   });
 
   // Factory constructor to create a UserData instance from a JSON map with null handling
@@ -47,7 +47,7 @@ class UserData {
       isGlobal: json['isGlobal'] == 1,
       isCard: json['isCard'] == 1,
       isPremium: json['isPremium'] == 1,
-      isIAPSubsucriptionActive: json['subscription']?['isActive'] ?? false,
+      isIAPSubscriptionActive: json['subscription']?['isActive'] ?? false,
     );
   }
 
@@ -83,7 +83,7 @@ class UserData {
       // 'exp_year': cardDetail?.expiryYear,
       // 'last4': cardDetail?.last4,
       'subscription': {
-        'isActive': isIAPSubsucriptionActive,
+        'isActive': isIAPSubscriptionActive,
       },
     };
   }
@@ -101,7 +101,7 @@ class UserData {
     bool? isGlobal,
     bool? isCard,
     bool? isPremium,
-    bool? isIAPSubsucriptionActive,
+    bool? isIAPSubscriptionActive,
   }) {
     return UserData(
       id: id ?? this.id,
@@ -109,14 +109,14 @@ class UserData {
       userType: userType ?? this.userType,
       isCard: isCard ?? this.isCard,
       packageId: packageId ?? this.packageId,
-      quotetheme: theme ?? this.quotetheme,
+      quotetheme: theme ?? quotetheme,
       hasPreference: hasPreference ?? this.hasPreference,
       // cardDetail: cardDetail ?? this.cardDetail,
       autoRenew: autoRenew ?? this.autoRenew,
       isGlobal: isGlobal ?? this.isGlobal,
       isPremium: isPremium ?? this.isPremium,
-      isIAPSubsucriptionActive:
-          isIAPSubsucriptionActive ?? this.isIAPSubsucriptionActive,
+      isIAPSubscriptionActive:
+          isIAPSubscriptionActive ?? this.isIAPSubscriptionActive,
     );
   }
 }

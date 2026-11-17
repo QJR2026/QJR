@@ -123,10 +123,6 @@ class ApiService {
       case DioExceptionType.badCertificate:
         log("DioExceptionType.badCertificate: ${error.message}");
         break;
-
-      default:
-        log("Unhandled DioExceptionType: ${error.type}");
-        break;
     }
   }
 }

@@ -50,8 +50,9 @@ class FavoriteProvider with ChangeNotifier {
     startMarkAsFavoriteLoading();
 
     final body = {"theme_id": subThemeId};
+    final themeProvider = MyApp.gCtx.read<ThemeProvider>();
     try {
-      MyApp.gCtx.read<ThemeProvider>().changeFavStatusOfSubThemeDetail();
+      themeProvider.changeFavStatusOfSubThemeDetail();
       final response =
           await _themeRepo.markAsFavoriteOrUnFavoriteSubTheme(body);
 
@@ -61,7 +62,7 @@ class FavoriteProvider with ChangeNotifier {
       }
     } catch (error) {
       CustomSnackBar.showError(message: error.toString());
-      MyApp.gCtx.read<ThemeProvider>().changeFavStatusOfSubThemeDetail();
+      themeProvider.changeFavStatusOfSubThemeDetail();
     } finally {
       stopMarkAsFavoriteLoading();
     }

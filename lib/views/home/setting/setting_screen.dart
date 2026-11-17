@@ -79,7 +79,7 @@ class _SettingScreenState extends State<SettingScreen> {
                           SettingItemRow(
                             title: 'Payment Plan',
                             onTap: () => MyApp.gState
-                                .pushNamed(Routes.editPaymentMehtod),
+                                .pushNamed(Routes.editPaymentMethod),
                           ),
                           12.vSpace(),
                         ],

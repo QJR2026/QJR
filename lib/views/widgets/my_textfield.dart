@@ -26,7 +26,7 @@ class MyTextFormField extends StatefulWidget {
   final TextCapitalization? textCapitalization;
   final List<TextInputFormatter>? textInputFormater;
   final bool? readOnly, isShowTitleBtn;
-  bool enabled = true;
+  final bool enabled;
   final double focusedBorderWidth, textFieldHeight;
   final double enableBorderWidth, textenableFieldHeight;
   final double? bottomSpace;
@@ -39,7 +39,7 @@ class MyTextFormField extends StatefulWidget {
 
   final bool isPasswordField;
 
-  MyTextFormField({
+  const MyTextFormField({
     super.key,
     this.title = '',
      this.prefixIconAsset,
@@ -82,7 +82,7 @@ class MyTextFormField extends StatefulWidget {
   });
 
   @override
-  _MyTextFormFieldState createState() => _MyTextFormFieldState();
+  State<MyTextFormField> createState() => _MyTextFormFieldState();
 }
 
 class _MyTextFormFieldState extends State<MyTextFormField> {

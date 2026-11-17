@@ -1,12 +1,11 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:motivational/model/user_data.dart';
 
-import '../repositories/auth_respository.dart';
+import '../repositories/auth_repository.dart';
 import '../services/api_service.dart';
-import '../services/shared_prefrence_service.dart';
+import '../services/shared_preference_service.dart';
 import '../utils/custom_snackbar.dart';
 import '../utils/error_handler.dart';
 

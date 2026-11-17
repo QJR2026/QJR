@@ -649,7 +649,7 @@ class SubscriptionProvider extends ChangeNotifier {
 
           // Pop + success ONLY after an explicit changeSubscription tap.
           if (EditPaymentPlanScreen.isOnSubscriptionChangePage &&
-              Navigator.canPop(MyApp.gCtx)) {
+              MyApp.gState.canPop()) {
             MyApp.gState.pop();
             showCenteredSnackBar();
           }

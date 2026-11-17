@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:motivational/utils/images.dart';
 import 'package:motivational/views/widgets/icon_wrapper_body.dart';
 import 'package:provider/provider.dart';
 import 'package:motivational/app/my_app_view.dart';

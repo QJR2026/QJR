@@ -82,7 +82,7 @@ class QuoteThemeCard extends StatelessWidget {
                       vertical: 6.pxV(),
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.75),
+                      color: Colors.white.withValues(alpha: 0.75),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -106,77 +106,11 @@ class QuoteThemeCard extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                // if (hasUsedByCount || hasQjrCount) ...[
-                //   10.vSpace(),
-                //   Row(
-                //     children: [
-                //       if (hasUsedByCount) ...[
-                //         Image.asset(
-                //           IconAssets.peoples,
-                //           height: 18.pxH(),
-                //           width: 18.pxH(),
-                //         ),
-                //         6.hSpace(),
-                //         Text(
-                //           'Used by ${theme.usedByCount ?? 0} ${theme.usedByCount == 1 ? 'user' : 'users'}',
-                //           style: TextStyle(
-                //             fontSize: 14.pxH(),
-                //             fontWeight: FontWeight.w500,
-                //             color: MyColors.colorE1E1,
-                //           ),
-                //         ),
-                //       ],
-                //       if (hasUsedByCount && hasQjrCount) 16.hSpace(),
-                //       if (hasQjrCount) ...[
-                //         Image.asset(
-                //           IconAssets.notes,
-                //           height: 18.pxH(),
-                //           width: 18.pxH(),
-                //         ),
-                //         6.hSpace(),
-                //         Text(
-                //           '${theme.qjrCount} QJR',
-                //           style: TextStyle(
-                //             fontSize: 14.pxH(),
-                //             fontWeight: FontWeight.w500,
-                //             color: MyColors.colorE1E1,
-                //           ),
-                //         ),
-                //       ],
-                //     ],
-                //   ),
-                // ],
                 
                 if (hasArrowButton) ...[
                   12.vSpace(),
                   Row(
                     children: [
-                      // if (updatedAgoText != null) ...[
-                      //   Container(
-                      //     padding: EdgeInsets.all(2.pxH()),
-                      //     decoration: BoxDecoration(
-                      //       color: MyColors.blackTypeColor,
-                      //       borderRadius: BorderRadius.circular(6),
-                      //     ),
-                      //     child: Icon(
-                      //       Icons.autorenew,
-                      //       size: 12.pxH(),
-                      //       color: Colors.white,
-                      //     ),
-                      //   ),
-                      //   4.hSpace(),
-                      //   Expanded(
-                      //     child: Text(
-                      //       updatedAgoText,
-                      //       overflow: TextOverflow.ellipsis,
-                      //       style: TextStyle(
-                      //         fontSize: 12.pxH(),
-                      //         fontWeight: FontWeight.w500,
-                      //         color: MyColors.colorE1E1,
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ] else
                         const Spacer(),
                       if (hasArrowButton)
                         CustomBackButton(

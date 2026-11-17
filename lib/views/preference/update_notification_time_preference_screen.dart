@@ -127,7 +127,7 @@ class _UpdateNotificationTimePreferenceScreenState
                         Container(
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            color: MyColors.primaryColor.withOpacity(.5),
+                            color: MyColors.primaryColor.withValues(alpha: .5),
                             borderRadius: BorderRadius.circular(
                               16,
                             ),
@@ -182,53 +182,6 @@ class _UpdateNotificationTimePreferenceScreenState
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    // _dailyButton(
-                                    //   context,
-                                    //   selectedTime: provider.selectedDailyTime,
-                                    //   onTap: () async {
-                                    //     final time = await showTimePicker(
-                                    //       context: context,
-                                    //       initialTime: TimeOfDay.now(),
-                                    //     );
-                                    //     if (time == null) {
-                                    //       return;
-                                    //     }
-                                    //     provider.setDailyTime(time);
-                                    //   },
-                                    // ),
-                                    // 10.hSpace(),
-                                    // Text(
-                                    //   "or",
-                                    //   style: TextStyle(
-                                    //     fontSize: 16.pxH(),
-                                    //     fontWeight: FontWeight.w500,
-                                    //     color: MyColors.blackTypeColor,
-                                    //   ),
-                                    // ),
-                                    // 10.hSpace(),
-                                    // _scheduleButton(
-                                    //   context,
-                                    //   onTap: () async {
-                                    //     await showModalBottomSheet(
-                                    //       context: context,
-                                    //       builder: (context) => DayPicker(
-                                    //         onTap: provider.onDaySelect,
-                                    //         onSave: () async {
-                                    //           MyApp.gState.pop();
-                                    //           final time = await showTimePicker(
-                                    //             context: context,
-                                    //             initialTime: TimeOfDay.now(),
-                                    //             confirmText: "Proceed",
-                                    //           );
-                                    //           if (time != null) {
-                                    //             provider.setCustomTime(time);
-                                    //           }
-                                    //         },
-                                    //       ),
-                                    //     );
-                                    //   },
-                                    //   time: provider.selectedTime,
-                                    // ),
 
                                     _dailyButton(
                                       context,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:motivational/app/my_app_view.dart';
 
-import '../../services/shared_prefrence_service.dart';
+import '../../services/shared_preference_service.dart';
 import '../../utils/icons.dart';
 import '../../utils/images.dart';
 import '../../utils/my_colors.dart';
@@ -14,7 +14,7 @@ class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
   @override
-  _OnboardingScreenState createState() => _OnboardingScreenState();
+  State<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen>
@@ -22,102 +22,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   final PageController _pageController = PageController();
 
   final ValueNotifier<int> _currentPageNotifier = ValueNotifier<int>(0);
-
-  // final List<Map<String, dynamic>> onboardingData = [
-  //   {
-  //     "image": Images.onboarding1,
-  //     "title": const [
-  //       Text('Daily Basis ',
-  //           style: TextStyle(
-  //             fontSize: 30,
-  //             fontWeight: FontWeight.w600,
-  //           )),
-  //       Row(
-  //         children: [
-  //           Text('Motivational',
-  //               style: TextStyle(
-  //                 fontSize: 30,
-  //                 fontWeight: FontWeight.w600,
-  //               )),
-  //           CircleText(
-  //               text: ' Quotes.',
-  //               textStyling: TextStyle(
-  //                 fontSize: 30,
-  //                 fontWeight: FontWeight.w600,
-  //               )),
-  //         ],
-  //       ),
-  //     ],
-  //     "subTitle":
-  //         'Lorem ipsum dolor sit amet consectetur. Lectus aliquam nibh ornare massa elit ut fermentum. In neque gravida elit integer. Imperdiet sollicitudin.',
-  //     "percent": 0.3,
-  //   },
-  //   {
-  //     "image": Images.onboarding2,
-  //     "title": const [
-  //       Row(
-  //         children: [
-  //           Text(
-  //             'Reminder',
-  //             style: TextStyle(
-  //               fontSize: 30,
-  //               fontWeight: FontWeight.w600,
-  //             ),
-  //           ),
-  //           CircleText(
-  //               text: ' Popups',
-  //               textStyling: TextStyle(
-  //                 fontSize: 30,
-  //                 fontWeight: FontWeight.w600,
-  //               )),
-  //         ],
-  //       ),
-  //       Text(
-  //         'on Chosen Theme.',
-  //         style: TextStyle(
-  //           fontSize: 30,
-  //           fontWeight: FontWeight.w600,
-  //         ),
-  //       ),
-  //     ],
-  //     "subTitle":
-  //         'Lorem ipsum dolor sit amet consectetur. Lectus aliquam nibh ornare massa elit ut fermentum. In neque gravida elit integer. Imperdiet sollicitudin.',
-  //     "percent": 0.6,
-  //   },
-  //   {
-  //     "image": Images.onboarding3,
-  //     "title": const [
-  //       Row(
-  //         children: [
-  //           CircleText(
-  //             text: ' Custom',
-  //             textStyling: TextStyle(
-  //               fontSize: 30,
-  //               fontWeight: FontWeight.w600,
-  //             ),
-  //           ),
-  //           Text(
-  //             'izable',
-  //             style: TextStyle(
-  //               fontSize: 30,
-  //               fontWeight: FontWeight.w600,
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //       Text(
-  //         ' selection of time.',
-  //         style: TextStyle(
-  //           fontSize: 30,
-  //           fontWeight: FontWeight.w600,
-  //         ),
-  //       ),
-  //     ],
-  //     "subTitle":
-  //         'Lorem ipsum dolor sit amet consectetur. Lectus aliquam nibh ornare massa elit ut fermentum. In neque gravida elit integer. Imperdiet sollicitudin.',
-  //     "percent": 1.0,
-  //   },
-  // ];
 
   final List<Map<String, dynamic>> onboardingData = [
     {

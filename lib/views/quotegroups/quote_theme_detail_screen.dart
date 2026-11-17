@@ -90,7 +90,7 @@ class QuoteThemeDetailScreen extends StatelessWidget {
                             vertical: 6.pxV(),
                           ),
                           decoration: BoxDecoration(
-                            color: MyColors.primaryColor.withOpacity(0.4),
+                            color: MyColors.primaryColor.withValues(alpha: 0.4),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
@@ -112,46 +112,6 @@ class QuoteThemeDetailScreen extends StatelessWidget {
                           color: MyColors.blackTypeColor,
                         ),
                       ),
-                      // if (hasUsedByCount || hasQjrCount) ...[
-                      //   10.vSpace(),
-                      //   Row(
-                      //     children: [
-                      //       if (hasUsedByCount) ...[
-                      //         Icon(
-                      //           Icons.groups_outlined,
-                      //           size: 16.pxH(),
-                      //           color: MyColors.blackTypeColor,
-                      //         ),
-                      //         6.hSpace(),
-                      //         Text(
-                      //           'Used by ${theme.usedByCount ?? 0} ${theme.usedByCount == 1 ? 'user' : 'users'}',
-                      //           style: TextStyle(
-                      //             fontSize: 13.pxH(),
-                      //             fontWeight: FontWeight.w500,
-                      //             color: MyColors.blackTypeColor,
-                      //           ),
-                      //         ),
-                      //       ],
-                      //       if (hasUsedByCount && hasQjrCount) 16.hSpace(),
-                      //       if (hasQjrCount) ...[
-                      //         Icon(
-                      //           Icons.article_outlined,
-                      //           size: 16.pxH(),
-                      //           color: MyColors.blackTypeColor,
-                      //         ),
-                      //         6.hSpace(),
-                      //         Text(
-                      //           '${theme.qjrCount} QJR',
-                      //           style: TextStyle(
-                      //             fontSize: 13.pxH(),
-                      //             fontWeight: FontWeight.w500,
-                      //             color: MyColors.blackTypeColor,
-                      //           ),
-                      //         ),
-                      //       ],
-                      //     ],
-                      //   ),
-                      // ],
                       
                       16.vSpace(),
                       Text(

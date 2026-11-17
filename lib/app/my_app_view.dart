@@ -3,7 +3,6 @@ import 'package:motivational/providers/admin/admin_quote_provider.dart';
 import 'package:motivational/providers/admin/admin_theme_provider.dart';
 import 'package:motivational/providers/favorite_provider.dart';
 import 'package:motivational/providers/notification_time_preference_provider.dart';
-import 'package:motivational/providers/payment_provider.dart';
 import 'package:motivational/providers/theme_provider.dart';
 import 'package:motivational/providers/user_provider.dart';
 import 'package:motivational/views/admin/base/admin_base_screen.dart';
@@ -51,9 +50,6 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(
           create: (ctx) => AuthProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (ctx) => PaymentProvider(),
         ),
         ChangeNotifierProvider(
           create: (ctx) => ThemeProvider(),
@@ -128,7 +124,7 @@ class MyApp extends StatelessWidget {
               const FavoriteSubThemeNotificationListingScreen(),
           Routes.settings: (ctx) => const SettingScreen(),
           Routes.requestTheme: (ctx) => const RequestThemeScreen(),
-          Routes.editPaymentMehtod: (ctx) => const EditPaymentPlanScreen(),
+          Routes.editPaymentMethod: (ctx) => const EditPaymentPlanScreen(),
           Routes.changePassword: (ctx) => const ChangePasswordScreen(),
           Routes.adminBaseScreen: (ctx) => const AdminBaseScreen(),
           Routes.adminThemeDetailScreen: (ctx) =>

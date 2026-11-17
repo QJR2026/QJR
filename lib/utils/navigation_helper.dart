@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import '../app/my_app_view.dart';
 import '../services/api_service.dart';
-import '../services/shared_prefrence_service.dart';
+import '../services/shared_preference_service.dart';
 import '../utils/routes.dart';
 
 class NavigationHelper {

@@ -3,7 +3,7 @@ import 'dart:developer'; // For better log visibility
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:motivational/app/my_app_view.dart';
-import 'package:motivational/repositories/auth_respository.dart';
+import 'package:motivational/repositories/auth_repository.dart';
 import 'package:motivational/services/api_service.dart';
 import 'package:motivational/utils/device_info.dart'; // Assuming you have this utility
 import 'package:motivational/utils/routes.dart'; // Your route management
@@ -49,34 +49,21 @@ class DioInterceptor extends Interceptor {
   }
 
   @override
-  void onError(DioException e, ErrorInterceptorHandler handler) {
-    log("❌ ERROR [${e.response?.statusCode}] → ${e.requestOptions.uri}");
-    log("⚠️ Message: ${e.message}");
-    if (e.response?.data != null) {
-      log("🛑 Error Data: ${jsonEncode(e.response?.data)}");
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    log("❌ ERROR [${err.response?.statusCode}] → ${err.requestOptions.uri}");
+    log("⚠️ Message: ${err.message}");
+    if (err.response?.data != null) {
+      log("🛑 Error Data: ${jsonEncode(err.response?.data)}");
     }
 
     // Handle 401 (Unauthorized)
-    if (e.response?.statusCode == 401) {
+    if (err.response?.statusCode == 401) {
       ApiService.authToken = null;
       ApiService.userData = null;
       AuthRepository().clearPreferences();
       MyApp.gState.pushNamedAndRemoveUntil(Routes.login, (route) => false);
     }
-    // if (e.response?.statusCode == 507) {
-    //   //renue
-    //   MyApp.gState.pushNamed(
-    //     Routes.editPaymentMehtod,
-    //   );
-    // }
-    // if (e.response?.statusCode == 400 &&
-    //     e.response?.data["message"] == "User package not found") {
-    //   MyApp.gState.pushNamedAndRemoveUntil(
-    //     Routes.paymentMethod,
-    //     (route) => false,
-    //   );
-    // }
 
-    handler.next(e);
+    handler.next(err);
   }
 }

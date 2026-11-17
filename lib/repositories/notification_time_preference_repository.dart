@@ -5,7 +5,7 @@ import 'package:motivational/model/preference.dart';
 
 import '../constants/api_end_points.dart';
 import '../services/api_service.dart';
-import '../services/shared_prefrence_service.dart';
+import '../services/shared_preference_service.dart';
 import '../utils/error_handler.dart';
 
 class NotificationTimePreferenceRepository {

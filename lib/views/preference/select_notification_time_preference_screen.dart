@@ -14,7 +14,6 @@ import '../../utils/my_colors.dart';
 import '../../utils/quote_theme_visuals.dart';
 import '../home/setting/setting_screen.dart';
 import '../quotegroups/widget/quote_theme_card.dart';
-import '../widgets/custom_back_button.dart';
 
 class SelectNotificationTimePreferenceScreen extends StatefulWidget {
   const SelectNotificationTimePreferenceScreen({super.key});
@@ -83,7 +82,7 @@ class _SelectNotificationTimePreferenceScreenState
               Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: MyColors.primaryColor.withOpacity(.5),
+                  color: MyColors.primaryColor.withValues(alpha: .5),
                   borderRadius: BorderRadius.circular(
                     16,
                   ),
@@ -132,57 +131,6 @@ class _SelectNotificationTimePreferenceScreenState
                         ],
                       ),
                       20.vSpace(),
-                      // Row(
-                      //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      //   children: [
-                      //     _dailyButton(
-                      //       context,
-                      //       selectedTime: provider.selectedDailyTime,
-                      //       onTap: () async {
-                      //         final time = await showTimePicker(
-                      //           context: context,
-                      //           initialTime: TimeOfDay.now(),
-                      //         );
-                      //         if (time != null) {
-                      //           provider.setDailyTime(time);
-                      //         }
-                      //       },
-                      //     ),
-                      //     10.hSpace(),
-                      //     Text(
-                      //       "or",
-                      //       style: TextStyle(
-                      //         fontSize: 16.pxH(),
-                      //         fontWeight: FontWeight.w500,
-                      //         color: MyColors.blackTypeColor,
-                      //       ),
-                      //     ),
-                      //     10.hSpace(),
-                      //     _scheduleButton(
-                      //       context,
-                      //       onTap: () async {
-                      //         await showModalBottomSheet(
-                      //           context: context,
-                      //           builder: (context) => DayPicker(
-                      //             onTap: provider.onDaySelect,
-                      //             onSave: () async {
-                      //               MyApp.gState.pop();
-                      //               final time = await showTimePicker(
-                      //                 context: context,
-                      //                 initialTime: TimeOfDay.now(),
-                      //                 confirmText: "Proceed",
-                      //               );
-                      //               if (time != null) {
-                      //                 provider.setCustomTime(time);
-                      //               }
-                      //             },
-                      //           ),
-                      //         );
-                      //       },
-                      //       time: provider.selectedTime,
-                      //     ),
-                      //   ],
-                      // ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -204,48 +152,6 @@ class _SelectNotificationTimePreferenceScreenState
                                 startTime = provider.selectedDailyTime;
                                 endTime = provider.selectedDailyEndTime;
                               }
-
-                              // double rotation =  getClockRotation(startTime);
-                              // await showDialog(
-                              //   context: context,
-                              //   builder: (context) {
-                              //     return Center(child:
-                              //     Container(height: 300, width: 300,
-                              //     child: Scaffold(
-                              //       body: Center(
-                              //         child: SizedBox(
-                              //           height: 200,
-                              //           width: 200,
-                              //           child: CircularProgressIndicator(
-                              //             strokeWidth: 30,
-                              //             strokeCap: StrokeCap.round,
-                              //             value: 0.25,
-                              //             color: Colors.red,
-                              //             backgroundColor: Colors.yellow,
-
-                              //           ),
-                              //         ),
-                              //       ),
-                              //     ),));
-                              // return TimeRangePicker(
-                              //   hideTimes: true,
-                              //   start: startTime,
-                              //   end: endTime,
-                              //   hideButtons: true,
-                              //   maxDuration: const Duration(hours: 24),
-                              //   minDuration: const Duration(hours: 1),
-                              //   ticks: 24,
-                              //   ticksColor: Colors.red,
-                              //   ticksWidth: 3,
-                              //   labels: List.generate(
-                              //       24,
-                              //       (index) => ClockLabel(
-                              //           angle: index * 0.26,
-                              //           text: "${index + 1}")),
-
-                              //     // );
-                              //   },
-                              // );
 
                               TimeRange? result = await showTimeRangePicker(
                                 use24HourFormat: false,

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
 
 class DeviceInfo {
   static Future<String?> getDeviceId() async {
@@ -14,7 +15,7 @@ class DeviceInfo {
         return iosInfo.identifierForVendor;
       }
     } catch (e) {
-      print("Error retrieving device ID: $e");
+      debugPrint("Error retrieving device ID: $e");
     }
     return null; // Return null instead of an empty string to signal failure
   }

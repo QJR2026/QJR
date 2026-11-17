@@ -38,7 +38,7 @@ class ThemeImageUploadBox extends StatelessWidget {
       alignment: Alignment.center,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MyColors.colorE1E1.withOpacity(0.4)),
+        border: Border.all(color: MyColors.colorE1E1.withValues(alpha: 0.4)),
       ),
       child: const Column(
         mainAxisSize: MainAxisSize.min,
@@ -137,18 +137,13 @@ class ThemeImageUploadBox extends StatelessWidget {
 
 class _DashedBorderPainter extends CustomPainter {
   final Color color;
-  final double borderRadius;
-  final double dashWidth;
-  final double dashGap;
-  final double strokeWidth;
 
-  _DashedBorderPainter({
-    required this.color,
-    this.borderRadius = 16,
-    this.dashWidth = 6,
-    this.dashGap = 4,
-    this.strokeWidth = 1.4,
-  });
+  static const double borderRadius = 16;
+  static const double dashWidth = 6;
+  static const double dashGap = 4;
+  static const double strokeWidth = 1.4;
+
+  _DashedBorderPainter({required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -159,7 +154,7 @@ class _DashedBorderPainter extends CustomPainter {
 
     final rRect = RRect.fromRectAndRadius(
       Rect.fromLTWH(0, 0, size.width, size.height),
-      Radius.circular(borderRadius),
+      const Radius.circular(borderRadius),
     );
 
     final path = Path()..addRRect(rRect);

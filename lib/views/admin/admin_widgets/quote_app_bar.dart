@@ -44,35 +44,6 @@ class QuoteAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  // onTap(BuildContext context) {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     backgroundColor: Colors.white,
-  //     isScrollControlled: true,
-  //     shape: const RoundedRectangleBorder(
-  //       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-  //     ),
-  //     builder: (context) {
-  //       return Consumer<AdminQuoteProvider>(
-  //         builder: (context, value, child) => AdminBottomSheet(
-  //           fucntion: () async {
-  //             await value.createQuote(
-  //                 quote: textEditingController.text.trim());
-  //             textEditingController.clear();
-  //           },
-  //           firstTitle: "Add",
-  //           secondTitle: "Quote",
-  //           controller: textEditingController,
-  //           hintText: "Your Quote",
-  //           buttonText: "Add",
-  //           loader: value.createQuoteLoader,
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
-
-
   onTap(BuildContext context) {
                 textEditingController.clear();
     

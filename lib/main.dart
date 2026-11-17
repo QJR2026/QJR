@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'app/my_app_view.dart';
-import 'services/shared_prefrence_service.dart';
+import 'services/shared_preference_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

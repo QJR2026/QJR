@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:motivational/providers/subscription_provider.dart';
 import '/extensions/media_query_extension.dart';
 
 import '../../utils/my_colors.dart';

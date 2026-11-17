@@ -25,10 +25,10 @@ class FavoriteSubThemeNotificationListingScreen extends StatefulWidget {
 class _FavoriteSubThemeNotificationListingScreenState
     extends State<FavoriteSubThemeNotificationListingScreen> {
   final List<Color> colors = [
-    const Color(0XFFB5E48C).withOpacity(.5),
-    // const Color(0XFF1A759F).withOpacity(.5),
-    const Color(0XFFFFD60A).withOpacity(.5),
-    const Color(0XFFFF6B35).withOpacity(.5),
+    const Color(0XFFB5E48C).withValues(alpha: .5),
+    // const Color(0XFF1A759F).withValues(alpha: .5),
+    const Color(0XFFFFD60A).withValues(alpha: .5),
+    const Color(0XFFFF6B35).withValues(alpha: .5),
   ];
 
   @override
@@ -143,7 +143,7 @@ class FavoriteListingItem extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
-                shadowColor: Colors.black.withOpacity(0.3),
+                shadowColor: Colors.black.withValues(alpha: 0.3),
                 color: color,
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 40),

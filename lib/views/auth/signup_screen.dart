@@ -136,32 +136,6 @@ class _SignupScreenState extends State<SignupScreen> {
                       MyApp.gState.pushNamed(Routes.privacyPolicy),
                 ),
                 30.vSpace(),
-                // RichText(
-                //   text: TextSpan(
-                //     text: 'Terms of Services',
-                //     recognizer: TapGestureRecognizer()..onTap = () {},
-                //     style: const TextStyle(
-                //       color: MyColors.blackTypeColor,
-                //       fontSize: 14,
-                //       fontWeight: FontWeight.bold,
-                //     ),
-                //     children: [
-                //       const TextSpan(
-                //         text: ' and ',
-                //         style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
-                //       ),
-                //       TextSpan(
-                //         text: 'Privacy Policy',
-                //         style: const TextStyle(
-                //           fontSize: 14,
-                //           fontWeight: FontWeight.bold,
-                //           color: MyColors.blackTypeColor,
-                //         ),
-                //         recognizer: TapGestureRecognizer()..onTap = () {},
-                //       ),
-                //     ],
-                //   ),
-                // )
               ],
             ),
           ),

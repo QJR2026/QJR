@@ -4,7 +4,7 @@ import 'package:motivational/constants/api_end_points.dart';
 
 import '../model/user_data.dart';
 import '../services/api_service.dart';
-import '../services/shared_prefrence_service.dart';
+import '../services/shared_preference_service.dart';
 import '../utils/error_handler.dart';
 import '../utils/routes.dart';
 

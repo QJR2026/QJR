@@ -11,7 +11,7 @@ class Routes {
   static const termsOfService = '/terms-service';
   static const home = '/home';
   static const subscription = '/subscription';
-  static const editPaymentMehtod = '/edit-payment-Method';
+  static const editPaymentMethod = '/edit-payment-Method';
   // static const subscriptionIAP = '/subscriptionIAP';
   static const selectQuoteGroupsTheme = '/select-quote-groups-theme';
   static const quoteThemeDetail = '/quote-theme-detail';

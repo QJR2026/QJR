@@ -3,54 +3,6 @@ import 'package:motivational/extensions/media_query_extension.dart';
 
 import '../../../utils/my_colors.dart';
 
-// class AuthButton extends StatelessWidget {
-//   final String text;
-//   final Function onPressed;
-//   final EdgeInsets padding;
-//   final bool loading;
-//   final bool disable;
-//   final Size? size;
-//   const AuthButton({
-//     super.key,
-//     required this.text,
-//     required this.onPressed,
-//     this.loading = false,
-//     this.size ,
-//     this.disable = false,
-//     this.padding = const EdgeInsets.symmetric(horizontal: 34, vertical: 14),
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return ElevatedButton(
-//       onPressed: disable ? null : () => loading ? null : onPressed(),
-
-//       style: ElevatedButton.styleFrom(
-//         // maximumSize: size,
-//         minimumSize: size,
-//         backgroundColor: MyColors.blackTypeColor, // Button color
-//         foregroundColor: MyColors.primaryColor, // Text color
-//         padding: padding,
-// shape: RoundedRectangleBorder(
-//   borderRadius: BorderRadius.circular(20),
-// ),
-
-//       ),
-//       child: loading
-//           ? const CircularProgressIndicator(
-//               color: MyColors.primaryColor,
-//             )
-//           : Text(
-//               text,
-// style: const TextStyle(
-//   fontSize: 15,
-//   fontWeight: FontWeight.bold,
-// ),
-//             ),
-//     );
-//   }
-// }
-
 class AuthButton extends StatelessWidget {
   final bool loading;
   final bool disable;
@@ -66,7 +18,7 @@ class AuthButton extends StatelessWidget {
   final double height, loaderWidth, buttonWidth;
   final EdgeInsets? margin;
 
-  AuthButton({
+  const AuthButton({
     super.key,
     this.loading = false,
     this.disable = false,

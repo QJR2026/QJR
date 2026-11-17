@@ -25,35 +25,6 @@ class Preference {
     this.updatedAt,
   });
 
-  // factory Preference.fromJson(Map<String, dynamic> json) {
-  //   List<String>? parsedDays =
-  //       json['days'] != null ? (json['days'] as String).split(',') : null;
-  //   bool isDaily = parsedDays?.contains('Daily') ?? false;
-  //   TimeOfDay? notificationTime;
-  //   if (json['notification_start_time'] != null) {
-  //     DateTime utcTime =
-  //         DateTime.parse("1970-01-01T${json['notification_start_time']}Z")
-  //             .toUtc();
-  //     DateTime localTime = utcTime.toLocal();
-  //     notificationTime =
-  //         TimeOfDay(hour: localTime.hour, minute: localTime.minute);
-  //   }
-  //   return Preference(
-  //     id: json['id'] as int?,
-  //     userId: json['user_id'] as int?,
-  //     themeId: json['theme_id'] as int?,
-  //     notificationTime: notificationTime,
-  //     timezone: json['timezone'] as String?,
-  //     days: isDaily ? null : parsedDays,
-  //     isDaily: isDaily,
-  //     createdAt: json['created_at'] != null
-  //         ? DateTime.parse(json['created_at'])
-  //         : null,
-  //     updatedAt: json['updated_at'] != null
-  //         ? DateTime.parse(json['updated_at'])
-  //         : null,
-  //   );
-  // }
   factory Preference.fromJson(Map<String, dynamic> json) {
     // Helper function to parse TimeOfDay from a time string
     TimeOfDay? parseTimeOfDay(String? timeString) {
@@ -63,7 +34,7 @@ class Preference {
         final localTime = utcTime;
         return TimeOfDay(hour: localTime.hour, minute: localTime.minute);
       } catch (e) {
-        print("Error parsing time: $timeString, error: $e");
+        debugPrint("Error parsing time: $timeString, error: $e");
         return null;
       }
     }

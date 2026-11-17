@@ -6,7 +6,7 @@ import 'package:motivational/model/preference.dart';
 import 'package:motivational/model/quote_theme.dart';
 import 'package:motivational/providers/theme_provider.dart';
 import 'package:motivational/services/api_service.dart';
-import 'package:motivational/services/shared_prefrence_service.dart';
+import 'package:motivational/services/shared_preference_service.dart';
 import 'package:provider/provider.dart';
 
 import 'package:motivational/app/my_app_view.dart';
@@ -247,39 +247,6 @@ class NotificationTimePreferenceProvider with ChangeNotifier {
     getPreferenceLoading = false;
     notifyListeners();
   }
-
-//get preference
-  // Future<void> getPrefrenceForNotication() async {
-  //   startGetPreferenceLoading();
-  //   try {
-  //     init();
-
-  //     preference = await _notificationRepo.getPrefrenceForNotication();
-  //     if (preference != null) {
-  //       selectedDays = preference!.days ?? [];
-  //       if (preference!.isDaily) {
-  //         selectedDailyTime = preference!.notificationStartTime;
-  //         selectedDailyEndTime = preference!.notificationEndTime;
-  //         selectedTime = null;
-  //         selectedEndTime = null;
-  //       } else {
-  //         selectedTime = preference!.notificationStartTime;
-  //         selectedEndTime = preference!.notificationEndTime;
-  //         selectedDailyTime = null;
-  //         selectedDailyEndTime = null;
-  //       }
-  //     }
-  //     final themeProvider = MyApp.gCtx.read<ThemeProvider>();
-  //     await themeProvider.getAllQuoteThemes();
-  //     if (themeProvider.quoteThemesList.isNotEmpty) {
-  //       selectedThemeId = ApiService.userData?.quotetheme?.id;
-  //     }
-  //   } catch (error) {
-  //     CustomSnackBar.showError(message: error.toString());
-  //   } finally {
-  //     stopGetPreferenceLoading();
-  //   }
-  // }
 
   Future<void> getPrefrenceForNotication() async {
     selectedThemeId = null;

@@ -48,7 +48,7 @@ class _AdminThemeDetailScreenState extends State<AdminThemeDetailScreen> {
                   await provider.deleteTheme(model.id ?? 0);
                 },
                 update: (model) async {
-                  textEditingController.text = model.description ?? "";
+                  textEditingController.text = model.description;
                   updateQuote(context, model, index);
                 },
               );
@@ -77,7 +77,7 @@ class _AdminThemeDetailScreenState extends State<AdminThemeDetailScreen> {
             ),
             child: SingleChildScrollView(
               child: Text(
-                (provider.quotesList[index].description ?? ""),
+                provider.quotesList[index].description,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: MyColors.colorE1E1,

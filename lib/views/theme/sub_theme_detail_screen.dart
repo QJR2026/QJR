@@ -147,7 +147,7 @@ class _SubThemeDetailScreenState extends State<SubThemeDetailScreen> {
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(30),
                                     color: color ??
-                                        const Color(0XFFB5E48C).withOpacity(.5),
+                                        const Color(0XFFB5E48C).withValues(alpha: .5),
                                   ),
                                   child: FittedBox(
                                     // fit: BoxFit
@@ -198,7 +198,7 @@ class _SubThemeDetailScreenState extends State<SubThemeDetailScreen> {
                             width: 110,
                             height: 7,
                             decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(.5),
+                                color: Colors.white.withValues(alpha: .5),
                                 borderRadius: BorderRadius.circular(5)),
                           ),
                         ),
