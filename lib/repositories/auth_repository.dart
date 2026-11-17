@@ -5,6 +5,7 @@ import 'package:motivational/constants/api_end_points.dart';
 import '../model/user_data.dart';
 import '../services/api_service.dart';
 import '../services/shared_preference_service.dart';
+import '../utils/device_info.dart';
 import '../utils/error_handler.dart';
 import '../utils/routes.dart';
 
@@ -173,7 +174,8 @@ class AuthRepository {
   Future<void> clearPreferences() async {
     final keys = _sharedPreferences.getKeys();
     for (String key in keys) {
-      if (key != 'onboarding') {
+      // Keep onboarding state and the device's install ID across logout.
+      if (key != 'onboarding' && key != DeviceInfo.installIdKey) {
         await _sharedPreferences.remove(key);
       }
     }
