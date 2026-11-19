@@ -42,6 +42,12 @@ dev_dependencies:
 
   flutter_lints: ^3.0.0
 
+# Android-only: Google Play requires Play Billing Library 8+, which ships in
+# in_app_purchase_android 0.5.0. The app-facing in_app_purchase (3.2.x) and the
+# iOS in_app_purchase_storekit pin stay unchanged, so the iOS build is unaffected.
+dependency_overrides:
+  in_app_purchase_android: 0.5.0
+
 flutter:
   
   uses-material-design: true
