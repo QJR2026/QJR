@@ -72,8 +72,8 @@ class _SubThemeDetailScreenState extends State<SubThemeDetailScreen> {
 
       // Determine share button position for iPad popover anchor.
       Rect shareOrigin = Rect.zero;
-      final renderBox = _shareButtonKey.currentContext?.findRenderObject()
-          as RenderBox?;
+      final renderBox =
+          _shareButtonKey.currentContext?.findRenderObject() as RenderBox?;
       if (renderBox != null) {
         final offset = renderBox.localToGlobal(Offset.zero);
         shareOrigin = offset & renderBox.size;
@@ -126,68 +126,77 @@ class _SubThemeDetailScreenState extends State<SubThemeDetailScreen> {
                   //   style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400),
                   // ),
                   30.vSpace(),
+                  // The like/share buttons hang 20px below the card. Flutter
+                  // only hit-tests inside a Stack's own bounds, so the Stack is
+                  // made 20px taller (bottom padding, outside the captured
+                  // RepaintBoundary) and the buttons sit at bottom: 0 — same
+                  // position on screen, but the whole button is now tappable.
                   Stack(
                     clipBehavior: Clip.none,
                     children: [
-                      RepaintBoundary(
-                        key: globalKey,
-                        child: Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            Hero(
-                              tag: args["index"],
-                              child: Material(
-                                child: Container(
-                                  // width: double.infinity,
-                                  height: 480.pxV(), // your fixed height
-                                  alignment: Alignment.center,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                  ).copyWith(top: 30, bottom: 24),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(30),
-                                    color: color ??
-                                        const Color(0XFFB5E48C).withValues(alpha: .5),
-                                  ),
-                                  child: FittedBox(
-                                    // fit: BoxFit
-                                    //     .scaleDown, // this makes it shrink
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child: RepaintBoundary(
+                          key: globalKey,
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Hero(
+                                tag: args["index"],
+                                child: Material(
+                                  child: Container(
+                                    // width: double.infinity,
+                                    height: 480.pxV(), // your fixed height
                                     alignment: Alignment.center,
-                                    child: ConstrainedBox(
-                                      constraints: BoxConstraints(
-                                          maxWidth:
-                                              500.pxH()), // optional max width
-                                      child: Text(
-                                        (provider.notificationSubThemeDetail
-                                                ?.description
-                                                .trim() ??
-                                            ''),
-                                        style: const TextStyle(
-                                          fontSize:
-                                              26, // FittedBox will scale this down as needed
-                                          fontWeight: FontWeight.w600,
-                                          color: MyColors.colorE1E1,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                    ).copyWith(top: 30, bottom: 24),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(30),
+                                      color: color ??
+                                          const Color(0XFFB5E48C)
+                                              .withValues(alpha: .5),
+                                    ),
+                                    child: FittedBox(
+                                      // fit: BoxFit
+                                      //     .scaleDown, // this makes it shrink
+                                      alignment: Alignment.center,
+                                      child: ConstrainedBox(
+                                        constraints: BoxConstraints(
+                                            maxWidth: 500
+                                                .pxH()), // optional max width
+                                        child: Text(
+                                          (provider.notificationSubThemeDetail
+                                                  ?.description
+                                                  .trim() ??
+                                              ''),
+                                          style: const TextStyle(
+                                            fontSize:
+                                                26, // FittedBox will scale this down as needed
+                                            fontWeight: FontWeight.w600,
+                                            color: MyColors.colorE1E1,
+                                          ),
+                                          textAlign: TextAlign.center,
                                         ),
-                                        textAlign: TextAlign.center,
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                            Positioned(
-                              bottom: 20,
-                              left: 20,
-                              child: Image.asset(
-                                Images.icon,
-                                // color: Colors.blue,
-                                color: const Color(0XFF041020),
-                                width: 40,
-                                height: 50,
-                                fit: BoxFit.cover,
+                              Positioned(
+                                bottom: 20,
+                                left: 20,
+                                child: Image.asset(
+                                  Images.icon,
+                                  // color: Colors.blue,
+                                  color: const Color(0XFF041020),
+                                  width: 40,
+                                  height: 50,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                       Positioned(
@@ -205,7 +214,7 @@ class _SubThemeDetailScreenState extends State<SubThemeDetailScreen> {
                       ),
                       Positioned(
                         right: 10,
-                        bottom: -20,
+                        bottom: 0,
                         child: Row(
                           children: [
                             iconCustomButton(
