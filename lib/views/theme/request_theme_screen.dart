@@ -42,8 +42,17 @@ class _RequestThemeScreenState extends State<RequestThemeScreen> {
   }
 
   Future<void> _handleImageTap() async {
+    if (_pickingImage) return; // ignore a second tap before the rebuild
     setState(() => _pickingImage = true);
     try {
+      // Android: the gallery opens the system photo picker, which needs no
+      // permission (and the app declares no media permission, per Play
+      // policy). iOS keeps its existing photo-library permission flow.
+      if (Platform.isAndroid) {
+        await _pickImage();
+        return;
+      }
+
       final status = await Permission.photos.status;
 
       if (status.isGranted || status.isLimited) {
@@ -89,6 +98,8 @@ class _RequestThemeScreenState extends State<RequestThemeScreen> {
       return;
     }
 
+    // The user may have left the screen while the picker was open.
+    if (!mounted) return;
     setState(() => _selectedImage = file);
   }
 
