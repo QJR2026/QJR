@@ -8,6 +8,7 @@ import '../services/api_service.dart';
 import '../services/shared_preference_service.dart';
 import '../utils/custom_snackbar.dart';
 import '../utils/error_handler.dart';
+import '../utils/platform_features.dart';
 
 class UserProvider with ChangeNotifier {
   final _authRepo = AuthRepository();
@@ -37,7 +38,14 @@ class UserProvider with ChangeNotifier {
     } on NetworkException {
       rethrow; // splash catches this to show no-internet overlay
     } catch (error) {
-      CustomSnackBar.showError(message: error.toString());
+      // Android: a 401 here means the saved session is no longer valid (e.g.
+      // it was created by an older build with a different device ID). The
+      // Dio interceptor already sends the user to login, so skip the error
+      // toast. iOS behaviour is unchanged.
+      final isExpiredSession = error is CustomException && error.code == 401;
+      if (!(isExpiredSession && PlatformFeatures.isAndroid)) {
+        CustomSnackBar.showError(message: error.toString());
+      }
     } finally {
       stopLoading();
     }
