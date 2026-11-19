@@ -14,4 +14,11 @@ void main() {
     debugDefaultTargetPlatformOverride = TargetPlatform.android;
     expect(PlatformFeatures.isSubscriptionEnabled, isFalse);
   });
+
+  test('isAndroid is true only on Android', () {
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    expect(PlatformFeatures.isAndroid, isTrue);
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    expect(PlatformFeatures.isAndroid, isFalse);
+  });
 }

@@ -11,4 +11,8 @@ class PlatformFeatures {
   /// can be overridden in tests via `debugDefaultTargetPlatformOverride`.
   static bool get isSubscriptionEnabled =>
       !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
+
+  /// True on the Android app; used to tag API requests with `x-platform`.
+  static bool get isAndroid =>
+      !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 }

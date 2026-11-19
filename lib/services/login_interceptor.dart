@@ -6,6 +6,7 @@ import 'package:motivational/app/my_app_view.dart';
 import 'package:motivational/repositories/auth_repository.dart';
 import 'package:motivational/services/api_service.dart';
 import 'package:motivational/utils/device_info.dart'; // Assuming you have this utility
+import 'package:motivational/utils/platform_features.dart';
 import 'package:motivational/utils/routes.dart'; // Your route management
 
 class DioInterceptor extends Interceptor {
@@ -18,6 +19,13 @@ class DioInterceptor extends Interceptor {
       final String deviceId = await DeviceInfo.getDeviceId() ?? '';
       options.headers['accesstoken'] = 'Bearer ${ApiService.authToken}';
       options.headers['deviceid'] = deviceId;
+    }
+
+    // Backend treats Android devices as complimentary premium when this header
+    // is present. Sent on Android only: iOS requests stay unchanged (the
+    // backend defaults a missing platform to iOS).
+    if (PlatformFeatures.isAndroid) {
+      options.headers['x-platform'] = 'android';
     }
 
     log("🌍 REQUEST [${options.method}] → ${options.uri}");
