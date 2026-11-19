@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Accent tint for the notification icon: the cross's blue from the app
+         logo, readable on both light and dark notification shades. -->
+    <color name="notification_color">#658CD2</color>
+</resources>
