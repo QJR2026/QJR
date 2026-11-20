@@ -37,6 +37,7 @@ import 'package:provider/provider.dart';
 import '/views/home/home_screen.dart';
 import '/views/auth/login_screen.dart';
 import '/utils/routes.dart';
+import '/utils/platform_features.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -78,13 +79,32 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Quick Jesus Reminder',
         builder: (context, child) {
-          return MediaQuery(
+          Widget app = MediaQuery(
             data: MediaQuery.of(context).copyWith(
               textScaler: const TextScaler.linear(1.0),
               boldText: false,
             ),
             child: child!,
           );
+
+          // Android 15+ (targetSdk 35/36) always draws edge-to-edge, so the
+          // system navigation bar overlaps the bottom of every screen. Inset
+          // the whole app above it once, here, instead of per screen. This
+          // covers every route, dialog and bottom sheet. The strip behind the
+          // bar is painted in the app's default background colour.
+          // iOS is unchanged: this block only runs on Android.
+          if (PlatformFeatures.isAndroid) {
+            app = ColoredBox(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              child: SafeArea(
+                top: false,
+                left: false,
+                right: false,
+                child: app,
+              ),
+            );
+          }
+          return app;
         },
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
